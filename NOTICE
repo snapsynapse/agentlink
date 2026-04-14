@@ -1,0 +1,32 @@
+Agentlink
+=========
+
+This product includes software originally developed by Martin Mose Facondini
+as agentlink (https://github.com/martinmose/agentlink), licensed under the
+MIT License. Copyright (c) 2025 Martin Mose Facondini.
+
+This fork is maintained by PAICE.work PBC / Snap Synapse
+(https://snapsynapse.com/) and adds the following, while preserving the
+upstream license and attribution:
+
+- `agentlink detect` — registry-backed auto-detection of installed AI coding
+  tools and generation of `.agentlink.yaml` scaffolds.
+- `agentlink scan [dir]` — walks a directory tree, finds git repos with
+  AGENTS.md, and wires tool-specific symlinks in each.
+- `agentlink hooks install|remove|status` — git hooks, zsh chpwd hook, and
+  macOS launchd heartbeat for automatic sync.
+- `sync --backup` — back up existing target files to `.bak` before replacing
+  with symlinks, with timestamped fallback when `.bak` already exists.
+- Global config support (`~/.config/agentlink/config.yaml`) for syncing AI
+  instruction files across the home directory.
+- Integration tests covering detect, scan, sync backup, hooks, and quiet
+  flag paths.
+- Tool registry (`internal/registry/`) with ~20 AI coding tools and
+  unit tests.
+
+Upstream pull request offering these additions back to martinmose/agentlink:
+https://github.com/martinmose/agentlink/pull/2
+
+The upstream MIT license applies to all code in this repository. Fork
+additions are released under the same MIT license. See LICENSE for the
+full text.

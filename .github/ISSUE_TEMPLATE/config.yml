@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/snapsynapse/agentlink/security/advisories/new
+    about: Please report security issues privately via a GitHub Security Advisory.
+  - name: Upstream project
+    url: https://github.com/martinmose/agentlink
+    about: This is a fork. If your issue also affects upstream, consider reporting there too.

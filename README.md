@@ -1,8 +1,11 @@
 # Agentlink
 
-[![Checks](https://github.com/martinmose/agentlink/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/martinmose/agentlink/actions/workflows/ci.yml)
+[![Checks](https://github.com/snapsynapse/agentlink/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/snapsynapse/agentlink/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Keep your AI instruction files in sync with **zero magic** -- just symlinks.
+> **Fork notice.** This is a Snap Synapse fork of [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT). Extended with `detect`, `scan`, `hooks`, automatic backup, global-config support, and integration tests. See [NOTICE](NOTICE) for full attribution. Upstream PR: [martinmose/agentlink#2](https://github.com/martinmose/agentlink/pull/2).
+
+Sync one AGENTS.md to every AI coding tool on your machine -- with **zero magic**, just symlinks.
 
 Different tools want different files at project root: `AGENTS.md` (OpenAI/Codex, OpenCode), `CLAUDE.md` (Claude Code), `GEMINI.md`, etc. There's no standard, and I'm not waiting for one. **Agentlink** solves the basic need: keep your **personal** instruction files (in `~`) and your **project** instruction files in sync **without generators**. Edit one, they all reflect it.
 
@@ -72,7 +75,7 @@ links:
 ### From source (requires Go 1.23+)
 
 ```bash
-git clone https://github.com/martinmose/agentlink.git
+git clone https://github.com/snapsynapse/agentlink.git
 cd agentlink
 go install ./cmd/agentlink/
 ```
