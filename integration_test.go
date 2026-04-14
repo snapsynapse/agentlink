@@ -175,6 +175,332 @@ func TestIntegrationDoctorCommand(t *testing.T) {
 	}
 }
 
+func TestIntegrationDetectCommand(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	binaryPath := filepath.Join(origDir, "agentlink")
+	if _, err := os.Stat(binaryPath); err != nil {
+		t.Fatalf("Binary not found at %s", binaryPath)
+	}
+
+	cmd := exec.Command(binaryPath, "detect")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("detect failed: %v\n%s", err, output)
+	}
+
+	out := string(output)
+	for _, want := range []string{"Tool Detection", "Installed tools:", "known tools detected"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("detect output missing %q:\n%s", want, out)
+		}
+	}
+}
+
+func TestIntegrationDetectGenerate(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origDir)
+
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatal(err)
+	}
+
+	binaryPath := filepath.Join(origDir, "agentlink")
+	cmd := exec.Command(binaryPath, "detect", "--generate")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("detect --generate failed: %v\n%s", err, output)
+	}
+
+	data, err := os.ReadFile(".agentlink.yaml")
+	if err != nil {
+		t.Fatalf(".agentlink.yaml not created: %v", err)
+	}
+	if !strings.Contains(string(data), "source: AGENTS.md") {
+		t.Errorf("generated config missing source line:\n%s", data)
+	}
+}
+
+func TestIntegrationScanCommand(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Create a fake git repo with AGENTS.md
+	repoDir := filepath.Join(tmpDir, "fake-repo")
+	if err := os.MkdirAll(filepath.Join(repoDir, ".git"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	agentsContent := "# Agents\nshared instructions"
+	if err := os.WriteFile(filepath.Join(repoDir, "AGENTS.md"), []byte(agentsContent), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Repo without AGENTS.md — should be skipped
+	emptyRepo := filepath.Join(tmpDir, "empty-repo")
+	if err := os.MkdirAll(filepath.Join(emptyRepo, ".git"), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	binaryPath := filepath.Join(origDir, "agentlink")
+	cmd := exec.Command(binaryPath, "scan", tmpDir)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("scan failed: %v\n%s", err, output)
+	}
+
+	out := string(output)
+	if !strings.Contains(out, "Found 2 git repositories") {
+		t.Errorf("scan did not find both repos:\n%s", out)
+	}
+
+	// Verify CLAUDE.md was created as symlink in fake-repo
+	claudePath := filepath.Join(repoDir, "CLAUDE.md")
+	info, err := os.Lstat(claudePath)
+	if err != nil {
+		t.Fatalf("CLAUDE.md not created in repo with AGENTS.md: %v", err)
+	}
+	if info.Mode()&os.ModeSymlink == 0 {
+		t.Errorf("CLAUDE.md is not a symlink")
+	}
+
+	// Verify empty-repo was left alone
+	if _, err := os.Stat(filepath.Join(emptyRepo, "CLAUDE.md")); err == nil {
+		t.Error("scan created CLAUDE.md in repo without AGENTS.md")
+	}
+}
+
+func TestIntegrationScanDryRun(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	repoDir := filepath.Join(tmpDir, "repo")
+	os.MkdirAll(filepath.Join(repoDir, ".git"), 0755)
+	os.WriteFile(filepath.Join(repoDir, "AGENTS.md"), []byte("content"), 0644)
+
+	binaryPath := filepath.Join(origDir, "agentlink")
+	cmd := exec.Command(binaryPath, "scan", "--dry-run", tmpDir)
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("scan --dry-run failed: %v", err)
+	}
+
+	// Nothing should exist after dry run
+	if _, err := os.Stat(filepath.Join(repoDir, "CLAUDE.md")); err == nil {
+		t.Error("dry-run created files")
+	}
+}
+
+func TestIntegrationSyncBackup(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origDir)
+
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatal(err)
+	}
+
+	os.Mkdir(".git", 0755)
+
+	binaryPath := filepath.Join(origDir, "agentlink")
+	if err := exec.Command(binaryPath, "init").Run(); err != nil {
+		t.Fatal(err)
+	}
+
+	sourceContent := "# Source"
+	os.WriteFile("CLAUDE.md", []byte(sourceContent), 0644)
+
+	// Create real non-empty AGENTS.md that conflicts
+	existingContent := "old content to back up"
+	os.WriteFile("AGENTS.md", []byte(existingContent), 0644)
+
+	cmd := exec.Command(binaryPath, "sync", "--backup")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("sync --backup failed: %v\n%s", err, output)
+	}
+
+	// AGENTS.md should now be a symlink
+	info, err := os.Lstat("AGENTS.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info.Mode()&os.ModeSymlink == 0 {
+		t.Error("AGENTS.md was not replaced with symlink")
+	}
+
+	// AGENTS.md.bak should exist with old content
+	bakData, err := os.ReadFile("AGENTS.md.bak")
+	if err != nil {
+		t.Fatalf("backup file not created: %v", err)
+	}
+	if string(bakData) != existingContent {
+		t.Errorf("backup content mismatch: got %q, want %q", bakData, existingContent)
+	}
+}
+
+func TestIntegrationSyncBackupEmptyFile(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origDir)
+
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatal(err)
+	}
+
+	os.Mkdir(".git", 0755)
+
+	binaryPath := filepath.Join(origDir, "agentlink")
+	if err := exec.Command(binaryPath, "init").Run(); err != nil {
+		t.Fatal(err)
+	}
+
+	os.WriteFile("CLAUDE.md", []byte("source"), 0644)
+	// Create 0-byte conflicting file
+	os.WriteFile("AGENTS.md", []byte{}, 0644)
+
+	cmd := exec.Command(binaryPath, "sync", "--backup")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("sync --backup failed on empty file: %v\n%s", err, output)
+	}
+
+	// Symlink should be created
+	info, err := os.Lstat("AGENTS.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info.Mode()&os.ModeSymlink == 0 {
+		t.Error("AGENTS.md was not replaced with symlink")
+	}
+
+	// No .bak should exist for empty file
+	if _, err := os.Stat("AGENTS.md.bak"); err == nil {
+		t.Error("backup created for empty file (should be skipped)")
+	}
+
+	// Warning should mention empty
+	if !strings.Contains(string(output), "empty") {
+		t.Errorf("expected warning about empty file:\n%s", output)
+	}
+}
+
+func TestIntegrationQuietFlag(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origDir)
+
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatal(err)
+	}
+
+	os.Mkdir(".git", 0755)
+
+	binaryPath := filepath.Join(origDir, "agentlink")
+	exec.Command(binaryPath, "init").Run()
+	os.WriteFile("CLAUDE.md", []byte("src"), 0644)
+
+	cmd := exec.Command(binaryPath, "sync", "--quiet")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("sync --quiet failed: %v\n%s", err, output)
+	}
+
+	// Stdout should be empty (errors go to stderr)
+	if len(strings.TrimSpace(string(output))) > 0 {
+		t.Errorf("--quiet produced output: %q", output)
+	}
+}
+
+func TestIntegrationHooksStatus(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	binaryPath := filepath.Join(origDir, "agentlink")
+
+	cmd := exec.Command(binaryPath, "hooks", "status")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("hooks status failed: %v\n%s", err, output)
+	}
+
+	out := string(output)
+	for _, want := range []string{"Trigger Status", "git hooks:", "zsh chpwd:", "launchd:"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("hooks status missing %q:\n%s", want, out)
+		}
+	}
+}
+
+func TestIntegrationHooksInstallRequiresFlag(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	binaryPath := filepath.Join(origDir, "agentlink")
+
+	cmd := exec.Command(binaryPath, "hooks", "install")
+	if err := cmd.Run(); err == nil {
+		t.Error("hooks install with no flag should fail")
+	}
+}
+
 func TestIntegrationForceFlag(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")

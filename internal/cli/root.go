@@ -17,6 +17,7 @@ var (
 	dryRun  bool
 	force   bool
 	verbose bool
+	quiet   bool
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -44,26 +45,35 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", false, "show what would be done without making changes")
 	rootCmd.PersistentFlags().BoolVarP(&force, "force", "f", false, "force replacement of conflicting files")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+	rootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "suppress non-error output")
 }
 
 // printInfo prints an info message
 func printInfo(format string, args ...interface{}) {
-	fmt.Printf("[info] "+format+"\n", args...)
+	if !quiet {
+		fmt.Printf("[info] "+format+"\n", args...)
+	}
 }
 
 // printOK prints a success message
 func printOK(format string, args ...interface{}) {
-	fmt.Printf("[ok] "+format+"\n", args...)
+	if !quiet {
+		fmt.Printf("[ok] "+format+"\n", args...)
+	}
 }
 
 // printCreate prints a create message
 func printCreate(format string, args ...interface{}) {
-	fmt.Printf("[create] "+format+"\n", args...)
+	if !quiet {
+		fmt.Printf("[create] "+format+"\n", args...)
+	}
 }
 
 // printSkip prints a skip message
 func printSkip(format string, args ...interface{}) {
-	fmt.Printf("[skip] "+format+"\n", args...)
+	if !quiet {
+		fmt.Printf("[skip] "+format+"\n", args...)
+	}
 }
 
 // printError prints an error message

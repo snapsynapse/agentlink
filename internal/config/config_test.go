@@ -145,14 +145,18 @@ func TestFindConfigPath(t *testing.T) {
 	// Test in directory with project config
 	projectConfig := ".agentlink.yaml"
 	os.WriteFile(projectConfig, []byte("source: test.md\nlinks: [test.md]"), 0644)
-	
+
 	path, isProject = FindConfigPath()
 	if !isProject {
 		t.Error("Expected project config, got global config")
 	}
-	
+
+	// Resolve symlinks on both sides: on macOS, t.TempDir() returns a path
+	// under /var/folders/... while os.Getwd() resolves it to /private/var/...
 	expectedProjectPath := filepath.Join(tmpDir, ".agentlink.yaml")
-	if path != expectedProjectPath {
+	resolvedExpected, _ := filepath.EvalSymlinks(expectedProjectPath)
+	resolvedGot, _ := filepath.EvalSymlinks(path)
+	if resolvedExpected != resolvedGot {
 		t.Errorf("Expected project path %s, got %s", expectedProjectPath, path)
 	}
 }
