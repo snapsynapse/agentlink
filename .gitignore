@@ -7,3 +7,7 @@ CLAUDE.md
 
 # Configuration file
 .agentlink.yaml
+
+# Claude Code local-only state (not committed)
+.claude/settings.local.json
+.claude/skills/

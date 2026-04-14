@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>Agentlink &mdash; Sync one AGENTS.md to every AI coding tool</title>
+  <meta name="description" content="A symlink-based CLI that keeps AGENTS.md, CLAUDE.md, GEMINI.md and friends in sync. One real file, many aliases. Zero codegen. macOS and Linux.">
+  <meta name="keywords" content="agentlink, AGENTS.md, CLAUDE.md, GEMINI.md, AI tool config, symlinks, ai coding instructions, cursorrules, copilot-instructions, opencode, codex">
+  <meta name="author" content="Sam Rogers">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="theme-color" content="#f97316">
+  <link rel="canonical" href="https://agentlink.run/">
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="mask-icon" href="/favicon.svg" color="#f97316">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+  <link rel="alternate" type="text/plain" href="https://agentlink.run/llms.txt" title="LLM-readable summary">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Agentlink">
+  <meta property="og:title" content="Agentlink">
+  <meta property="og:description" content="Sync one AGENTS.md to every AI coding tool on your machine. With zero magic, just symlinks.">
+  <meta property="og:image" content="https://agentlink.run/imgs/og.png">
+  <meta property="og:image:alt" content="Agentlink &mdash; central AGENTS.md source card linked to CLAUDE.md, GEMINI.md, .cursorrules, and .github/copilot-instructions.md alias pills">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta property="og:url" content="https://agentlink.run/">
+  <meta property="og:locale" content="en_US">
+  <meta property="article:published_time" content="2026-04-14T00:00:00Z">
+  <meta property="article:modified_time" content="2026-04-14T00:00:00Z">
+  <meta property="article:author" content="Sam Rogers">
+  <meta property="article:publisher" content="https://snapsynapse.com/">
+  <meta property="article:section" content="Developer Tools">
+  <meta property="article:tag" content="agentlink">
+  <meta property="article:tag" content="agents-md">
+  <meta property="article:tag" content="claude-md">
+  <meta property="article:tag" content="gemini-md">
+  <meta property="article:tag" content="symlinks">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Agentlink">
+  <meta name="twitter:description" content="Sync one AGENTS.md to every AI coding tool on your machine. With zero magic, just symlinks.">
+  <meta name="twitter:image" content="https://agentlink.run/imgs/og.png">
+  <meta name="twitter:image:alt" content="Agentlink &mdash; central AGENTS.md source card linked to four AI tool alias pills">
+  <meta name="twitter:site" content="@snapsynapse">
+  <meta name="twitter:creator" content="@snapsynapse">
+
+  <!-- Identity verification (IndieWeb rel=me) -->
+  <link rel="me" href="https://github.com/snapsynapse">
+  <link rel="me" href="https://www.linkedin.com/in/samrogers">
+
+  <!-- JSON-LD: TechArticle -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Agentlink",
+    "alternativeHeadline": "Sync one AGENTS.md to every AI coding tool",
+    "description": "Agentlink is a small CLI that keeps AI instruction files (AGENTS.md, CLAUDE.md, GEMINI.md, .cursorrules, copilot-instructions.md, and more) in sync through symlinks. One real file, many aliases. No codegen, no templates, no surprise diffs. Works in project repos and under the home directory.",
+    "inLanguage": "en",
+    "url": "https://agentlink.run/",
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://agentlink.run/" },
+    "datePublished": "2026-04-14",
+    "dateModified": "2026-04-14",
+    "author": {
+      "@type": "Person",
+      "name": "Sam Rogers",
+      "url": "https://snapsynapse.com/",
+      "affiliation": { "@type": "Organization", "name": "Snap Synapse" }
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Snap Synapse",
+      "url": "https://snapsynapse.com/"
+    },
+    "contributor": {
+      "@type": "Person",
+      "name": "Martin Mose Facondini",
+      "url": "https://github.com/martinmose"
+    },
+    "keywords": ["agentlink", "AGENTS.md", "CLAUDE.md", "GEMINI.md", "symlinks", "AI tool config", "opencode", "codex"],
+    "image": "https://agentlink.run/imgs/og.png",
+    "license": "https://opensource.org/licenses/MIT",
+    "copyrightHolder": { "@type": "Organization", "name": "Snap Synapse" },
+    "copyrightYear": 2026,
+    "isBasedOn": {
+      "@type": "SoftwareSourceCode",
+      "name": "martinmose/agentlink",
+      "url": "https://github.com/martinmose/agentlink",
+      "author": { "@type": "Person", "name": "Martin Mose Facondini" }
+    },
+    "citation": [
+      { "@type": "WebPage", "name": "AGENTS.md standard", "url": "https://agents.md/" },
+      { "@type": "SoftwareSourceCode", "name": "martinmose/agentlink (upstream)", "url": "https://github.com/martinmose/agentlink" },
+      { "@type": "WebPage", "name": "Upstream PR", "url": "https://github.com/martinmose/agentlink/pull/2" }
+    ]
+  }
+  </script>
+
+  <!-- JSON-LD: DefinedTerm (stake the term) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "DefinedTerm",
+    "name": "Agentlink",
+    "alternateName": ["agentlink", "agent-link"],
+    "description": "A CLI pattern for synchronizing AI coding assistant instruction files by declaring one real source file and symlinking every tool-specific alias to it. Eliminates codegen drift between AGENTS.md, CLAUDE.md, GEMINI.md, .cursorrules, and similar files.",
+    "url": "https://agentlink.run/",
+    "sameAs": [
+      "https://github.com/snapsynapse/agentlink",
+      "https://github.com/martinmose/agentlink"
+    ]
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --bg-alt: #1a1d27;
+      --surface2: #242836;
+      --text: #e7e9ef;
+      --text-muted: #8b90a0;
+      --accent: #f97316;
+      --accent-hover: #fb923c;
+      --border: #2e3345;
+      --green: #4ecb71;
+      --red: #ff6b6b;
+      --code-bg: #0b0d13;
+      --code-text: #e7e9ef;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --mono: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+      --max-width: 960px;
+      --radius: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+    /* Skip link */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      background: var(--accent);
+      color: #0b0d13;
+      padding: 0.5rem 1rem;
+      z-index: 100;
+      font-weight: 700;
+    }
+    .skip-link:focus { left: 0; }
+
+    .container { max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
+
+    /* Nav */
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 10;
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    nav .logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    nav .logo svg { color: var(--accent-hover); flex: 0 0 auto; }
+    nav .logo:hover svg { color: var(--accent); }
+    nav .links { display: flex; align-items: center; gap: 1.5rem; font-size: 0.9rem; }
+    nav .links a { color: var(--text-muted); }
+    nav .links a:hover { color: var(--text); text-decoration: none; }
+
+    /* GitHub star button */
+    .gh-star {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-alt);
+      color: var(--text) !important;
+      font-weight: 600;
+      font-size: 0.8rem;
+      transition: border-color 0.1s ease, transform 0.05s ease;
+    }
+    .gh-star:hover {
+      border-color: var(--accent);
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+    .gh-star svg { flex: 0 0 auto; color: #eab308; }
+    .gh-star span { white-space: nowrap; }
+
+    /* Byline */
+    .byline {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin: 0.75rem 0 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 0.9rem;
+      align-items: center;
+      justify-content: center;
+    }
+    .byline .sep { color: var(--text-muted); }
+    .byline a { color: var(--text); text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 2px; }
+    .byline a:hover { color: var(--accent-hover); text-decoration-color: var(--accent-hover); }
+    .byline .version {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      background: var(--bg-alt);
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+
+    /* Canonical note */
+    .canonical-note {
+      margin-top: 2.5rem;
+      padding: 1rem 1.25rem;
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .canonical-note strong { color: var(--text); }
+    .canonical-note a { text-decoration: underline; text-underline-offset: 2px; }
+
+    /* Sections */
+    section { padding: 4rem 0; }
+    section.alt { background: var(--bg-alt); }
+
+    h1 { font-size: 2.75rem; line-height: 1.15; letter-spacing: -0.02em; font-weight: 800; }
+    h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 1.5rem; letter-spacing: -0.01em; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+
+    p { margin-bottom: 1rem; }
+    p:last-child { margin-bottom: 0; }
+
+    /* Hero */
+    .hero { padding: 5rem 0 4rem; text-align: center; }
+    .hero h1 { margin-bottom: 1rem; }
+    .hero .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 1.5rem;
+    }
+    .hero .hook {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto 2.5rem;
+    }
+
+    /* Symlink diagram (hero visual) */
+    .linkmap {
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      text-align: left;
+      padding: 1.5rem 1.75rem;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      margin: 1rem auto 2rem;
+      max-width: 640px;
+      line-height: 1.7;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .linkmap .src { color: var(--accent); font-weight: 700; }
+    .linkmap .arrow { color: var(--text-muted); }
+    .linkmap .comment { color: var(--text-muted); font-style: italic; }
+
+    /* Pillars */
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      text-align: left;
+    }
+    .pillar {
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-alt);
+    }
+    .pillar h3 { color: var(--accent); font-size: 1rem; }
+    .pillar p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0; }
+
+    /* Buttons */
+    .cta-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: background 0.15s, color 0.15s;
+    }
+    /* #f97316 on #0b0d13: dark text gives ~7.5:1 contrast, white fails AA */
+    .btn-primary { background: var(--accent); color: #0b0d13; }
+    .btn-primary:hover { background: var(--accent-hover); text-decoration: none; color: #0b0d13; }
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent-hover);
+      border: 1px solid var(--accent);
+    }
+    .btn-secondary:hover { background: var(--accent); color: #0b0d13; text-decoration: none; }
+    .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    .btn-primary:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }
+
+    /* Code blocks */
+    .code-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .code-block { text-align: left; }
+    .code-block h3 { font-size: 0.95rem; margin-bottom: 0.75rem; }
+    .code-block .annotation {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+      font-style: italic;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 1.25rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      line-height: 1.5;
+      border: 1px solid var(--border);
+    }
+    code { font-family: var(--mono); font-size: 0.88em; color: var(--accent); }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+    th, td {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    th { font-weight: 600; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    td.tool { font-family: var(--mono); color: var(--accent); white-space: nowrap; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .footer-grid {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-meta p { margin-bottom: 0.25rem; }
+    .footer-meta a { text-decoration: underline; text-underline-offset: 2px; }
+    .footer-links a { text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--border); }
+    .footer-links a:hover { text-decoration-color: var(--accent-hover); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; }
+      .hero { padding: 3rem 0 2.5rem; }
+      .code-grid { grid-template-columns: 1fr; }
+      .pillars { grid-template-columns: 1fr; }
+      nav .links { display: none; }
+      nav .links.mobile-compact { display: flex; gap: 0.75rem; }
+      .footer-grid { flex-direction: column; }
+      pre, .linkmap { font-size: 0.72rem; padding: 1rem; }
+    }
+    @media (max-width: 520px) {
+      nav .links.mobile-compact a:not(.gh-star) { display: none; }
+      nav .container { gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<nav aria-label="Main navigation">
+  <div class="container">
+    <a href="/" class="logo" aria-label="Agentlink home">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true" focusable="false">
+        <line x1="16" y1="16" x2="6" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="16" y1="16" x2="26" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="16" y1="16" x2="6" y2="26" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="16" y1="16" x2="26" y2="26" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <rect x="2" y="2" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="2"/>
+        <rect x="22" y="2" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="2"/>
+        <rect x="2" y="22" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="2"/>
+        <rect x="22" y="22" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="2"/>
+        <rect x="11" y="11" width="10" height="10" rx="2" fill="currentColor"/>
+      </svg>
+      <span>Agentlink</span>
+    </a>
+    <div class="links mobile-compact">
+      <a href="#why">Why</a>
+      <a href="#install">Install</a>
+      <a href="#usage">Usage</a>
+      <a href="https://github.com/snapsynapse/agentlink" class="gh-star" target="_blank" rel="noopener" aria-label="Star snapsynapse/agentlink on GitHub">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
+        </svg>
+        <span>Star on GitHub</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+<section class="hero">
+  <div class="container">
+    <h1>One AGENTS.md, every tool.</h1>
+    <p class="subtitle">Sync your AI coding instructions across every tool on your machine &mdash; with zero magic, just symlinks.</p>
+    <p class="byline">
+      By <a href="https://snapsynapse.com" target="_blank" rel="noopener author">Sam Rogers</a>, <a href="https://snapsynapse.com" target="_blank" rel="noopener">Snap Synapse</a>
+      <span class="sep" aria-hidden="true">&middot;</span>
+      Published <time datetime="2026-04-14">April 14, 2026</time>
+      <span class="sep" aria-hidden="true">&middot;</span>
+      <span class="version">v0.1.0</span>
+      <span class="sep" aria-hidden="true">&middot;</span>
+      <a href="https://opensource.org/licenses/MIT" rel="license" target="_blank">MIT</a>
+    </p>
+    <p class="hook">Different tools want different files at project root: <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>GEMINI.md</code>, <code>.cursorrules</code>. There&rsquo;s no standard, and waiting for one is expensive. Agentlink keeps them in sync through symlinks. Edit one, every tool sees the change.</p>
+
+    <div class="linkmap" role="img" aria-label="Example: AGENTS.md is the source file; CLAUDE.md, GEMINI.md, .cursorrules, and .github/copilot-instructions.md are symlinks pointing to it.">
+<span class="src">AGENTS.md</span>                              <span class="comment"># real file you edit</span>
+CLAUDE.md                           <span class="arrow">-&gt;</span> AGENTS.md
+GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
+.cursorrules                        <span class="arrow">-&gt;</span> AGENTS.md
+.github/copilot-instructions.md     <span class="arrow">-&gt;</span> ../AGENTS.md
+    </div>
+
+    <div class="cta-row">
+      <a href="https://github.com/snapsynapse/agentlink#readme" class="btn btn-primary" target="_blank" rel="noopener">Read the README</a>
+      <a href="https://github.com/snapsynapse/agentlink" class="btn btn-secondary" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="why">
+  <div class="container">
+    <h2>Why Agentlink?</h2>
+    <p>Creating AI instruction files is cheap &mdash; keeping them in sync is the hard part. Good instruction files matter, and they&rsquo;re often generated by expensive models. Agentlink fixes the sync problem the boring way: one real file, many aliases.</p>
+
+    <div class="pillars">
+      <div class="pillar">
+        <h3>One real file, many aliases</h3>
+        <p>Pick a source (<code>AGENTS.md</code>, <code>CLAUDE.md</code>, whatever). Every other tool file is a symlink to it. No duplicates, no drift.</p>
+      </div>
+      <div class="pillar">
+        <h3>Zero codegen</h3>
+        <p>No templates, no transforms, no surprise diffs. Symlinks are a 50-year-old OS feature. Edit the source, every tool sees it instantly.</p>
+      </div>
+      <div class="pillar">
+        <h3>Future-proof</h3>
+        <p>Tomorrow&rsquo;s AI tool wants <code>workspace/ai/newthing.md</code>? Add it to the config. Agentlink creates the directories and wires the link.</p>
+      </div>
+      <div class="pillar">
+        <h3>Project and global</h3>
+        <p>Works in repos <em>and</em> under <code>~/.config/</code>. One <code>agentlink sync</code> keeps both scopes in shape.</p>
+      </div>
+      <div class="pillar">
+        <h3>Idempotent</h3>
+        <p>Re-run safely. Broken or misdirected links get repaired. Nothing is ever overwritten; real files are backed up before anything changes.</p>
+      </div>
+      <div class="pillar">
+        <h3>Automatic triggers</h3>
+        <p>Built-in git hooks, shell hooks, and launchd integration keep things synced without you remembering to run it.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 2rem;">Tools covered out of the box</h3>
+    <table>
+      <thead>
+        <tr><th>Tool</th><th>File it expects</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>OpenAI Codex / OpenCode</td><td class="tool">AGENTS.md</td></tr>
+        <tr><td>Claude Code</td><td class="tool">CLAUDE.md</td></tr>
+        <tr><td>Gemini CLI</td><td class="tool">GEMINI.md</td></tr>
+        <tr><td>Cursor</td><td class="tool">.cursorrules</td></tr>
+        <tr><td>GitHub Copilot</td><td class="tool">.github/copilot-instructions.md</td></tr>
+        <tr><td>Anything else</td><td class="tool">(add to config)</td></tr>
+      </tbody>
+    </table>
+    <p>Scope is deliberately narrow: <strong>instruction files only.</strong> No MCP config, no chain configs. Simple on purpose.</p>
+  </div>
+</section>
+
+<section id="install">
+  <div class="container">
+    <h2>Install</h2>
+    <p>Requires Go 1.23+. Binary releases and Homebrew formula are on the roadmap; for now, install from source.</p>
+
+    <div class="code-grid">
+      <div class="code-block">
+        <h3>From source</h3>
+<pre>git clone https://github.com/snapsynapse/agentlink.git
+cd agentlink
+go install ./cmd/agentlink/
+
+# Verify
+agentlink --help</pre>
+      </div>
+
+      <div class="code-block">
+        <h3>One-liner</h3>
+<pre>go install github.com/snapsynapse/agentlink/cmd/agentlink@latest
+
+# Make sure $GOPATH/bin is on PATH
+export PATH="$HOME/go/bin:$PATH"</pre>
+        <p class="annotation">Installs the latest tagged release into your Go bin directory.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="usage">
+  <div class="container">
+    <h2>Usage</h2>
+    <p>Declare your source file and the aliases you want. Agentlink creates and repairs the symlinks.</p>
+
+    <div class="code-grid">
+      <div class="code-block">
+        <h3>Project config</h3>
+<pre># .agentlink.yaml (in project root)
+source: AGENTS.md
+links:
+  - CLAUDE.md
+  - GEMINI.md
+  - .cursorrules
+  - .github/copilot-instructions.md
+
+# Then:
+agentlink sync</pre>
+      </div>
+
+      <div class="code-block">
+        <h3>Global config</h3>
+<pre># ~/.config/agentlink/config.yaml
+source: ~/AGENTS.md
+links:
+  - ~/.claude/CLAUDE.md
+  - ~/.codex/AGENTS.md
+  - ~/.gemini/GEMINI.md
+  - ~/.config/opencode/AGENTS.md
+
+# Then:
+agentlink sync --global</pre>
+      </div>
+
+      <div class="code-block">
+        <h3>Detect installed tools</h3>
+<pre># Scan the system for AI tool installs
+# and report what's found.
+agentlink detect
+
+# Walk a directory tree and wire up
+# symlinks in every repo with AGENTS.md.
+agentlink scan ~/Git</pre>
+      </div>
+
+      <div class="code-block">
+        <h3>Automatic triggers</h3>
+<pre># Install git/shell/launchd hooks so
+# sync runs without you thinking about it.
+agentlink hooks install
+
+# Uninstall cleanly.
+agentlink hooks uninstall</pre>
+      </div>
+    </div>
+
+    <aside class="canonical-note" role="note">
+      <strong>Canonical reference.</strong> This page is the authoritative landing for the Snap Synapse fork of
+      Agentlink. The source code and full documentation live at
+      <a href="https://github.com/snapsynapse/agentlink" target="_blank" rel="noopener">github.com/snapsynapse/agentlink</a>.
+      Upstream is <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">martinmose/agentlink</a>
+      by Martin Mose Facondini (MIT); the fork adds <code>detect</code>, <code>scan</code>, <code>hooks</code>, automatic backup,
+      global-config support, and integration tests. Upstream PR:
+      <a href="https://github.com/martinmose/agentlink/pull/2" target="_blank" rel="noopener">martinmose/agentlink#2</a>.
+      Last substantive revision: <time datetime="2026-04-14">2026-04-14</time>.
+      <a href="https://github.com/snapsynapse/agentlink/commits/main/README.md" target="_blank" rel="noopener">Revision history &rarr;</a>
+    </aside>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-meta">
+        <p>Agentlink v0.1.0 &middot; <a href="https://github.com/snapsynapse/agentlink/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a></p>
+        <p>A <a href="https://snapsynapse.com" target="_blank" rel="noopener">Snap Synapse</a> fork by <a href="https://snapsynapse.com" target="_blank" rel="noopener author">Sam Rogers</a>. Upstream: <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">martinmose/agentlink</a>.</p>
+        <p style="margin-top: 0.5rem;">See also: <a href="https://hardguard25.com/" target="_blank" rel="noopener">HardGuard25</a> &middot; <a href="https://gracefulboundaries.dev/" target="_blank" rel="noopener">Graceful Boundaries</a> &middot; <a href="https://skillprovenance.dev/" target="_blank" rel="noopener">Skill Provenance</a></p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/snapsynapse/agentlink" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/snapsynapse/agentlink#readme" target="_blank" rel="noopener">README</a>
+        <a href="https://github.com/snapsynapse/agentlink/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+        <a href="https://github.com/snapsynapse/agentlink/commits/main" target="_blank" rel="noopener">Revisions</a>
+        <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">Upstream</a>
+        <a href="/llms.txt">llms.txt</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

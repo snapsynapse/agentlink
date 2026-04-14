@@ -1,0 +1,17 @@
+{
+  "name": "Agentlink",
+  "short_name": "Agentlink",
+  "description": "Sync one AGENTS.md to every AI coding tool on your machine.",
+  "start_url": "/",
+  "display": "minimal-ui",
+  "background_color": "#0f1117",
+  "theme_color": "#f97316",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

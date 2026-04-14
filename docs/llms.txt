@@ -1,0 +1,45 @@
+# Agentlink
+
+Sync one AGENTS.md to every AI coding tool on your machine -- with zero magic, just symlinks.
+
+## Summary
+
+Agentlink is a small Go CLI that keeps AI coding assistant instruction files in sync across every tool on a machine by declaring one real source file and symlinking every tool-specific alias to it. Different tools expect different filenames at project root (AGENTS.md for OpenAI Codex and OpenCode, CLAUDE.md for Claude Code, GEMINI.md for Gemini CLI, .cursorrules for Cursor, .github/copilot-instructions.md for GitHub Copilot). There is no standard. Agentlink fixes the drift problem without code generation: edit one real file, every tool sees the change instantly.
+
+Scope is deliberately narrow: instruction files only. No MCP servers, no chain configs, no templating.
+
+## Key concepts
+
+- source: the one real instruction file you edit (e.g. AGENTS.md)
+- links: tool-specific aliases that become symlinks pointing at the source
+- project config: .agentlink.yaml at repo root, scoped to that project
+- global config: ~/.config/agentlink/config.yaml, scoped to the user's home directory
+- detect: scan the system for installed AI tools and report what was found
+- scan: walk a directory tree and wire up symlinks in every git repo that has an AGENTS.md
+- hooks: install git, shell, and launchd triggers so sync runs automatically
+- idempotent: re-running is safe; broken or misdirected links are repaired, real files are backed up
+
+## Key files in the repository
+
+- README.md: full install and usage docs
+- cmd/agentlink/: Go CLI entry point
+- internal/: sync logic, detect, scan, hooks, backup
+- .agentlink.yaml: example project config
+- CHANGELOG.md: version history
+- LICENSE: MIT
+
+## Lineage
+
+- Canonical landing: https://agentlink.run/
+- Snap Synapse fork (this project): https://github.com/snapsynapse/agentlink
+- Upstream original by Martin Mose Facondini: https://github.com/martinmose/agentlink
+- Upstream PR from the fork: https://github.com/martinmose/agentlink/pull/2
+
+The fork adds detect, scan, hooks, automatic backup, global-config support, and integration tests. Upstream is MIT; fork is MIT.
+
+## Related projects from the same author
+
+- HardGuard25: https://hardguard25.com/
+- Graceful Boundaries: https://gracefulboundaries.dev/
+- Skill Provenance: https://skillprovenance.dev/
+- Knowledge as Code: https://knowledge-as-code.com/
