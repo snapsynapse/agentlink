@@ -524,14 +524,27 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
         <tr><th>Tool</th><th>File it expects</th></tr>
       </thead>
       <tbody>
-        <tr><td>OpenAI Codex / OpenCode</td><td class="tool">AGENTS.md</td></tr>
+        <tr><td>Aider</td><td class="tool">AGENTS.md</td></tr>
+        <tr><td>Amp</td><td class="tool">AGENTS.md</td></tr>
+        <tr><td>Antigravity</td><td class="tool">AGENTS.md</td></tr>
+        <tr><td>Autohand</td><td class="tool">AGENTS.md</td></tr>
         <tr><td>Claude Code</td><td class="tool">CLAUDE.md</td></tr>
+        <tr><td>Codex CLI</td><td class="tool">AGENTS.md</td></tr>
+        <tr><td>Cursor</td><td class="tool">AGENTS.md</td></tr>
+        <tr><td>Factory (Droid)</td><td class="tool">AGENTS.md</td></tr>
         <tr><td>Gemini CLI</td><td class="tool">GEMINI.md</td></tr>
-        <tr><td>Cursor</td><td class="tool">.cursorrules</td></tr>
         <tr><td>GitHub Copilot</td><td class="tool">.github/copilot-instructions.md</td></tr>
+        <tr><td>Goose</td><td class="tool">.goosehints</td></tr>
+        <tr><td>Junie</td><td class="tool">.junie/AGENTS.md</td></tr>
+        <tr><td>Kilo Code</td><td class="tool">AGENTS.md</td></tr>
+        <tr><td>OpenCode</td><td class="tool">AGENTS.md</td></tr>
+        <tr><td>RooCode</td><td class="tool">.roo/rules/rules.md</td></tr>
+        <tr><td>Windsurf</td><td class="tool">AGENTS.md</td></tr>
+        <tr><td>Zed</td><td class="tool">AGENTS.md</td></tr>
         <tr><td>Anything else</td><td class="tool">(add to config)</td></tr>
       </tbody>
     </table>
+    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: -0.5rem;">Full registry in <code>internal/registry/tools.go</code>. Tools without a project-root instruction file (e.g. Cline, Continue) still work in global scope via their own config paths.</p>
     <p>Scope is deliberately narrow: <strong>instruction files only.</strong> No MCP config, no chain configs. Simple on purpose.</p>
   </div>
 </section>
