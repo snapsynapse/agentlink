@@ -7,12 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] — 2026-04-14
+## [0.2.0] — 2026-04-14
 
 First tagged release of the Snap Synapse fork of
-[martinmose/agentlink](https://github.com/martinmose/agentlink). Preserves
-upstream core (init, sync, check, clean, doctor) and adds detection,
-scanning, automatic triggers, safe replacement, and global-config support.
+[martinmose/agentlink](https://github.com/martinmose/agentlink). Upstream
+never tagged a release, so this fork treats the upstream baseline as an
+implicit 0.1.x and starts its own release line at 0.2.0 to avoid collision
+and make the fork's additions readable against a clean version boundary.
+Preserves the upstream core (init, sync, check, clean, doctor) and adds
+detection, scanning, automatic triggers, safe replacement, and
+global-config support. Also launches the canonical landing page at
+[agentlink.run](https://agentlink.run/).
 
 ### Added
 
@@ -63,5 +68,5 @@ by Martin Mose Facondini (MIT). Fork additions offered back upstream in
 [martinmose/agentlink#2](https://github.com/martinmose/agentlink/pull/2).
 See [NOTICE](NOTICE) for the full fork provenance.
 
-[Unreleased]: https://github.com/snapsynapse/agentlink/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/snapsynapse/agentlink/releases/tag/v0.1.0
+[Unreleased]: https://github.com/snapsynapse/agentlink/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/snapsynapse/agentlink/releases/tag/v0.2.0
