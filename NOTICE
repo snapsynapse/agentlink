@@ -5,8 +5,8 @@ This product includes software originally developed by Martin Mose Facondini
 as agentlink (https://github.com/martinmose/agentlink), licensed under the
 MIT License. Copyright (c) 2025 Martin Mose Facondini.
 
-This fork is maintained by PAICE.work PBC / Snap Synapse
-(https://snapsynapse.com/) and adds the following, while preserving the
+This fork is maintained by Snap Synapse (https://snapsynapse.com/) as
+a personal utility and adds the following, while preserving the
 upstream license and attribution:
 
 - `agentlink detect` — registry-backed auto-detection of installed AI coding

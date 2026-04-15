@@ -397,3 +397,9 @@ Out of scope. Formats differ between tools; symlinking a single JSON to multiple
 
 **What about local models (Ollama, LM Studio, etc.)?**
 Local model runners don't read AGENTS.md or any instruction file convention. The model itself has no filesystem protocol -- it depends on the harness. If a tool built on top of local models adds AGENTS.md support, we'll add it to the registry.
+
+---
+
+## About
+
+Maintained as a [Snap Synapse](https://snapsynapse.com/) personal utility. Upstream credit to Martin Mose Facondini remains intact — see [NOTICE](NOTICE). Fork additions are offered back upstream in [martinmose/agentlink#2](https://github.com/martinmose/agentlink/pull/2).
