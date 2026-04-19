@@ -3,6 +3,7 @@
 
 # Build artifacts
 /agentlink
+/dist/
 
 # AI instruction files  
 AGENTS.md
