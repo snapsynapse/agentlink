@@ -5,7 +5,7 @@
 
 > **Fork notice.** This is a Snap Synapse fork of [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT). Extended with `detect`, `scan`, `hooks`, automatic backup, global-config support, and integration tests. See [NOTICE](NOTICE) for full attribution. Upstream PR: [martinmose/agentlink#2](https://github.com/martinmose/agentlink/pull/2).
 
-Sync one AGENTS.md to every AI coding tool on your machine -- with **zero magic**, just symlinks.
+Sync one AGENTS.md to every AI coding tool on your machine, with **zero magic**, just symlinks.
 
 Different tools want different files at project root: `AGENTS.md` (OpenAI/Codex, OpenCode), `CLAUDE.md` (Claude Code), `GEMINI.md`, etc. There's no standard, and I'm not waiting for one. **Agentlink** solves the basic need: keep your **personal** instruction files (in `~`) and your **project** instruction files in sync **without generators**. Edit one, they all reflect it.
 
@@ -19,15 +19,15 @@ Creating instruction files is easy with `/init` commands, but keeping them up to
 
 ## Why Agentlink?
 
-- **One real file, many aliases** -- pick a *source* (`CLAUDE.md` or `AGENTS.md` or whatever), symlink the rest.
-- **No codegen** -- no templates, no transforms, no surprise diffs.
-- **Project + global** -- works in repos *and* under `~/.config/...`.
-- **Auto-detect** -- scans your system for installed AI tools and reports what it finds.
-- **Repo scanning** -- walks a directory tree and wires up symlinks in every git repo that has an AGENTS.md.
-- **Automatic triggers** -- git hooks, shell hooks, and launchd keep things synced without manual runs.
-- **Idempotent** -- re-run safely; it fixes broken/misdirected links.
-- **Portable** -- works on macOS and Linux.
-- **Future-ready** -- handles any directory structure, automatically creates paths. Tomorrow's AI tool? Just add its path.
+- **One real file, many aliases**: pick a *source* (`CLAUDE.md` or `AGENTS.md` or whatever), symlink the rest.
+- **No codegen**: no templates, no transforms, no surprise diffs.
+- **Project + global**: works in repos *and* under `~/.config/...`.
+- **Auto-detect**: scans your system for installed AI tools and reports what it finds.
+- **Repo scanning**: walks a directory tree and wires up symlinks in every git repo that has an AGENTS.md.
+- **Automatic triggers**: git hooks, shell hooks, and launchd keep things synced without manual runs.
+- **Idempotent**: re-run safely; it fixes broken/misdirected links.
+- **Portable**: works on macOS and Linux.
+- **Future-ready**: handles any directory structure, automatically creates paths. Tomorrow's AI tool? Just add its path.
 
 ---
 
@@ -328,7 +328,7 @@ links:
 
 ## Platform notes
 
-- **macOS + Linux**: standard POSIX symlinks (`ln -s`) -- works the same.
+- **macOS + Linux**: standard POSIX symlinks (`ln -s`), same behavior on both.
 - **Git**: symlinks are stored as links (not file copies). That's fine; teams who dislike that can add them to `.gitignore`.
 
 ### Gitignore patterns
@@ -356,7 +356,7 @@ This keeps your repository clean while ensuring your source file is version cont
 
 ## Prior Art
 
-Agentlink is not the first tool to tackle this problem. The ecosystem is young and fragmented -- many people have built solutions independently. Here's what exists as of April 2026:
+Agentlink is not the first tool to tackle this problem. The ecosystem is young and fragmented; many people have built solutions independently. Here's what exists as of April 2026:
 
 | Tool | Language | Approach | Scope |
 |------|----------|----------|-------|
@@ -399,6 +399,10 @@ Out of scope. Formats differ between tools; symlinking a single JSON to multiple
 Local model runners don't read AGENTS.md or any instruction file convention. The model itself has no filesystem protocol -- it depends on the harness. If a tool built on top of local models adds AGENTS.md support, we'll add it to the registry.
 
 ---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). To add a tool to the registry, open an issue using the "New tool" template.
 
 ## About
 
