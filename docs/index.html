@@ -31,7 +31,7 @@
   <meta property="og:url" content="https://agentlink.run/">
   <meta property="og:locale" content="en_US">
   <meta property="article:published_time" content="2026-04-14T00:00:00Z">
-  <meta property="article:modified_time" content="2026-04-14T00:00:00Z">
+  <meta property="article:modified_time" content="2026-04-18T00:00:00Z">
   <meta property="article:author" content="Sam Rogers">
   <meta property="article:publisher" content="https://snapsynapse.com/">
   <meta property="article:section" content="Developer Tools">
@@ -66,7 +66,7 @@
     "url": "https://agentlink.run/",
     "mainEntityOfPage": { "@type": "WebPage", "@id": "https://agentlink.run/" },
     "datePublished": "2026-04-14",
-    "dateModified": "2026-04-14",
+    "dateModified": "2026-04-18",
     "author": {
       "@type": "Person",
       "name": "Sam Rogers",
@@ -552,7 +552,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
 <section id="install">
   <div class="container">
     <h2>Install</h2>
-    <p>Requires Go 1.23+. Binary releases and Homebrew formula are on the roadmap; for now, install from source.</p>
+    <p>Pre-built binaries for macOS and Linux are on the <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.2.0" target="_blank" rel="noopener">v0.2.0 release page</a>. Or build from source with Go 1.23+.</p>
 
     <div class="code-grid">
       <div class="code-block">
@@ -566,12 +566,14 @@ agentlink --help</pre>
       </div>
 
       <div class="code-block">
-        <h3>One-liner</h3>
-<pre>go install github.com/snapsynapse/agentlink/cmd/agentlink@latest
+        <h3>Pre-built binary</h3>
+<pre># macOS (Apple Silicon)
+curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.2.0/agentlink-darwin-arm64
+chmod +x agentlink && mv agentlink /usr/local/bin/
 
-# Make sure $GOPATH/bin is on PATH
-export PATH="$HOME/go/bin:$PATH"</pre>
-        <p class="annotation">Installs the latest tagged release into your Go bin directory.</p>
+# macOS (Intel) / Linux (amd64)
+# Replace darwin-arm64 with darwin-amd64 or linux-amd64</pre>
+        <p class="annotation">Checksums in <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.2.0" target="_blank" rel="noopener">SHA256SUMS.txt</a> on the release page.</p>
       </div>
     </div>
   </div>
@@ -607,8 +609,8 @@ links:
   - ~/.gemini/GEMINI.md
   - ~/.config/opencode/AGENTS.md
 
-# Then:
-agentlink sync --global</pre>
+# Then (auto-detects global config):
+agentlink sync</pre>
       </div>
 
       <div class="code-block">
@@ -628,8 +630,8 @@ agentlink scan ~/Git</pre>
 # sync runs without you thinking about it.
 agentlink hooks install
 
-# Uninstall cleanly.
-agentlink hooks uninstall</pre>
+# Remove cleanly.
+agentlink hooks remove</pre>
       </div>
     </div>
 
@@ -641,7 +643,7 @@ agentlink hooks uninstall</pre>
       by Martin Mose Facondini (MIT); the fork adds <code>detect</code>, <code>scan</code>, <code>hooks</code>, automatic backup,
       global-config support, and integration tests. Upstream PR:
       <a href="https://github.com/martinmose/agentlink/pull/2" target="_blank" rel="noopener">martinmose/agentlink#2</a>.
-      Last substantive revision: <time datetime="2026-04-14">2026-04-14</time>.
+      Last substantive revision: <time datetime="2026-04-18">2026-04-18</time>.
       <a href="https://github.com/snapsynapse/agentlink/commits/main/README.md" target="_blank" rel="noopener">Revision history &rarr;</a>
     </aside>
   </div>

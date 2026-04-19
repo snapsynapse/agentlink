@@ -1,6 +1,6 @@
 # Agentlink
 
-Sync one AGENTS.md to every AI coding tool on your machine -- with zero magic, just symlinks.
+Sync one AGENTS.md to every AI coding tool on your machine, with zero magic, just symlinks.
 
 ## Summary
 
