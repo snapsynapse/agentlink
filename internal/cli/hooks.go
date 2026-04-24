@@ -186,12 +186,13 @@ const gitHookMarkerStart = "# >>> agentlink >>>"
 const gitHookMarkerEnd = "# <<< agentlink <<<"
 
 func gitHookContent(binaryPath string) string {
+	quotedBinaryPath := shellQuote(binaryPath)
 	return fmt.Sprintf(`%s
 # Sync agent instruction symlinks after git operations.
 # Installed by: agentlink hooks install --git
 %s sync --quiet 2>/dev/null || true
 %s
-`, gitHookMarkerStart, binaryPath, gitHookMarkerEnd)
+`, gitHookMarkerStart, quotedBinaryPath, gitHookMarkerEnd)
 }
 
 func installGitHooks(binaryPath string) error {
@@ -260,6 +261,7 @@ func gitGlobalHooksDir() string {
 // --- Zsh Hook ---
 
 func zshHookContent(binaryPath string) string {
+	quotedBinaryPath := shellQuote(binaryPath)
 	return fmt.Sprintf(`
 %s
 # Sync agent instruction symlinks when entering a git repo.
@@ -272,7 +274,7 @@ agentlink_chpwd() {
 autoload -U add-zsh-hook
 add-zsh-hook chpwd agentlink_chpwd
 %s
-`, gitHookMarkerStart, binaryPath, gitHookMarkerEnd)
+`, gitHookMarkerStart, quotedBinaryPath, gitHookMarkerEnd)
 }
 
 func installZshHook(binaryPath string) error {
@@ -408,6 +410,10 @@ func resolveAgentlinkBinary() (string, error) {
 	}
 
 	return "", fmt.Errorf("cannot determine agentlink binary path; ensure it is in PATH")
+}
+
+func shellQuote(value string) string {
+	return "'" + strings.ReplaceAll(value, "'", "'\\''") + "'"
 }
 
 func fileContainsAgentlink(path string) bool {

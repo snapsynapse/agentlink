@@ -54,7 +54,7 @@ func (c *Config) Validate() error {
 // ExpandPaths expands ~ and makes relative paths absolute based on configDir
 func (c *Config) ExpandPaths(configDir string) error {
 	var err error
-	
+
 	// Expand source path
 	c.Source, err = expandPath(c.Source, configDir)
 	if err != nil {
@@ -102,9 +102,13 @@ func FindConfigPath() (string, bool) {
 	}
 
 	// Return global config path (may not exist yet)
+	return GlobalConfigPath(), false
+}
+
+// GlobalConfigPath returns the user-level agentlink config path.
+func GlobalConfigPath() string {
 	homeDir, _ := os.UserHomeDir()
-	globalConfig := filepath.Join(homeDir, ".config", "agentlink", "config.yaml")
-	return globalConfig, false
+	return filepath.Join(homeDir, ".config", "agentlink", "config.yaml")
 }
 
 // CreateDefaultGlobalConfig creates a default global config with examples

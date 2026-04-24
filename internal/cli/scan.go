@@ -184,7 +184,7 @@ func findGitRepos(root string) []string {
 		// Check for .git directory
 		if info.IsDir() {
 			gitDir := filepath.Join(path, ".git")
-			if fi, err := os.Stat(gitDir); err == nil && fi.IsDir() {
+			if fi, err := os.Lstat(gitDir); err == nil && (fi.IsDir() || fi.Mode().IsRegular() || fi.Mode()&os.ModeSymlink != 0) {
 				repos = append(repos, path)
 				return filepath.SkipDir // don't recurse into this repo
 			}

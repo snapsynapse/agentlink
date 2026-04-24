@@ -76,7 +76,7 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 		hasIssues = true
 	} else {
 		fmt.Printf("Home directory: %s\n", homeDir)
-		
+
 		configDir := filepath.Join(homeDir, ".config", "agentlink")
 		if err := checkDirectoryAccess(configDir, true); err != nil {
 			fmt.Printf("✗ Config directory issue: %v\n", err)
@@ -94,10 +94,10 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 	} else {
 		fmt.Printf("⚠️  No .git directory (not in a git repository)\n")
 	}
-	
+
 	if _, err := os.Stat(".agentlink.yaml"); err == nil {
 		fmt.Printf("✓ Project config found: .agentlink.yaml\n")
-		
+
 		// Try to load and validate it
 		if cfg, err := config.LoadConfig(".agentlink.yaml"); err != nil {
 			fmt.Printf("✗ Project config is invalid: %v\n", err)
@@ -116,10 +116,10 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 
 	// Check global config
 	fmt.Printf("Global Configuration:\n")
-	globalConfig, _ := config.FindConfigPath()
+	globalConfig := config.GlobalConfigPath()
 	if _, err := os.Stat(globalConfig); err == nil {
 		fmt.Printf("✓ Global config found: %s\n", globalConfig)
-		
+
 		// Try to load and validate it
 		if cfg, err := config.LoadConfig(globalConfig); err != nil {
 			fmt.Printf("✗ Global config is invalid: %v\n", err)

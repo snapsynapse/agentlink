@@ -10,33 +10,33 @@ func TestLoadConfig(t *testing.T) {
 	// Create a temporary config file
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "config.yaml")
-	
+
 	configContent := `source: test.md
 links:
   - link1.md
   - link2.md
 `
-	
+
 	if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	// Load the config
 	cfg, err := LoadConfig(configPath)
 	if err != nil {
 		t.Fatalf("Failed to load config: %v", err)
 	}
-	
+
 	// Check values
 	expectedSource := filepath.Join(tmpDir, "test.md")
 	if cfg.Source != expectedSource {
 		t.Errorf("Expected source %s, got %s", expectedSource, cfg.Source)
 	}
-	
+
 	if len(cfg.Links) != 2 {
 		t.Errorf("Expected 2 links, got %d", len(cfg.Links))
 	}
-	
+
 	expectedLink1 := filepath.Join(tmpDir, "link1.md")
 	if cfg.Links[0] != expectedLink1 {
 		t.Errorf("Expected first link %s, got %s", expectedLink1, cfg.Links[0])
@@ -74,7 +74,7 @@ func TestValidateConfig(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.config.Validate()
@@ -90,29 +90,29 @@ func TestExpandPaths(t *testing.T) {
 	if err != nil {
 		t.Skip("Cannot get home directory")
 	}
-	
+
 	tmpDir := t.TempDir()
-	
+
 	config := Config{
 		Source: "~/test.md",
 		Links:  []string{"relative.md", "~/absolute.md"},
 	}
-	
+
 	err = config.ExpandPaths(tmpDir)
 	if err != nil {
 		t.Fatalf("Failed to expand paths: %v", err)
 	}
-	
+
 	expectedSource := filepath.Join(homeDir, "test.md")
 	if config.Source != expectedSource {
 		t.Errorf("Expected source %s, got %s", expectedSource, config.Source)
 	}
-	
+
 	expectedRelative := filepath.Join(tmpDir, "relative.md")
 	if config.Links[0] != expectedRelative {
 		t.Errorf("Expected relative link %s, got %s", expectedRelative, config.Links[0])
 	}
-	
+
 	expectedAbsolute := filepath.Join(homeDir, "absolute.md")
 	if config.Links[1] != expectedAbsolute {
 		t.Errorf("Expected absolute link %s, got %s", expectedAbsolute, config.Links[1])
@@ -126,22 +126,22 @@ func TestFindConfigPath(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.Chdir(origDir)
-	
+
 	// Test in directory without project config
 	tmpDir := t.TempDir()
 	os.Chdir(tmpDir)
-	
+
 	path, isProject := FindConfigPath()
 	if isProject {
 		t.Error("Expected global config, got project config")
 	}
-	
+
 	homeDir, _ := os.UserHomeDir()
 	expectedPath := filepath.Join(homeDir, ".config", "agentlink", "config.yaml")
 	if path != expectedPath {
 		t.Errorf("Expected path %s, got %s", expectedPath, path)
 	}
-	
+
 	// Test in directory with project config
 	projectConfig := ".agentlink.yaml"
 	os.WriteFile(projectConfig, []byte("source: test.md\nlinks: [test.md]"), 0644)
@@ -158,5 +158,18 @@ func TestFindConfigPath(t *testing.T) {
 	resolvedGot, _ := filepath.EvalSymlinks(path)
 	if resolvedExpected != resolvedGot {
 		t.Errorf("Expected project path %s, got %s", expectedProjectPath, path)
+	}
+}
+
+func TestGlobalConfigPath(t *testing.T) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := GlobalConfigPath()
+	want := filepath.Join(homeDir, ".config", "agentlink", "config.yaml")
+	if got != want {
+		t.Errorf("GlobalConfigPath() = %s, want %s", got, want)
 	}
 }

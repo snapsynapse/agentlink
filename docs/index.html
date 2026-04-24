@@ -514,7 +514,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
       </div>
       <div class="pillar">
         <h3>Automatic triggers</h3>
-        <p>Built-in git hooks, shell hooks, and launchd integration keep things synced without you remembering to run it.</p>
+        <p>Built-in git hooks, shell hooks, and launchd integration keep things synced without you remembering to run it, including installs where the binary lives under a path with spaces.</p>
       </div>
     </div>
 
@@ -620,7 +620,9 @@ agentlink sync</pre>
 agentlink detect
 
 # Walk a directory tree and wire up
-# symlinks in every repo with AGENTS.md.
+# symlinks in every repo with AGENTS.md,
+# including worktrees and submodule-style
+# checkouts where .git is a file.
 agentlink scan ~/Git</pre>
       </div>
 
@@ -643,7 +645,7 @@ agentlink hooks remove</pre>
       by Martin Mose Facondini (MIT); the fork adds <code>detect</code>, <code>scan</code>, <code>hooks</code>, automatic backup,
       global-config support, and integration tests. Upstream PR:
       <a href="https://github.com/martinmose/agentlink/pull/2" target="_blank" rel="noopener">martinmose/agentlink#2</a>.
-      Last substantive revision: <time datetime="2026-04-18">2026-04-18</time>.
+      Last substantive revision: <time datetime="2026-04-23">2026-04-23</time>.
       <a href="https://github.com/snapsynapse/agentlink/commits/main/README.md" target="_blank" rel="noopener">Revision history &rarr;</a>
     </aside>
   </div>

@@ -153,7 +153,7 @@ agentlink sync --force         # replace without backup (destructive)
 agentlink hooks install --all
 ```
 
-This installs git hooks, a zsh directory-change hook, and a 60-minute launchd heartbeat so syncs happen automatically.
+This installs git hooks, a zsh directory-change hook, and a 60-minute launchd heartbeat so syncs happen automatically. Generated hook scripts safely quote the installed binary path, so installs under directories with spaces still work.
 
 **6. Scan your repos** (optional):
 
@@ -161,7 +161,7 @@ This installs git hooks, a zsh directory-change hook, and a 60-minute launchd he
 agentlink scan ~/Git
 ```
 
-Finds git repos with AGENTS.md and creates tool-specific symlinks (CLAUDE.md, GEMINI.md, etc.) in each.
+Finds git repos with AGENTS.md and creates tool-specific symlinks (CLAUDE.md, GEMINI.md, etc.) in each, including git worktrees and submodule-style checkouts where `.git` is a file rather than a directory.
 
 ---
 
@@ -185,7 +185,7 @@ agentlink init               # create .agentlink.yaml in current directory
 agentlink sync               # create/fix symlinks based on config
 agentlink check              # print status and problems
 agentlink clean              # remove managed symlinks (non-destructive)
-agentlink doctor             # environment + permissions sanity checks
+agentlink doctor             # environment + permissions sanity checks for project and global config
 agentlink detect             # auto-detect installed AI coding tools
 agentlink scan [dir]         # scan git repos and manage symlinks
 agentlink hooks install      # install automatic sync triggers
@@ -262,7 +262,7 @@ agentlink scan --dir ~/Work       # alternative syntax
 agentlink scan --dry-run          # preview without changes
 ```
 
-The scanner finds repos containing `AGENTS.md` and creates symlinks for tool-specific filenames (`CLAUDE.md`, `GEMINI.md`, etc.). It does **not** inject `AGENTS.md` into repos that lack one.
+The scanner finds repos containing `AGENTS.md` and creates symlinks for tool-specific filenames (`CLAUDE.md`, `GEMINI.md`, etc.). It recognizes standard repos, git worktrees, and submodule-style checkouts where `.git` is a file. It does **not** inject `AGENTS.md` into repos that lack one.
 
 The default scan directory is `~/Git`. Override it per-invocation with the `--dir` flag or positional argument. To change the compiled default, build with:
 
@@ -287,11 +287,11 @@ agentlink hooks remove --all       # clean up all triggers
 
 **Git hooks** use `core.hooksPath` for global hooks. After any checkout or merge, agentlink syncs the current repo's symlinks.
 
-**Zsh hook** fires on every `cd` into a directory that contains both `.git/` and `.agentlink.yaml`. Runs in the background so it never slows your shell.
+**Zsh hook** fires on every `cd` into a directory that contains both a git checkout and `.agentlink.yaml`. Runs in the background so it never slows your shell.
 
 **LaunchAgent** runs `agentlink sync` every 60 minutes and at login. Logs to `/tmp/agentlink-sync.log`.
 
-All injected content is wrapped in markers (`# >>> agentlink >>>` / `# <<< agentlink <<<`) for clean removal.
+All injected content is wrapped in markers (`# >>> agentlink >>>` / `# <<< agentlink <<<`) for clean removal. Generated hook commands shell-quote the binary path so installs under paths with spaces remain valid.
 
 ---
 
@@ -323,6 +323,10 @@ links:
   - ~/.codex/AGENTS.md
   - ~/.gemini/GEMINI.md
 ```
+
+### Doctor behavior
+
+`agentlink doctor` checks project and global configuration separately. In particular, the "Global Configuration" section always inspects `~/.config/agentlink/config.yaml` directly, even when `.agentlink.yaml` exists in the current repo.
 
 ---
 

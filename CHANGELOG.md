@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `agentlink scan` now recognizes repositories where `.git` is a file, so
+  worktrees and many submodule-style checkouts are scanned correctly.
+- `agentlink doctor` now checks the real global config path at
+  `~/.config/agentlink/config.yaml` instead of accidentally re-checking the
+  project config when `.agentlink.yaml` exists.
+- Generated git and zsh hook scripts now shell-quote the resolved
+  `agentlink` binary path, so installs under paths with spaces continue to
+  run correctly.
+
 ## [0.2.0] — 2026-04-14
 
 First tagged release of the Snap Synapse fork of
