@@ -19,6 +19,10 @@ CLAUDE.md
 # --- baseline additions (automated audit 2026-04-21) ---
 .env
 .env.*
+.gocache/
+.flox/
+.agents/
+.perplexity-research/
 node_modules/
 __pycache__/
 *.pyc
