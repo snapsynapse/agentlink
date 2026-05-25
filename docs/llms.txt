@@ -17,7 +17,10 @@ Scope is deliberately narrow: instruction files only. No MCP servers, no chain c
 - detect: scan the system for installed AI tools and report what was found
 - scan: walk a directory tree and wire up symlinks in every git repo that has an AGENTS.md
 - hooks: install git, shell, and launchd triggers so sync runs automatically
-- idempotent: re-running is safe; broken or misdirected links are repaired, real files are backed up
+- idempotent: re-running is safe; broken or misdirected links are repaired
+- dry-run: hard preview mode; no symlinks, removals, or backups are written
+- replacement safety: backup and force operate on regular files only; directories and special files are refused
+- git hook safety: global core.hooksPath must be absolute for install, remove, and status
 
 ## Key files in the repository
 

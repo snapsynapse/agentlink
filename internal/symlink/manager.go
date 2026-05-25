@@ -124,6 +124,16 @@ func (m *Manager) CheckLink(linkPath, expectedTarget string) *LinkInfo {
 	target = filepath.Clean(target)
 	expectedClean := filepath.Clean(expectedTarget)
 
+	if _, err := os.Stat(target); err != nil {
+		if os.IsNotExist(err) {
+			info.Status = StatusBroken
+			return info
+		}
+		info.Error = err
+		info.Status = StatusBroken
+		return info
+	}
+
 	if target == expectedClean {
 		info.Status = StatusOK
 	} else {
@@ -192,6 +202,9 @@ func (m *Manager) FixLink(linkPath, targetPath string) (string, error) {
 		if !m.force {
 			return "", fmt.Errorf("symlink %s points to wrong target %s (expected %s), use --force to fix", linkPath, info.Target, targetPath)
 		}
+		if m.dryRun {
+			return "fix", nil
+		}
 		if err := os.Remove(linkPath); err != nil {
 			return "", fmt.Errorf("failed to remove wrong symlink %s: %w", linkPath, err)
 		}
@@ -204,7 +217,21 @@ func (m *Manager) FixLink(linkPath, targetPath string) (string, error) {
 		if !m.force {
 			return "", fmt.Errorf("file %s exists and is not a symlink, use --force to replace", linkPath)
 		}
-		if err := os.RemoveAll(linkPath); err != nil {
+
+		linkInfo, err := os.Lstat(linkPath)
+		if err != nil {
+			return "", fmt.Errorf("failed to stat existing path %s: %w", linkPath, err)
+		}
+		if linkInfo.IsDir() {
+			return "", fmt.Errorf("%s is a directory; refusing to replace recursively", linkPath)
+		}
+		if !linkInfo.Mode().IsRegular() {
+			return "", fmt.Errorf("%s is not a regular file; refusing to replace", linkPath)
+		}
+		if m.dryRun {
+			return "replace", nil
+		}
+		if err := os.Remove(linkPath); err != nil {
 			return "", fmt.Errorf("failed to remove existing file %s: %w", linkPath, err)
 		}
 		if err := m.CreateLink(linkPath, targetPath); err != nil {
@@ -213,6 +240,9 @@ func (m *Manager) FixLink(linkPath, targetPath string) (string, error) {
 		return "replace", nil
 
 	case StatusBroken:
+		if m.dryRun {
+			return "fix broken", nil
+		}
 		if err := os.Remove(linkPath); err != nil {
 			return "", fmt.Errorf("failed to remove broken symlink %s: %w", linkPath, err)
 		}

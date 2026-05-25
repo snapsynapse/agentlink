@@ -22,7 +22,11 @@ Supported triggers:
   --all       Install all triggers
 
 Use 'agentlink hooks install' to set up triggers and 'agentlink hooks remove'
-to uninstall them.`,
+to uninstall them.
+
+For git hooks, agentlink only writes to an absolute global core.hooksPath. If
+your global core.hooksPath is relative, unset it or replace it with an absolute
+path before installing or removing git hooks.`,
 }
 
 var hooksInstallCmd = &cobra.Command{
@@ -124,10 +128,14 @@ func runHooksRemove(cmd *cobra.Command, args []string) error {
 	}
 
 	if hookGit {
-		removeGitHooks()
+		if err := removeGitHooks(); err != nil {
+			return err
+		}
 	}
 	if hookZsh {
-		removeZshHook()
+		if err := removeZshHook(); err != nil {
+			return err
+		}
 	}
 	if hookLaunchd {
 		removeLaunchdAgent()
@@ -145,16 +153,20 @@ func runHooksStatus(cmd *cobra.Command, args []string) error {
 	// Git hooks
 	hooksDir := gitGlobalHooksDir()
 	if hooksDir != "" {
-		postCheckout := filepath.Join(hooksDir, "post-checkout")
-		postMerge := filepath.Join(hooksDir, "post-merge")
-		hasCheckout := fileContainsAgentlink(postCheckout)
-		hasMerge := fileContainsAgentlink(postMerge)
-		if hasCheckout && hasMerge {
-			fmt.Printf("  git hooks:    installed (%s)\n", hooksDir)
-		} else if hasCheckout || hasMerge {
-			fmt.Printf("  git hooks:    partial (%s)\n", hooksDir)
+		if !filepath.IsAbs(hooksDir) {
+			fmt.Printf("  git hooks:    unsupported relative core.hooksPath (%s)\n", hooksDir)
 		} else {
-			fmt.Printf("  git hooks:    not installed\n")
+			postCheckout := filepath.Join(hooksDir, "post-checkout")
+			postMerge := filepath.Join(hooksDir, "post-merge")
+			hasCheckout := fileContainsAgentlink(postCheckout)
+			hasMerge := fileContainsAgentlink(postMerge)
+			if hasCheckout && hasMerge {
+				fmt.Printf("  git hooks:    installed (%s)\n", hooksDir)
+			} else if hasCheckout || hasMerge {
+				fmt.Printf("  git hooks:    partial (%s)\n", hooksDir)
+			} else {
+				fmt.Printf("  git hooks:    not installed\n")
+			}
 		}
 	} else {
 		fmt.Printf("  git hooks:    not installed (no core.hooksPath set)\n")
@@ -198,6 +210,13 @@ func gitHookContent(binaryPath string) string {
 func installGitHooks(binaryPath string) error {
 	// Determine or create global hooks directory
 	hooksDir := gitGlobalHooksDir()
+	return installGitHooksWithDir(hooksDir, binaryPath)
+}
+
+func installGitHooksWithDir(hooksDir, binaryPath string) error {
+	if hooksDir != "" && !filepath.IsAbs(hooksDir) {
+		return fmt.Errorf("global git core.hooksPath is relative (%s); refusing to install hooks into an ambiguous path. Run 'git config --global --unset core.hooksPath' to let agentlink create its default hooks directory, or set core.hooksPath to an absolute path", hooksDir)
+	}
 	if hooksDir == "" {
 		homeDir, _ := os.UserHomeDir()
 		hooksDir = filepath.Join(homeDir, ".config", "git", "hooks")
@@ -235,19 +254,27 @@ func installGitHooks(binaryPath string) error {
 	return nil
 }
 
-func removeGitHooks() {
+func removeGitHooks() error {
 	hooksDir := gitGlobalHooksDir()
 	if hooksDir == "" {
 		printInfo("No global git hooks directory configured")
-		return
+		return nil
+	}
+	if !filepath.IsAbs(hooksDir) {
+		return fmt.Errorf("global git core.hooksPath is relative (%s); refusing to remove hooks from an ambiguous path. Set core.hooksPath to the absolute hooks directory before removing agentlink hooks", hooksDir)
 	}
 
 	for _, hookName := range []string{"post-checkout", "post-merge"} {
 		hookPath := filepath.Join(hooksDir, hookName)
-		if removeMarkedSection(hookPath) {
+		removed, err := removeMarkedSection(hookPath)
+		if err != nil {
+			return fmt.Errorf("failed to update %s: %w", hookName, err)
+		}
+		if removed {
 			printOK("Removed agentlink from %s", hookName)
 		}
 	}
+	return nil
 }
 
 func gitGlobalHooksDir() string {
@@ -305,14 +332,19 @@ func installZshHook(binaryPath string) error {
 	return nil
 }
 
-func removeZshHook() {
+func removeZshHook() error {
 	homeDir, _ := os.UserHomeDir()
 	zshrc := filepath.Join(homeDir, ".zshrc")
-	if removeMarkedSection(zshrc) {
+	removed, err := removeMarkedSection(zshrc)
+	if err != nil {
+		return err
+	}
+	if removed {
 		printOK("Removed agentlink hook from ~/.zshrc")
 	} else {
 		printInfo("No agentlink hook found in ~/.zshrc")
 	}
+	return nil
 }
 
 // --- Launchd ---
@@ -450,10 +482,17 @@ func appendOrCreateHook(path, content string) error {
 	return err
 }
 
-func removeMarkedSection(path string) bool {
+func removeMarkedSection(path string) (bool, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return false
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		return false, err
 	}
 
 	content := string(data)
@@ -461,7 +500,7 @@ func removeMarkedSection(path string) bool {
 	endIdx := strings.Index(content, gitHookMarkerEnd)
 
 	if startIdx == -1 || endIdx == -1 {
-		return false
+		return false, nil
 	}
 
 	// Remove from start marker to end marker (inclusive of trailing newline)
@@ -477,6 +516,8 @@ func removeMarkedSection(path string) bool {
 		newContent = strings.ReplaceAll(newContent, "\n\n\n", "\n\n")
 	}
 
-	os.WriteFile(path, []byte(newContent), 0644)
-	return true
+	if err := os.WriteFile(path, []byte(newContent), info.Mode().Perm()); err != nil {
+		return false, err
+	}
+	return true, nil
 }

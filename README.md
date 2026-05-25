@@ -143,8 +143,9 @@ If any target path already has a real file, agentlink will refuse to overwrite i
 
 ```bash
 cat ~/.codex/AGENTS.md         # inspect the existing file
-agentlink sync --backup        # back up existing files to .bak, then replace
+agentlink sync --backup        # back up existing regular files to .bak, then replace
 agentlink sync --force         # replace without backup (destructive)
+agentlink sync --dry-run       # preview only, with no filesystem changes
 ```
 
 **5. Install automatic triggers** (optional but recommended):
@@ -153,7 +154,7 @@ agentlink sync --force         # replace without backup (destructive)
 agentlink hooks install --all
 ```
 
-This installs git hooks, a zsh directory-change hook, and a 60-minute launchd heartbeat so syncs happen automatically. Generated hook scripts safely quote the installed binary path, so installs under directories with spaces still work.
+This installs git hooks, a zsh directory-change hook, and a 60-minute launchd heartbeat so syncs happen automatically. Generated hook scripts safely quote the installed binary path, so installs under directories with spaces still work. If your global Git `core.hooksPath` is relative, agentlink refuses to guess where to install hooks; unset it or change it to an absolute path first.
 
 **6. Scan your repos** (optional):
 
@@ -196,9 +197,9 @@ agentlink hooks status       # show installed trigger status
 ### Helpful flags
 
 ```bash
-agentlink sync --dry-run     # show what would change
-agentlink sync --backup      # back up existing files to .bak before replacing
-agentlink sync --force       # replace existing files without backup (or -f)
+agentlink sync --dry-run     # show what would change without filesystem changes
+agentlink sync --backup      # back up existing regular files to .bak before replacing
+agentlink sync --force       # replace existing regular files without backup (or -f)
 agentlink sync --quiet       # suppress non-error output (or -q)
 agentlink --verbose          # detailed output for any command (or -v)
 ```
@@ -208,8 +209,11 @@ agentlink --verbose          # detailed output for any command (or -v)
 When a target path already contains a real file (not a symlink), agentlink stops and reports the conflict with the file size and last-modified date. It never silently overwrites your files. Options:
 
 - `--backup` backs up the existing file to `<name>.bak` (or `<name>.<timestamp>.bak` if `.bak` already exists), then creates the symlink.
-- `--force` replaces the file without backup. Use when you've already inspected or don't care about the existing content.
+- `--force` replaces a regular file without backup. Use when you've already inspected or don't care about the existing content.
+- `--dry-run` is a hard preview mode. It does not create symlinks, remove files, fix broken links, or write backups, even when combined with `--backup` or `--force`.
 - Neither flag: agentlink reports the conflict and skips the file.
+
+Agentlink refuses to recursively replace directories or special files. If a configured link path is a directory, move or rename it yourself before running `sync`.
 
 ---
 
@@ -285,13 +289,13 @@ agentlink hooks status             # check what's installed
 agentlink hooks remove --all       # clean up all triggers
 ```
 
-**Git hooks** use `core.hooksPath` for global hooks. After any checkout or merge, agentlink syncs the current repo's symlinks.
+**Git hooks** use `core.hooksPath` for global hooks. After any checkout or merge, agentlink syncs the current repo's symlinks. Agentlink only installs into absolute global hook paths. If `git config --global core.hooksPath` returns a relative path, either unset it so agentlink can create `~/.config/git/hooks`, or set it to an absolute directory before running `agentlink hooks install --git`.
 
 **Zsh hook** fires on every `cd` into a directory that contains both a git checkout and `.agentlink.yaml`. Runs in the background so it never slows your shell.
 
 **LaunchAgent** runs `agentlink sync` every 60 minutes and at login. Logs to `/tmp/agentlink-sync.log`.
 
-All injected content is wrapped in markers (`# >>> agentlink >>>` / `# <<< agentlink <<<`) for clean removal. Generated hook commands shell-quote the binary path so installs under paths with spaces remain valid.
+All injected content is wrapped in markers (`# >>> agentlink >>>` / `# <<< agentlink <<<`) for clean removal. Removing those sections preserves the hook file's existing permissions. Generated hook commands shell-quote the binary path so installs under paths with spaces remain valid.
 
 ---
 

@@ -27,16 +27,17 @@ to the configured source file.
 When a target path already contains a real file (not a symlink), sync will
 refuse to overwrite it. You have three options:
 
-  --backup    Back up existing files to <name>.bak before replacing
-  --force     Replace existing files without backup
-  --dry-run   Preview what would happen without making changes
+  --backup    Back up existing regular files to <name>.bak before replacing
+  --force     Replace conflicting regular files without backup
+  --dry-run   Preview what would happen without creating, removing, or backing up files
 
-Without any of these flags, sync reports the conflict and moves on.`,
+Directories and special files are never replaced recursively. Without any of
+these flags, sync reports the conflict and moves on.`,
 	RunE: runSync,
 }
 
 func init() {
-	syncCmd.Flags().BoolVar(&syncBackup, "backup", false, "back up existing files before replacing")
+	syncCmd.Flags().BoolVar(&syncBackup, "backup", false, "back up existing regular files before replacing")
 	rootCmd.AddCommand(syncCmd)
 }
 

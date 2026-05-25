@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `agentlink sync --dry-run` is now a true preview mode when combined with
+  `--backup` or `--force`; it no longer removes conflicting files, rewrites
+  symlinks, or creates backup files.
+- `agentlink sync --force` now refuses to replace directories and special
+  files, avoiding recursive deletion from a misconfigured link path.
+- `agentlink hooks remove` now preserves existing hook file permissions and
+  reports write failures instead of silently succeeding.
+- `agentlink hooks install|remove|status --git` now refuses relative global
+  `core.hooksPath` values instead of resolving them from an arbitrary current
+  directory.
 - `agentlink scan` now recognizes repositories where `.git` is a file, so
   worktrees and many submodule-style checkouts are scanned correctly.
 - `agentlink doctor` now checks the real global config path at
