@@ -21,10 +21,14 @@ Scope is deliberately narrow: instruction files only. No MCP servers, no chain c
 - dry-run: hard preview mode; no symlinks, removals, or backups are written
 - replacement safety: backup and force operate on regular files only; directories and special files are refused
 - git hook safety: global core.hooksPath must be absolute for install, remove, and status
+- assistant guide: https://agentlink.run/.well-known/assistant-guide.txt
+- guidecheck conformance target: Level 4 guide-file conformance
 
 ## Key files in the repository
 
 - README.md: full install and usage docs
+- docs/.well-known/assistant-guide.txt: GuideCheck assistant guide
+- docs/.well-known/assistant-guide-manifest.txt: GuideCheck sidecar manifest
 - cmd/agentlink/: Go CLI entry point
 - internal/: sync logic, detect, scan, hooks, backup
 - .agentlink.yaml: example project config
@@ -34,6 +38,7 @@ Scope is deliberately narrow: instruction files only. No MCP servers, no chain c
 ## Lineage
 
 - Canonical landing: https://agentlink.run/
+- Assistant Guide: https://agentlink.run/.well-known/assistant-guide.txt
 - Snap Synapse fork (this project): https://github.com/snapsynapse/agentlink
 - Upstream original by Martin Mose Facondini: https://github.com/martinmose/agentlink
 - Upstream PR from the fork: https://github.com/martinmose/agentlink/pull/2

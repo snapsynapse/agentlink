@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- GuideCheck adoption at the highest guide-file level: a Level 4 target
+  `assistant-guide.txt`, sidecar manifest, repository hash anchor, and
+  discovery links from README, `llms.txt`, and the landing page.
+
 ### Fixed
 
 - `agentlink sync --dry-run` is now a true preview mode when combined with

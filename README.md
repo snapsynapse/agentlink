@@ -15,6 +15,16 @@ Creating instruction files is easy with `/init` commands, but keeping them up to
 
 > Scope: **instruction files only**. No MCP `.mcp.json` or chain configs. Simple on purpose.
 
+## GuideCheck
+
+Agentlink publishes a GuideCheck Human-Verifiable Assistant Guide for bounded local review, build, and test work:
+
+- Assistant guide: https://agentlink.run/.well-known/assistant-guide.txt
+- Manifest: https://agentlink.run/.well-known/assistant-guide-manifest.txt
+- Target conformance: GuideCheck Level 4, the highest guide-file level. Level 5 requires a conformant assistant runtime and is not claimed by this repository.
+
+The guide is also stored at `docs/.well-known/assistant-guide.txt` so the public repository copy can serve as an independent Level 4 hash anchor.
+
 ---
 
 ## Why Agentlink?
