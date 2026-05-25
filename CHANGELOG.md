@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GuideCheck adoption at the highest guide-file level: a Level 4 target
   `assistant-guide.txt`, sidecar manifest, repository hash anchor, and
   discovery links from README, `llms.txt`, and the landing page.
+- User-facing GuideCheck copy now tells operators to verify the guide, read it
+  in full, and approve the reported level before assistant action.
 
 ### Fixed
 
