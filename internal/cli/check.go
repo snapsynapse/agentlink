@@ -26,7 +26,7 @@ func init() {
 func runCheck(cmd *cobra.Command, args []string) error {
 	// Find config file
 	configPath, isProject := config.FindConfigPath()
-	
+
 	// Load config (don't create if missing)
 	if _, err := os.Stat(configPath); err != nil {
 		if isProject {
@@ -58,7 +58,7 @@ func runCheck(cmd *cobra.Command, args []string) error {
 
 	// Check each link
 	hasProblems := false
-	
+
 	// Check source file
 	sourceStatus := "OK"
 	if err := manager.ValidateSource(cfg.Source); err != nil {
@@ -70,7 +70,7 @@ func runCheck(cmd *cobra.Command, args []string) error {
 	fmt.Printf("Source: %s [%s]\n", cfg.Source, sourceStatus)
 	fmt.Printf("Links:\n")
 	maxPathLen := 0
-	
+
 	// Calculate max path length for formatting
 	for _, linkPath := range cfg.Links {
 		if len(linkPath) > maxPathLen {
@@ -80,7 +80,7 @@ func runCheck(cmd *cobra.Command, args []string) error {
 
 	for _, linkPath := range cfg.Links {
 		info := manager.CheckLink(linkPath, cfg.Source)
-		
+
 		_ = info.Status.String() // We handle status display in the switch below
 
 		if info.Status != symlink.StatusOK {
@@ -89,7 +89,7 @@ func runCheck(cmd *cobra.Command, args []string) error {
 
 		// Format the output nicely
 		fmt.Printf("  %-*s -> ", maxPathLen, linkPath)
-		
+
 		switch info.Status {
 		case symlink.StatusOK:
 			fmt.Printf("%s ✓\n", cfg.Source)

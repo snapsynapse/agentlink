@@ -23,16 +23,21 @@ jobs:
       run: go test ./... -v
 
     - name: Check formatting
-      run: go fmt ./...
+      run: |
+        files="$(gofmt -l .)"
+        if [ -n "$files" ]; then
+          echo "$files"
+          exit 1
+        fi
 
-    - name: Run linter
-      run: go install golang.org/x/lint/golint@latest && golint ./...
+    - name: Run vet
+      run: go vet ./...
 
     - name: Run static analysis
-      run: go install honnef.co/go/tools/cmd/staticcheck@latest && staticcheck ./...
+      run: go install honnef.co/go/tools/cmd/staticcheck@2025.1.1 && staticcheck ./...
 
     - name: Check spelling
-      run: go install github.com/client9/misspell/cmd/misspell@latest && misspell -error .
+      run: go install github.com/client9/misspell/cmd/misspell@v0.3.4 && misspell -error .
 
     - name: Build
       run: go build ./...

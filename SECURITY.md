@@ -7,8 +7,8 @@ a small fork maintained by Snap Synapse — there is no LTS branch.
 
 | Version | Supported |
 |---------|-----------|
-| 0.1.x   | Yes       |
-| < 0.1   | No        |
+| 0.2.x   | Yes       |
+| < 0.2   | No        |
 
 ## Reporting a vulnerability
 

@@ -45,7 +45,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 			if err != nil {
 				return fmt.Errorf("failed to read input: %w", err)
 			}
-			
+
 			response = strings.ToLower(strings.TrimSpace(response))
 			if response != "y" && response != "yes" {
 				printInfo("Cancelled")

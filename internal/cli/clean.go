@@ -26,7 +26,7 @@ func init() {
 func runClean(cmd *cobra.Command, args []string) error {
 	// Find config file
 	configPath, isProject := config.FindConfigPath()
-	
+
 	// Load config (don't create if missing)
 	if _, err := os.Stat(configPath); err != nil {
 		if isProject {
@@ -67,7 +67,7 @@ func runClean(cmd *cobra.Command, args []string) error {
 		}
 
 		info := manager.CheckLink(linkPath, cfg.Source)
-		
+
 		switch info.Status {
 		case symlink.StatusOK:
 			// This is a symlink pointing to our source - remove it
@@ -79,31 +79,24 @@ func runClean(cmd *cobra.Command, args []string) error {
 			}
 			printOK("Removed %s", linkPath)
 			removedCount++
-			
+
 		case symlink.StatusMissing:
 			if verbose {
 				printSkip("%s (already missing)", linkPath)
 			}
 			skippedCount++
-			
+
 		case symlink.StatusWrongTarget:
 			printWarning("Skipped %s (points to %s, not %s)", linkPath, info.Target, cfg.Source)
 			skippedCount++
-			
+
 		case symlink.StatusNotSymlink:
 			printWarning("Skipped %s (not a symlink)", linkPath)
 			skippedCount++
-			
+
 		case symlink.StatusBroken:
-			// Remove broken symlinks
-			if !dryRun {
-				if err := os.Remove(linkPath); err != nil {
-					printError("Failed to remove broken symlink %s: %v", linkPath, err)
-					continue
-				}
-			}
-			printOK("Removed broken symlink %s", linkPath)
-			removedCount++
+			printWarning("Skipped %s (broken symlink; target ownership cannot be verified)", linkPath)
+			skippedCount++
 		}
 	}
 

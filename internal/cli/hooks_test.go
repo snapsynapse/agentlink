@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"encoding/xml"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -26,6 +28,30 @@ func TestZshHookContentQuotesBinaryPath(t *testing.T) {
 	content := zshHookContent("/tmp/Agent Link/bin/agentlink")
 	if !strings.Contains(content, "'/tmp/Agent Link/bin/agentlink' sync --quiet") {
 		t.Fatalf("zshHookContent() did not quote binary path:\n%s", content)
+	}
+}
+
+func TestLaunchdPlistContentEscapesBinaryPath(t *testing.T) {
+	binaryPath := "/tmp/Agent Link/bin/agent'link & <test>"
+	content := launchdPlistContent(binaryPath)
+
+	if !strings.Contains(content, "/tmp/Agent Link/bin/agent&#39;link &amp; &lt;test&gt;") {
+		t.Fatalf("launchdPlistContent() did not XML-escape binary path:\n%s", content)
+	}
+
+	args, err := parseLaunchdProgramArguments(content)
+	if err != nil {
+		t.Fatalf("launchdPlistContent() produced invalid XML: %v\n%s", err, content)
+	}
+
+	want := []string{binaryPath, "sync", "--quiet"}
+	if len(args) != len(want) {
+		t.Fatalf("ProgramArguments = %v, want %v", args, want)
+	}
+	for i := range want {
+		if args[i] != want[i] {
+			t.Fatalf("ProgramArguments[%d] = %q, want %q", i, args[i], want[i])
+		}
 	}
 }
 
@@ -88,4 +114,48 @@ func TestInstallGitHooksRejectsRelativeHooksPath(t *testing.T) {
 	if err := installGitHooksWithDir("relative/hooks", "/tmp/agentlink"); err == nil {
 		t.Fatal("installGitHooksWithDir() succeeded for relative hooks path, want error")
 	}
+}
+
+func parseLaunchdProgramArguments(content string) ([]string, error) {
+	decoder := xml.NewDecoder(strings.NewReader(content))
+	var lastKey string
+	var inProgramArguments bool
+	var args []string
+
+	for {
+		token, err := decoder.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		switch t := token.(type) {
+		case xml.StartElement:
+			switch t.Name.Local {
+			case "key":
+				var key string
+				if err := decoder.DecodeElement(&key, &t); err != nil {
+					return nil, err
+				}
+				lastKey = key
+			case "array":
+				inProgramArguments = lastKey == "ProgramArguments"
+			case "string":
+				if inProgramArguments {
+					var value string
+					if err := decoder.DecodeElement(&value, &t); err != nil {
+						return nil, err
+					}
+					args = append(args, value)
+				}
+			}
+		case xml.EndElement:
+			if t.Name.Local == "array" && inProgramArguments {
+				inProgramArguments = false
+			}
+		}
+	}
+	return args, nil
 }

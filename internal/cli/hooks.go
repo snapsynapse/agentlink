@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/xml"
 	"fmt"
 	"os"
 	"os/exec"
@@ -379,7 +380,7 @@ func launchdPlistContent(binaryPath string) string {
     <string>/tmp/agentlink-sync.err</string>
 </dict>
 </plist>
-`, launchdLabel, binaryPath)
+`, xmlEscapeString(launchdLabel), xmlEscapeString(binaryPath))
 }
 
 func installLaunchdAgent(binaryPath string) error {
@@ -446,6 +447,14 @@ func resolveAgentlinkBinary() (string, error) {
 
 func shellQuote(value string) string {
 	return "'" + strings.ReplaceAll(value, "'", "'\\''") + "'"
+}
+
+func xmlEscapeString(value string) string {
+	var b strings.Builder
+	if err := xml.EscapeText(&b, []byte(value)); err != nil {
+		return value
+	}
+	return b.String()
 }
 
 func fileContainsAgentlink(path string) bool {

@@ -17,6 +17,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `agentlink clean` now skips broken symlinks instead of deleting them,
+  because their original target ownership cannot be verified once the target
+  is missing.
+- Generated launchd plists now XML-escape interpolated string values, so
+  binary paths containing XML-sensitive characters still produce valid plist
+  files.
+- CI now uses a failing gofmt check instead of rewriting files, removes the
+  stale `golint` gate, and pins external check tools instead of installing
+  moving `latest` versions.
+- `SECURITY.md` now lists the current `0.2.x` release line as supported,
+  matching the policy that only the latest tagged release on `main` receives
+  security fixes.
 - `agentlink sync --dry-run` is now a true preview mode when combined with
   `--backup` or `--force`; it no longer removes conflicting files, rewrites
   symlinks, or creates backup files.
