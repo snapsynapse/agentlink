@@ -3,7 +3,7 @@
 [![Checks](https://github.com/snapsynapse/agentlink/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/snapsynapse/agentlink/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **Fork notice.** This is a Snap Synapse fork of [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT). Extended with `detect`, `scan`, `hooks`, automatic backup, global-config support, and integration tests. See [NOTICE](NOTICE) for full attribution. Upstream PR: [martinmose/agentlink#2](https://github.com/martinmose/agentlink/pull/2).
+> **Origin.** Agentlink began as [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT). This repository is the maintained standalone continuation, extended with `detect`, `scan`, `hooks`, automatic backup, global-config support, and integration tests. See [NOTICE](NOTICE) for full attribution. The additions remain offered upstream in [martinmose/agentlink#3](https://github.com/martinmose/agentlink/pull/3).
 
 Sync one AGENTS.md to every AI coding tool on your machine, with **zero magic**, just symlinks.
 
@@ -265,6 +265,7 @@ agentlink detect -v          # show global config paths and AGENTS.md support
 | Claude Code | ~/.claude/CLAUDE.md | CLAUDE.md | No (CLAUDE.md) |
 | Cline | -- | -- | No |
 | Continue | ~/.continue/config.yaml | -- | No |
+| Crush | -- | AGENTS.md | Yes |
 | Cursor | -- | AGENTS.md | Yes |
 | Factory (Droid) | ~/.factory/AGENTS.md | AGENTS.md | Yes |
 | Gemini CLI | ~/.gemini/GEMINI.md | GEMINI.md | No (GEMINI.md) |
@@ -272,8 +273,11 @@ agentlink detect -v          # show global config paths and AGENTS.md support
 | Goose | ~/.config/goose/.goosehints | .goosehints | No |
 | Junie | -- | .junie/AGENTS.md | Yes |
 | Kilo Code | -- | AGENTS.md | Yes |
+| Kiro | -- | AGENTS.md | Yes |
 | Codex CLI | ~/.codex/AGENTS.md | AGENTS.md | Yes |
+| OpenClaw | ~/.openclaw/workspace/AGENTS.md | -- | Yes |
 | OpenCode | ~/.config/opencode/AGENTS.md | AGENTS.md | Yes |
+| Qwen Code | ~/.qwen/QWEN.md | QWEN.md | No (QWEN.md) |
 | RooCode | -- | .roo/rules/rules.md | No |
 | Windsurf | -- | AGENTS.md | Yes |
 | Zed | -- | AGENTS.md | Yes |
@@ -441,4 +445,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). To add a tool to the registry, open an i
 
 ## About
 
-Maintained as a [Snap Synapse](https://snapsynapse.com/) personal utility. Upstream credit to Martin Mose Facondini remains intact — see [NOTICE](NOTICE). Fork additions are offered back upstream in [martinmose/agentlink#2](https://github.com/martinmose/agentlink/pull/2).
+Maintained as a [Snap Synapse](https://snapsynapse.com/) personal utility. Upstream credit to Martin Mose Facondini remains intact — see [NOTICE](NOTICE). The additions are offered back upstream in [martinmose/agentlink#3](https://github.com/martinmose/agentlink/pull/3).

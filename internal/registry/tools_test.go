@@ -10,8 +10,34 @@ func TestAllReturnsNonEmpty(t *testing.T) {
 	if len(tools) == 0 {
 		t.Fatal("All() returned empty slice")
 	}
-	if len(tools) < 15 {
-		t.Errorf("expected at least 15 tools, got %d", len(tools))
+	if len(tools) < 19 {
+		t.Errorf("expected at least 19 tools, got %d", len(tools))
+	}
+}
+
+func TestRegistryIncludes2026Tools(t *testing.T) {
+	want := map[string]string{
+		"Crush":     "AGENTS.md",
+		"Kiro":      "AGENTS.md",
+		"OpenClaw":  "",
+		"Qwen Code": "QWEN.md",
+	}
+	byName := make(map[string]Tool)
+	for _, tool := range All() {
+		byName[tool.Name] = tool
+	}
+	for name, repoFile := range want {
+		tool, ok := byName[name]
+		if !ok {
+			t.Errorf("registry missing tool %q", name)
+			continue
+		}
+		if tool.RepoFileName != repoFile {
+			t.Errorf("tool %q RepoFileName = %q, want %q", name, tool.RepoFileName, repoFile)
+		}
+	}
+	if byName["OpenClaw"].GlobalConfigPath != "~/.openclaw/workspace/AGENTS.md" {
+		t.Errorf("OpenClaw GlobalConfigPath = %q", byName["OpenClaw"].GlobalConfigPath)
 	}
 }
 

@@ -4,7 +4,9 @@ Sync one AGENTS.md to every AI coding tool on your machine, with zero magic, jus
 
 ## Summary
 
-Agentlink is a small Go CLI that keeps AI coding assistant instruction files in sync across every tool on a machine by declaring one real source file and symlinking every tool-specific alias to it. Different tools expect different filenames at project root (AGENTS.md for OpenAI Codex and OpenCode, CLAUDE.md for Claude Code, GEMINI.md for Gemini CLI, .cursorrules for Cursor, .github/copilot-instructions.md for GitHub Copilot). There is no standard. Agentlink fixes the drift problem without code generation: edit one real file, every tool sees the change instantly.
+Agentlink is a small Go CLI that keeps AI coding assistant instruction files in sync across every tool on a machine by declaring one real source file and symlinking every tool-specific alias to it. Tools expect different filenames (AGENTS.md for Codex, Cursor, OpenCode, Crush, and Kiro; CLAUDE.md for Claude Code; GEMINI.md for Gemini CLI; QWEN.md for Qwen Code; .github/copilot-instructions.md for GitHub Copilot) and different global paths (~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.openclaw/workspace/AGENTS.md). Agentlink fixes the drift problem without code generation: edit one real file, every tool sees the change instantly. The registry covers 23 tools out of the box; any other path can be added in config.
+
+Install: brew install snapsynapse/tap/agentlink (or pre-built binaries and go install; see README).
 
 Scope is deliberately narrow: instruction files only. No MCP servers, no chain configs, no templating.
 
@@ -40,11 +42,13 @@ Scope is deliberately narrow: instruction files only. No MCP servers, no chain c
 
 - Canonical landing: https://agentlink.run/
 - Assistant Guide: https://agentlink.run/.well-known/assistant-guide.txt
-- Snap Synapse fork (this project): https://github.com/snapsynapse/agentlink
+- This project (maintained standalone continuation): https://github.com/snapsynapse/agentlink
 - Upstream original by Martin Mose Facondini: https://github.com/martinmose/agentlink
-- Upstream PR from the fork: https://github.com/martinmose/agentlink/pull/2
+- Additions offered upstream: https://github.com/martinmose/agentlink/pull/3
 
-The fork adds detect, scan, hooks, automatic backup, global-config support, and integration tests. Upstream is MIT; fork is MIT.
+This continuation adds detect, scan, hooks, automatic backup, global-config support, and integration tests. Upstream is MIT; this project is MIT. Full attribution in NOTICE.
+
+Last updated: 2026-06-10
 
 ## Related projects from the same author
 

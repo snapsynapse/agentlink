@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Four tools in the detection registry, bringing it to 23: Crush
+  (AGENTS.md), Kiro (AGENTS.md), Qwen Code (QWEN.md, `~/.qwen/QWEN.md`),
+  and OpenClaw (global `~/.openclaw/workspace/AGENTS.md`, no repo file).
+
+### Changed
+
+- The repository is now a standalone GitHub repository instead of a fork,
+  so it appears in GitHub search. Attribution to the upstream original is
+  unchanged (NOTICE, README, commit history); the additions are re-offered
+  upstream in martinmose/agentlink#3 after #2 was auto-closed by the
+  conversion.
+- README, landing page, llms.txt, NOTICE, and sitemap refreshed: standalone
+  continuation wording, the 23-tool table, Homebrew install, and a
+  2026-06-10 revision date.
+
 ## [0.3.0] - 2026-06-10
 
 ### Added

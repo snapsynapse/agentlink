@@ -109,6 +109,15 @@ func All() []Tool {
 			DetectCommands:   []string{"continue"},
 		},
 		{
+			Name:             "Crush",
+			Description:      "Charm terminal coding agent",
+			GlobalConfigPath: "",
+			RepoFileName:     "AGENTS.md",
+			ReadsAgentsMD:    true,
+			DetectPaths:      []string{"~/.config/crush"},
+			DetectCommands:   []string{"crush"},
+		},
+		{
 			Name:             "Cursor",
 			Description:      "AI-first code editor",
 			GlobalConfigPath: "",
@@ -172,6 +181,15 @@ func All() []Tool {
 			DetectCommands:   []string{"kilo"},
 		},
 		{
+			Name:             "Kiro",
+			Description:      "AWS agentic IDE",
+			GlobalConfigPath: "",
+			RepoFileName:     "AGENTS.md",
+			ReadsAgentsMD:    true,
+			DetectPaths:      []string{"~/.kiro"},
+			DetectCommands:   []string{"kiro"},
+		},
+		{
 			Name:             "Codex CLI",
 			Description:      "OpenAI command-line coding agent",
 			GlobalConfigPath: "~/.codex/AGENTS.md",
@@ -181,6 +199,15 @@ func All() []Tool {
 			DetectCommands:   []string{"codex"},
 		},
 		{
+			Name:             "OpenClaw",
+			Description:      "Personal AI assistant with an agent workspace",
+			GlobalConfigPath: "~/.openclaw/workspace/AGENTS.md",
+			RepoFileName:     "",
+			ReadsAgentsMD:    true,
+			DetectPaths:      []string{"~/.openclaw"},
+			DetectCommands:   []string{"openclaw"},
+		},
+		{
 			Name:             "OpenCode",
 			Description:      "Terminal-based AI coding assistant",
 			GlobalConfigPath: "~/.config/opencode/AGENTS.md",
@@ -188,6 +215,15 @@ func All() []Tool {
 			ReadsAgentsMD:    true,
 			DetectPaths:      []string{"~/.config/opencode"},
 			DetectCommands:   []string{"opencode"},
+		},
+		{
+			Name:             "Qwen Code",
+			Description:      "Alibaba open-source CLI for agentic coding",
+			GlobalConfigPath: "~/.qwen/QWEN.md",
+			RepoFileName:     "QWEN.md",
+			ReadsAgentsMD:    false,
+			DetectPaths:      []string{"~/.qwen"},
+			DetectCommands:   []string{"qwen"},
 		},
 		{
 			Name:             "RooCode",
