@@ -352,6 +352,7 @@
       gap: 1.5rem;
       margin-top: 1.5rem;
     }
+    .code-grid.single { grid-template-columns: 1fr; }
     .code-block { text-align: left; }
     .code-block h3 { font-size: 0.95rem; margin-bottom: 0.75rem; }
     .code-block .annotation {
@@ -558,7 +559,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
     <h2>Install</h2>
     <p>Pre-built binaries for macOS and Linux are on the <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.3.0" target="_blank" rel="noopener">v0.3.0 release page</a>. Or build from source with Go 1.23+.</p>
 
-    <div class="code-grid">
+    <div class="code-grid single">
       <div class="code-block">
         <h3>Homebrew (macOS and Linux)</h3>
 <pre>brew install snapsynapse/tap/agentlink
