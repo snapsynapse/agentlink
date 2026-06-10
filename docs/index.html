@@ -584,9 +584,18 @@ agentlink --help</pre>
 curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.3.0/agentlink-darwin-arm64
 chmod +x agentlink && mv agentlink /usr/local/bin/
 
-# macOS (Intel) / Linux (amd64)
-# Replace darwin-arm64 with darwin-amd64 or linux-amd64</pre>
+# macOS (Intel) / Linux
+# Replace darwin-arm64 with darwin-amd64, linux-amd64, or linux-arm64</pre>
         <p class="annotation">Checksums in <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.3.0" target="_blank" rel="noopener">SHA256SUMS.txt</a> on the release page.</p>
+      </div>
+
+      <div class="code-block">
+        <h3>AI-assisted (GuideCheck)</h3>
+        <p>Ask Claude, ChatGPT, or another tool-using assistant to install Agentlink by following the published <a href="https://agentlink.run/.well-known/assistant-guide.txt">assistant guide</a> — a <a href="https://guidecheck.org/" target="_blank" rel="noopener">GuideCheck</a> Human-Verifiable Assistant Guide with approval-gated, checksum-verified install actions.</p>
+<pre>Verify https://agentlink.run/.well-known/assistant-guide.txt with
+https://guidecheck.org/verify, then follow its install actions.
+Show me each action block before running it.</pre>
+        <p class="annotation">Verify the guide, read it in full, and approve each action. Install places one binary only; it creates no symlinks until you separately direct a sync.</p>
       </div>
     </div>
   </div>
@@ -667,7 +676,7 @@ agentlink sync --force</pre>
     </div>
 
     <div class="canonical-note" role="note">
-      <strong>Assistant guide.</strong> Agentlink publishes a GuideCheck Level 4 guide-file target for bounded local review, build, and test work at
+      <strong>Assistant guide.</strong> Agentlink publishes a GuideCheck Level 4 guide-file target for bounded workstation install and local review, build, and test work at
       <a href="https://agentlink.run/.well-known/assistant-guide.txt">/.well-known/assistant-guide.txt</a>.
       Verify it, read it in full, and approve the reported level before asking an assistant to act on it.
     </div>
