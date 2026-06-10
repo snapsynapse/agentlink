@@ -83,6 +83,22 @@ links:
 
 ## Install
 
+### Homebrew (macOS and Linux)
+
+```bash
+brew install snapsynapse/tap/agentlink
+```
+
+### Pre-built binary
+
+Download the binary for your platform from the [latest release](https://github.com/snapsynapse/agentlink/releases/latest), verify it against `SHA256SUMS.txt`, then:
+
+```bash
+chmod +x agentlink-darwin-arm64 && mv agentlink-darwin-arm64 /usr/local/bin/agentlink
+```
+
+Binaries: `darwin-arm64`, `darwin-amd64`, `linux-amd64`, `linux-arm64`.
+
 ### From source (requires Go 1.23+)
 
 ```bash
@@ -104,9 +120,7 @@ export PATH="$HOME/go/bin:$PATH"
 
 ### Planned distribution
 
-- **Homebrew (tap)**: `brew install agentlink`
 - **AUR**: `yay -S agentlink-bin`
-- **Direct download**: Single static binary from GitHub Releases.
 
 ---
 

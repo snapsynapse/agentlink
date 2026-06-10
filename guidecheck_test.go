@@ -43,10 +43,10 @@ func TestGuideCheckArtifactProfile(t *testing.T) {
 		"repository-url: https://github.com/snapsynapse/agentlink",
 		"manifest-url: https://agentlink.run/.well-known/assistant-guide-manifest.txt",
 		"Assistant invocation prompt",
-		"Stop-and-ask conditions",
+		"Stop and ask",
+		"Install actions",
 		"Threat model",
 		"Untrusted content handling",
-		"Public information safety",
 		"Acceptance checklist",
 	}
 	text := string(data)

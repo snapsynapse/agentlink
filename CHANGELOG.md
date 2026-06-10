@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-10
+
 ### Added
+
+- Homebrew tap install: `brew install snapsynapse/tap/agentlink`.
+- Pre-built `linux-arm64` release binary alongside the existing darwin and
+  linux amd64/arm64 assets.
+- The assistant guide now covers workstation install: Homebrew tap as the
+  preferred path and a pinned, checksum-gated binary download as fallback,
+  each as approval-gated GuideCheck action blocks (guide-version 1.1.0).
+
+### Changed
+
+- The assistant guide is restructured to pass the GuideCheck reference
+  verifier 0.5.0 with zero findings: title format, "Stop and ask" heading,
+  negation-safe phrasing, and the 8192-byte size cap. The "Public
+  information safety" section was folded into the safety rules to stay
+  under the cap.
 
 - GuideCheck adoption at the highest guide-file level: a Level 4 target
   `assistant-guide.txt`, sidecar manifest, repository hash anchor, and
@@ -109,5 +126,6 @@ by Martin Mose Facondini (MIT). Fork additions offered back upstream in
 [martinmose/agentlink#2](https://github.com/martinmose/agentlink/pull/2).
 See [NOTICE](NOTICE) for the full fork provenance.
 
-[Unreleased]: https://github.com/snapsynapse/agentlink/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/snapsynapse/agentlink/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/snapsynapse/agentlink/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/snapsynapse/agentlink/releases/tag/v0.2.0
