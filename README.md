@@ -89,6 +89,8 @@ links:
 brew install snapsynapse/tap/agentlink
 ```
 
+The formula lives in [snapsynapse/homebrew-tap](https://github.com/snapsynapse/homebrew-tap) and installs the same checksummed binaries as the release page.
+
 ### Pre-built binary
 
 Download the binary for your platform from the [latest release](https://github.com/snapsynapse/agentlink/releases/latest), verify it against `SHA256SUMS.txt`, then:

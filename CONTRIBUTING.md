@@ -67,6 +67,27 @@ New tools go in `internal/registry/tools.go`. Each entry needs:
 Add a unit-test entry in `tools_test.go` confirming the new tool is
 returned and has a unique name. No code changes elsewhere are required.
 
+## Releasing (maintainers)
+
+Distribution has two halves: GitHub release assets on this repo, and the
+Homebrew formula in [snapsynapse/homebrew-tap](https://github.com/snapsynapse/homebrew-tap)
+(`Formula/agentlink.rb`), which is what `brew install snapsynapse/tap/agentlink`
+resolves to. Both are updated by one script:
+
+```bash
+scripts/release.sh 0.4.0
+```
+
+It runs the test gates, cross-builds the four binaries with version stamps,
+writes `SHA256SUMS.txt`, bumps the landing page, tags and publishes the
+GitHub release, rewrites the tap formula with the new URLs and checksums,
+and runs `scripts/verify-release.sh`. Two manual follow-ups: add the
+CHANGELOG section before running the script (it refuses to release a
+version the CHANGELOG does not mention), and if the assistant guide's
+pinned fallback download URLs should track the new release, update
+`docs/.well-known/assistant-guide.txt`, re-verify it, and update its
+manifest.
+
 ## Where to ask questions
 
 Open a GitHub issue. Discussions are off for now — if traffic picks up,
