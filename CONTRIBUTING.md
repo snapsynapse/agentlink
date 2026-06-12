@@ -1,9 +1,10 @@
 # Contributing
 
-Thanks for considering a contribution. This is a Snap Synapse fork of
-[martinmose/agentlink](https://github.com/martinmose/agentlink) — upstream
-credit and MIT license are preserved. Contributions that improve both the
-fork and upstream are welcome and will be offered back where applicable.
+Thanks for considering a contribution. Agentlink is maintained as a Snap
+Synapse project with lineage from
+[martinmose/agentlink](https://github.com/martinmose/agentlink). Upstream
+credit and the MIT license are preserved; current project direction,
+issues, and releases live in this repository.
 
 ## Build and test locally
 

@@ -5,9 +5,10 @@ This product includes software originally developed by Martin Mose Facondini
 as agentlink (https://github.com/martinmose/agentlink), licensed under the
 MIT License. Copyright (c) 2025 Martin Mose Facondini.
 
-This repository is the maintained standalone continuation, kept by
-Snap Synapse (https://snapsynapse.com/) as a personal utility. It adds
-the following, while preserving the upstream license and attribution:
+This repository is the Snap Synapse-maintained standalone continuation.
+It is the canonical home for current project direction, issues, releases,
+and documentation. It adds the following, while preserving the upstream
+license and attribution:
 
 - `agentlink detect` — registry-backed auto-detection of installed AI coding
   tools and generation of `.agentlink.yaml` scaffolds.
@@ -24,7 +25,10 @@ the following, while preserving the upstream license and attribution:
 - Tool registry (`internal/registry/`) with 23 AI coding tools and
   unit tests.
 
-Upstream pull request offering these additions back to martinmose/agentlink:
+Historical note: the Snap Synapse work was originally offered upstream as
+martinmose/agentlink#2. That pull request was auto-closed when this
+repository was converted into a standalone GitHub repository; the same
+lineage was recorded in replacement pull request:
 https://github.com/martinmose/agentlink/pull/3
 
 The upstream MIT license applies to all code in this repository. The

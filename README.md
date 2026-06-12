@@ -3,7 +3,7 @@
 [![Checks](https://github.com/snapsynapse/agentlink/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/snapsynapse/agentlink/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **Origin.** Agentlink began as [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT). This repository is the maintained standalone continuation, extended with `detect`, `scan`, `hooks`, automatic backup, global-config support, and integration tests. See [NOTICE](NOTICE) for full attribution. The additions remain offered upstream in [martinmose/agentlink#3](https://github.com/martinmose/agentlink/pull/3).
+> **Origin.** Agentlink began as [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT). This repository is the Snap Synapse-maintained standalone continuation, extended with `detect`, `scan`, `hooks`, automatic backup, global-config support, and integration tests. See [NOTICE](NOTICE) for full attribution and lineage.
 
 Sync one AGENTS.md to every AI coding tool on your machine, with **zero magic**, just symlinks.
 
@@ -445,4 +445,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). To add a tool to the registry, open an i
 
 ## About
 
-Maintained as a [Snap Synapse](https://snapsynapse.com/) personal utility. Upstream credit to Martin Mose Facondini remains intact — see [NOTICE](NOTICE). The additions are offered back upstream in [martinmose/agentlink#3](https://github.com/martinmose/agentlink/pull/3).
+Maintained as a [Snap Synapse](https://snapsynapse.com/) project. Agentlink began as [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT); upstream credit remains intact in [NOTICE](NOTICE). This repository is the canonical home for current project direction, issues, releases, and documentation.

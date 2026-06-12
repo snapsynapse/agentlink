@@ -14,7 +14,7 @@ tmp="$(mktemp -d "${TMPDIR:-/tmp}/agentlink-release-${version}.XXXXXX")"
 gh release view "$version" --repo "$repo" --json tagName,url,assets >"$tmp/release-view.json"
 gh release download "$version" --repo "$repo" --dir "$tmp" --clobber
 
-for asset in agentlink-darwin-arm64 agentlink-darwin-amd64 agentlink-linux-amd64 SHA256SUMS.txt; do
+for asset in agentlink-darwin-arm64 agentlink-darwin-amd64 agentlink-linux-amd64 agentlink-linux-arm64 SHA256SUMS.txt; do
   test -f "$tmp/$asset"
 done
 

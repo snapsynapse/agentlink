@@ -15,11 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- The repository is now a standalone GitHub repository instead of a fork,
-  so it appears in GitHub search. Attribution to the upstream original is
-  unchanged (NOTICE, README, commit history); the additions are re-offered
-  upstream in martinmose/agentlink#3 after #2 was auto-closed by the
-  conversion.
+- The repository is now a standalone GitHub repository instead of a GitHub
+  fork relationship, so it appears in GitHub search. Attribution to the
+  upstream original is unchanged (NOTICE, README, commit history); NOTICE
+  records the historical PR #2 to #3 lineage after #2 was auto-closed by
+  the conversion.
+- CONTRIBUTING, README, NOTICE, landing page, and llms.txt now frame
+  Agentlink as a Snap Synapse project with upstream lineage, with this
+  repository as the canonical home for current direction and releases.
 - README, landing page, llms.txt, NOTICE, and sitemap refreshed: standalone
   continuation wording, the 23-tool table, Homebrew install, and a
   2026-06-10 revision date.

@@ -42,11 +42,11 @@ Scope is deliberately narrow: instruction files only. No MCP servers, no chain c
 
 - Canonical landing: https://agentlink.run/
 - Assistant Guide: https://agentlink.run/.well-known/assistant-guide.txt
-- This project (maintained standalone continuation): https://github.com/snapsynapse/agentlink
+- This project (Snap Synapse maintained continuation): https://github.com/snapsynapse/agentlink
 - Upstream original by Martin Mose Facondini: https://github.com/martinmose/agentlink
-- Additions offered upstream: https://github.com/martinmose/agentlink/pull/3
+- Historical replacement PR after standalone repository conversion: https://github.com/martinmose/agentlink/pull/3
 
-This continuation adds detect, scan, hooks, automatic backup, global-config support, and integration tests. Upstream is MIT; this project is MIT. Full attribution in NOTICE.
+This repository is the canonical home for current Agentlink project direction, issues, releases, and documentation. It preserves upstream MIT attribution while carrying the Snap Synapse continuation: detect, scan, hooks, automatic backup, global-config support, integration tests, and release distribution. Full attribution and the PR #2 to #3 lineage note are in NOTICE.
 
 Last updated: 2026-06-10
 
