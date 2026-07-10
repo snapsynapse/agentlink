@@ -87,18 +87,11 @@ func runDetect(cmd *cobra.Command, args []string) error {
 func generateConfig(detected []registry.Detected) error {
 	configPath := ".agentlink.yaml"
 
-	if _, err := os.Stat(configPath); err == nil {
-		if !force {
-			printError(".agentlink.yaml already exists (use --force to overwrite)")
-			return fmt.Errorf("config file already exists")
-		}
-	}
-
 	// Build link list from detected tools
 	var links []string
 	seen := make(map[string]bool)
 
-	// Always include AGENTS.md as a link target
+	// AGENTS.md is the source, so never include it as its own link target.
 	seen["AGENTS.md"] = true
 
 	for _, d := range detected {
@@ -110,8 +103,24 @@ func generateConfig(detected []registry.Detected) error {
 		}
 	}
 
+	if len(links) == 0 {
+		if len(detected) == 0 {
+			printInfo("No supported tools detected; no config generated")
+		} else {
+			printInfo("Detected tools read AGENTS.md directly; no config is needed")
+		}
+		return nil
+	}
+
+	if _, err := os.Stat(configPath); err == nil {
+		if !force {
+			printError(".agentlink.yaml already exists (use --force to overwrite)")
+			return fmt.Errorf("config file already exists")
+		}
+	}
+
 	if dryRun {
-		printInfo("Would generate .agentlink.yaml with %d links", len(links)+1)
+		printInfo("Would generate .agentlink.yaml with %d links", len(links))
 		return nil
 	}
 

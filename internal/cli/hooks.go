@@ -468,7 +468,7 @@ func fileContainsAgentlink(path string) bool {
 func appendOrCreateHook(path, content string) error {
 	// If file exists and already has our marker, skip
 	if fileContainsAgentlink(path) {
-		return nil
+		return ensureUserExecutable(path)
 	}
 
 	// If file doesn't exist, create with shebang
@@ -477,7 +477,7 @@ func appendOrCreateHook(path, content string) error {
 		if err := os.WriteFile(path, []byte(full), 0755); err != nil {
 			return err
 		}
-		return nil
+		return ensureUserExecutable(path)
 	}
 
 	// Append to existing hook
@@ -487,8 +487,21 @@ func appendOrCreateHook(path, content string) error {
 	}
 	defer f.Close()
 
-	_, err = f.WriteString("\n" + content)
-	return err
+	if _, err = f.WriteString("\n" + content); err != nil {
+		return err
+	}
+	if err := f.Close(); err != nil {
+		return err
+	}
+	return ensureUserExecutable(path)
+}
+
+func ensureUserExecutable(path string) error {
+	info, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+	return os.Chmod(path, info.Mode().Perm()|0100)
 }
 
 func removeMarkedSection(path string) (bool, error) {

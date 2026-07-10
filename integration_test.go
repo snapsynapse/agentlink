@@ -137,6 +137,54 @@ func TestIntegrationBasicWorkflow(t *testing.T) {
 	}
 }
 
+func TestIntegrationSyncForceCannotReplaceSourceWithSelfLink(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	binaryPath := filepath.Join(origDir, "agentlink")
+	if _, err := os.Stat(binaryPath); err != nil {
+		t.Fatalf("Binary not found at %s. Make sure to run 'go build -o agentlink ./cmd/agentlink' first", binaryPath)
+	}
+
+	sourcePath := filepath.Join(tmpDir, "AGENTS.md")
+	const sourceContent = "# irreplaceable source\n"
+	if err := os.WriteFile(sourcePath, []byte(sourceContent), 0644); err != nil {
+		t.Fatal(err)
+	}
+	configContent := "source: AGENTS.md\nlinks:\n  - ./nested/../AGENTS.md\n"
+	if err := os.WriteFile(filepath.Join(tmpDir, ".agentlink.yaml"), []byte(configContent), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := exec.Command(binaryPath, "sync", "--force")
+	cmd.Dir = tmpDir
+	output, err := cmd.CombinedOutput()
+	if err == nil {
+		t.Fatalf("sync --force accepted source as its own link:\n%s", output)
+	}
+
+	info, err := os.Lstat(sourcePath)
+	if err != nil {
+		t.Fatalf("source was removed: %v\nOutput: %s", err, output)
+	}
+	if info.Mode()&os.ModeSymlink != 0 {
+		t.Fatalf("source was replaced with a symlink\nOutput: %s", output)
+	}
+	data, err := os.ReadFile(sourcePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(data) != sourceContent {
+		t.Fatalf("source content changed to %q", data)
+	}
+}
+
 func TestIntegrationDoctorCommand(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")

@@ -37,6 +37,14 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, fmt.Errorf("failed to expand paths in %s: %w", path, err)
 	}
 
+	// Validate again after expansion so path aliases are compared as normalized,
+	// absolute paths. This must happen before sync is allowed to touch the
+	// filesystem: with --force, a link that aliases the source would otherwise
+	// replace the source itself.
+	if err := config.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid config in %s: %w", path, err)
+	}
+
 	return &config, nil
 }
 
@@ -48,12 +56,23 @@ func (c *Config) Validate() error {
 	if len(c.Links) == 0 {
 		return fmt.Errorf("links cannot be empty")
 	}
+
+	source := filepath.Clean(c.Source)
+	for _, link := range c.Links {
+		if filepath.Clean(link) == source {
+			return fmt.Errorf("link path %q cannot be the same as source path %q", link, c.Source)
+		}
+	}
 	return nil
 }
 
 // ExpandPaths expands ~ and makes relative paths absolute based on configDir
 func (c *Config) ExpandPaths(configDir string) error {
-	var err error
+	absoluteConfigDir, err := filepath.Abs(configDir)
+	if err != nil {
+		return fmt.Errorf("failed to resolve config directory: %w", err)
+	}
+	configDir = absoluteConfigDir
 
 	// Expand source path
 	c.Source, err = expandPath(c.Source, configDir)

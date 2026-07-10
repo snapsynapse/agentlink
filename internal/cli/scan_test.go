@@ -6,6 +6,39 @@ import (
 	"testing"
 )
 
+func TestRunScanReturnsErrorWhenLinkCannotBeCreated(t *testing.T) {
+	root := t.TempDir()
+	repo := filepath.Join(root, "repo")
+	if err := os.MkdirAll(filepath.Join(repo, ".git"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(repo, "AGENTS.md"), []byte("instructions"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	targets := repoLinkTargets()
+	if len(targets) == 0 {
+		t.Fatal("registry has no repo link targets to exercise")
+	}
+	if err := os.WriteFile(filepath.Join(repo, targets[0]), []byte("conflict"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	oldDryRun, oldForce, oldVerbose, oldScanDir := dryRun, force, verbose, scanDir
+	t.Cleanup(func() {
+		dryRun, force, verbose, scanDir = oldDryRun, oldForce, oldVerbose, oldScanDir
+	})
+	dryRun, force, verbose, scanDir = false, false, false, ""
+
+	err := runScan(scanCmd, []string{root})
+	if err == nil {
+		t.Fatal("runScan() error = nil, want aggregate link error")
+	}
+	if got := err.Error(); got != "scan completed with 1 link error(s)" {
+		t.Fatalf("runScan() error = %q, want aggregate error count", got)
+	}
+}
+
 func TestFindGitReposDetectsStandardRepo(t *testing.T) {
 	root := t.TempDir()
 	repo := filepath.Join(root, "repo")

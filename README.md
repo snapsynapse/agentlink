@@ -235,7 +235,7 @@ agentlink --verbose          # detailed output for any command (or -v)
 
 When a target path already contains a real file (not a symlink), agentlink stops and reports the conflict with the file size and last-modified date. It never silently overwrites your files. Options:
 
-- `--backup` backs up the existing file to `<name>.bak` (or `<name>.<timestamp>.bak` if `.bak` already exists), then creates the symlink.
+- `--backup` backs up the existing file to `<name>.bak` (or `<name>.<timestamp>.bak`, with a numeric suffix for further collisions), then creates the symlink. Backups use an exclusive hard link so an existing backup is never overwritten. On filesystems without hard-link support, sync stops and leaves the original unchanged.
 - `--force` replaces a regular file without backup. Use when you've already inspected or don't care about the existing content.
 - `--dry-run` is a hard preview mode. It does not create symlinks, remove files, fix broken links, or write backups, even when combined with `--backup` or `--force`.
 - Neither flag: agentlink reports the conflict and skips the file.
