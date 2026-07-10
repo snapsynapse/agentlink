@@ -13,6 +13,7 @@ import (
 
 var (
 	syncBackup bool
+	backupNow  = time.Now
 )
 
 var syncCmd = &cobra.Command{
@@ -181,17 +182,28 @@ func processLink(manager *symlink.Manager, linkPath, sourcePath string) error {
 
 func backupFile(path string) error {
 	bakPath := path + ".bak"
+	timestamped := fmt.Sprintf("%s.%s.bak", path, backupNow().Format("20060102-150405"))
+	for suffix := -1; ; suffix++ {
+		if suffix == 0 {
+			bakPath = timestamped
+		} else if suffix > 0 {
+			bakPath = fmt.Sprintf("%s.%d", timestamped, suffix)
+		}
 
-	// If .bak already exists, use timestamped name
-	if _, err := os.Stat(bakPath); err == nil {
-		ts := time.Now().Format("20060102-150405")
-		bakPath = fmt.Sprintf("%s.%s.bak", path, ts)
+		// Link creates the destination exclusively. Unlike a check followed by
+		// Rename, this cannot overwrite a backup created concurrently.
+		if err := os.Link(path, bakPath); err != nil {
+			if os.IsExist(err) {
+				continue
+			}
+			return fmt.Errorf("failed to create no-clobber backup %s from %s (the filesystem may not support hard links; original left unchanged): %w", bakPath, path, err)
+		}
+		if err := os.Remove(path); err != nil {
+			_ = os.Remove(bakPath)
+			return fmt.Errorf("failed to remove %s after backing up to %s: %w", path, bakPath, err)
+		}
+
+		printInfo("Backed up %s -> %s", path, bakPath)
+		return nil
 	}
-
-	if err := os.Rename(path, bakPath); err != nil {
-		return fmt.Errorf("failed to back up %s to %s: %w", path, bakPath, err)
-	}
-
-	printInfo("Backed up %s -> %s", path, bakPath)
-	return nil
 }

@@ -133,6 +133,10 @@ func runScan(cmd *cobra.Command, args []string) error {
 		printInfo("Dry run - no changes made")
 	}
 
+	if errors > 0 {
+		return fmt.Errorf("scan completed with %d link error(s)", errors)
+	}
+
 	return nil
 }
 

@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -73,6 +74,22 @@ func TestValidateConfig(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "link is source",
+			config: Config{
+				Source: "AGENTS.md",
+				Links:  []string{"AGENTS.md"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "link is syntactic alias of source",
+			config: Config{
+				Source: "docs/../AGENTS.md",
+				Links:  []string{"./AGENTS.md"},
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -80,6 +97,49 @@ func TestValidateConfig(t *testing.T) {
 			err := tt.config.Validate()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestLoadConfigRejectsSourceLinkAliases(t *testing.T) {
+	tmpDir := t.TempDir()
+	outsideName := filepath.Base(tmpDir)
+
+	tests := []struct {
+		name   string
+		source string
+		link   string
+	}{
+		{name: "identical relative paths", source: "AGENTS.md", link: "AGENTS.md"},
+		{name: "dot segment", source: "AGENTS.md", link: "./AGENTS.md"},
+		{name: "parent segment", source: "AGENTS.md", link: "nested/../AGENTS.md"},
+		{
+			name:   "relative and absolute paths",
+			source: "AGENTS.md",
+			link:   filepath.Join(tmpDir, "AGENTS.md"),
+		},
+		{
+			name:   "config directory parent alias",
+			source: "AGENTS.md",
+			link:   filepath.Join("..", outsideName, "AGENTS.md"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configPath := filepath.Join(tmpDir, strings.ReplaceAll(tt.name, " ", "-")+".yaml")
+			content := "source: " + tt.source + "\nlinks:\n  - " + tt.link + "\n"
+			if err := os.WriteFile(configPath, []byte(content), 0644); err != nil {
+				t.Fatal(err)
+			}
+
+			_, err := LoadConfig(configPath)
+			if err == nil {
+				t.Fatal("LoadConfig() accepted a link resolving to the source path")
+			}
+			if !strings.Contains(err.Error(), "cannot be the same as source path") {
+				t.Fatalf("LoadConfig() error = %q, want source/link identity error", err)
 			}
 		})
 	}
@@ -116,6 +176,23 @@ func TestExpandPaths(t *testing.T) {
 	expectedAbsolute := filepath.Join(homeDir, "absolute.md")
 	if config.Links[1] != expectedAbsolute {
 		t.Errorf("Expected absolute link %s, got %s", expectedAbsolute, config.Links[1])
+	}
+}
+
+func TestExpandPathsMakesPathsAbsoluteWithRelativeConfigDir(t *testing.T) {
+	config := Config{
+		Source: "AGENTS.md",
+		Links:  []string{"./nested/../CLAUDE.md"},
+	}
+
+	if err := config.ExpandPaths("."); err != nil {
+		t.Fatalf("ExpandPaths() failed: %v", err)
+	}
+	if !filepath.IsAbs(config.Source) {
+		t.Errorf("source is not absolute: %s", config.Source)
+	}
+	if !filepath.IsAbs(config.Links[0]) {
+		t.Errorf("link is not absolute: %s", config.Links[0])
 	}
 }
 

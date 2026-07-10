@@ -359,3 +359,85 @@ func TestFixLinkForceRefusesDirectories(t *testing.T) {
 		t.Fatalf("directory contents were not preserved, data=%q err=%v", data, err)
 	}
 }
+
+func TestFixLinkRefusesDestinationAliasedToSourceByParentSymlink(t *testing.T) {
+	tmpDir := t.TempDir()
+	realDir := filepath.Join(tmpDir, "real")
+	if err := os.Mkdir(realDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	source := filepath.Join(realDir, "AGENTS.md")
+	if err := os.WriteFile(source, []byte("keep source"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	aliasDir := filepath.Join(tmpDir, "alias")
+	if err := os.Symlink(realDir, aliasDir); err != nil {
+		t.Fatal(err)
+	}
+	alias := filepath.Join(aliasDir, "AGENTS.md")
+
+	manager := NewManager(false, true, false)
+	if _, err := manager.FixLink(alias, source); err == nil {
+		t.Fatal("FixLink() replaced a source reached through a symlinked parent")
+	}
+	data, err := os.ReadFile(source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(data) != "keep source" {
+		t.Fatalf("source content changed to %q", data)
+	}
+	if info, err := os.Lstat(source); err != nil || !info.Mode().IsRegular() {
+		t.Fatalf("source is no longer a regular file: info=%v err=%v", info, err)
+	}
+}
+
+func TestFixLinkAllowsCorrectManagedSymlinkResolvingToSource(t *testing.T) {
+	tmpDir := t.TempDir()
+	source := filepath.Join(tmpDir, "AGENTS.md")
+	link := filepath.Join(tmpDir, "CLAUDE.md")
+	if err := os.WriteFile(source, []byte("source"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("AGENTS.md", link); err != nil {
+		t.Fatal(err)
+	}
+
+	action, err := NewManager(false, true, false).FixLink(link, source)
+	if err != nil {
+		t.Fatalf("FixLink() rejected correct managed symlink: %v", err)
+	}
+	if action != "skip" {
+		t.Fatalf("FixLink() action = %q, want skip", action)
+	}
+}
+
+func TestFixLinkHardlinkRequiresForceButCanBeReplaced(t *testing.T) {
+	tmpDir := t.TempDir()
+	source := filepath.Join(tmpDir, "AGENTS.md")
+	link := filepath.Join(tmpDir, "CLAUDE.md")
+	if err := os.WriteFile(source, []byte("source"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Link(source, link); err != nil {
+		t.Skipf("hardlinks unavailable: %v", err)
+	}
+
+	if _, err := NewManager(false, false, false).FixLink(link, source); err == nil {
+		t.Fatal("FixLink() replaced hardlink without force")
+	}
+	action, err := NewManager(false, true, false).FixLink(link, source)
+	if err != nil {
+		t.Fatalf("FixLink() failed to replace hardlink with force: %v", err)
+	}
+	if action != "replace" {
+		t.Fatalf("FixLink() action = %q, want replace", action)
+	}
+	if got := NewManager(false, false, false).CheckLink(link, source).Status; got != StatusOK {
+		t.Fatalf("replacement link status = %v, want %v", got, StatusOK)
+	}
+	data, err := os.ReadFile(source)
+	if err != nil || string(data) != "source" {
+		t.Fatalf("source was not preserved: data=%q err=%v", data, err)
+	}
+}

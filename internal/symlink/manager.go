@@ -186,6 +186,17 @@ func (m *Manager) RemoveLink(linkPath, expectedTarget string) error {
 
 // FixLink creates or fixes a symlink based on its current status
 func (m *Manager) FixLink(linkPath, targetPath string) (string, error) {
+	// Resolve directory symlinks immediately before inspecting or mutating the
+	// destination. Do not resolve the destination leaf: a correctly managed
+	// symlink is expected to resolve to targetPath and must remain valid.
+	samePath, err := sameEffectivePath(linkPath, targetPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to validate link path %s: %w", linkPath, err)
+	}
+	if samePath {
+		return "", fmt.Errorf("link path %s resolves to source %s; refusing to replace source", linkPath, targetPath)
+	}
+
 	info := m.CheckLink(linkPath, targetPath)
 
 	switch info.Status {
@@ -253,5 +264,49 @@ func (m *Manager) FixLink(linkPath, targetPath string) (string, error) {
 
 	default:
 		return "", fmt.Errorf("unknown link status for %s", linkPath)
+	}
+}
+
+// sameEffectivePath compares paths after resolving symlinks in their parent
+// directories. The leaf is deliberately left unresolved so an existing,
+// correct managed symlink is not mistaken for an alias of its source.
+func sameEffectivePath(linkPath, targetPath string) (bool, error) {
+	link, err := resolveParentSymlinks(linkPath)
+	if err != nil {
+		return false, err
+	}
+	target, err := resolveParentSymlinks(targetPath)
+	if err != nil {
+		return false, err
+	}
+	return link == target, nil
+}
+
+// resolveParentSymlinks also supports nonexistent parent directories by
+// resolving the nearest existing ancestor, then restoring the missing suffix.
+func resolveParentSymlinks(path string) (string, error) {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+
+	parent := filepath.Dir(filepath.Clean(abs))
+	suffix := []string{filepath.Base(abs)}
+	for {
+		resolved, err := filepath.EvalSymlinks(parent)
+		if err == nil {
+			parts := append([]string{resolved}, suffix...)
+			return filepath.Clean(filepath.Join(parts...)), nil
+		}
+		if !os.IsNotExist(err) {
+			return "", err
+		}
+
+		next := filepath.Dir(parent)
+		if next == parent {
+			return "", err
+		}
+		suffix = append([]string{filepath.Base(parent)}, suffix...)
+		parent = next
 	}
 }

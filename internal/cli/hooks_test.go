@@ -116,6 +116,39 @@ func TestInstallGitHooksRejectsRelativeHooksPath(t *testing.T) {
 	}
 }
 
+func TestAppendOrCreateHookMakesExistingHookExecutable(t *testing.T) {
+	hookPath := filepath.Join(t.TempDir(), "post-merge")
+	if err := os.WriteFile(hookPath, []byte("#!/bin/sh\necho existing\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := appendOrCreateHook(hookPath, gitHookContent("/tmp/agentlink")); err != nil {
+		t.Fatalf("appendOrCreateHook() failed: %v", err)
+	}
+	assertUserExecutable(t, hookPath)
+}
+
+func TestAppendOrCreateHookRepairsModeWhenAlreadyInstalled(t *testing.T) {
+	hookPath := filepath.Join(t.TempDir(), "post-merge")
+	if err := os.WriteFile(hookPath, []byte("#!/bin/sh\n"+gitHookContent("/tmp/agentlink")), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := appendOrCreateHook(hookPath, gitHookContent("/tmp/agentlink")); err != nil {
+		t.Fatalf("appendOrCreateHook() failed: %v", err)
+	}
+	assertUserExecutable(t, hookPath)
+}
+
+func assertUserExecutable(t *testing.T, path string) {
+	t.Helper()
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info.Mode().Perm()&0100 == 0 {
+		t.Fatalf("mode = %v, want user-executable", info.Mode().Perm())
+	}
+}
+
 func parseLaunchdProgramArguments(content string) ([]string, error) {
 	decoder := xml.NewDecoder(strings.NewReader(content))
 	var lastKey string
