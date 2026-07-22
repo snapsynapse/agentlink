@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/martinmose/agentlink/internal/registry"
+	"github.com/snapsynapse/agentlink/internal/registry"
 	"github.com/spf13/cobra"
 )
 

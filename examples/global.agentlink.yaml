@@ -1,0 +1,9 @@
+# Copy this file to ~/.config/agentlink/config.yaml.
+# Edit ~/AGENTS.md as the single source of truth.
+source: ~/AGENTS.md
+links:
+  - ~/.claude/CLAUDE.md
+  - ~/.gemini/GEMINI.md
+  - ~/.qwen/QWEN.md
+  - ~/.codex/AGENTS.md
+  - ~/.config/opencode/AGENTS.md

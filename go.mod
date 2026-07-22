@@ -1,4 +1,4 @@
-module github.com/martinmose/agentlink
+module github.com/snapsynapse/agentlink
 
 go 1.23
 

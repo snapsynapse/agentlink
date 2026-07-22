@@ -19,7 +19,7 @@ Snap Synapse project. Upstream attribution is preserved in `NOTICE`.
   Codex CLI, Gemini CLI, Cursor, Aider, etc.) who are tired of maintaining
   near-duplicate instruction files by hand
 - Go developers comfortable installing via Homebrew, a pre-built binary, or
-  `go install`
+  `go install github.com/snapsynapse/agentlink/cmd/agentlink@latest`
 - Contributors extending the tool registry (`internal/registry/tools.go`)
   when new AI coding tools appear
 
@@ -47,14 +47,14 @@ Snap Synapse project. Upstream attribution is preserved in `NOTICE`.
 
 ## Current status
 
-- Actively maintained, `main` branch clean and up to date with origin as of
-  2026-07-12; last merged PR (2026-07-10) hardened filesystem safety and
-  command contracts
+- Actively maintained; v0.4.0 packages the 2026-07-21 release-readiness,
+  filesystem-safety, hook-reliability, adoption, and CI work
 - CI (GitHub Actions, `.github/workflows/ci.yml`) enforces build, unit tests,
-  integration tests, `gofmt`, `go vet`, `staticcheck`, and spelling checks on
-  every push/PR
+  integration tests, the race detector, module consistency, `gofmt`, `go vet`,
+  `staticcheck`, spelling, workflow semantics, reachable-vulnerability checks,
+  and release-script syntax on every push/PR
 - Distribution: Homebrew tap, pre-built binaries (darwin/linux, amd64/arm64),
-  `go install`; AUR package listed as planned/not yet shipped
+  direct `go install`; AUR package listed as planned/not yet shipped
 - Tool registry covers ~23 AI coding tools; new tools are added via PR to
   `internal/registry/tools.go`
 - Publishes a "GuideCheck" Human-Verifiable Assistant Guide targeting Level 4

@@ -17,45 +17,24 @@ const (
 	StatusBroken
 )
 
-func (s LinkStatus) String() string {
-	switch s {
-	case StatusOK:
-		return "OK"
-	case StatusMissing:
-		return "missing"
-	case StatusWrongTarget:
-		return "wrong target"
-	case StatusNotSymlink:
-		return "not a symlink"
-	case StatusBroken:
-		return "broken"
-	default:
-		return "unknown"
-	}
-}
-
 // LinkInfo contains information about a symlink
 type LinkInfo struct {
-	Path         string
-	Target       string
-	ExpectedPath string
-	Status       LinkStatus
-	Error        error
+	Target string
+	Status LinkStatus
+	Error  error
 }
 
 // Manager handles symlink operations
 type Manager struct {
-	dryRun  bool
-	force   bool
-	verbose bool
+	dryRun bool
+	force  bool
 }
 
 // NewManager creates a new symlink manager
-func NewManager(dryRun, force, verbose bool) *Manager {
+func NewManager(dryRun, force bool) *Manager {
 	return &Manager{
-		dryRun:  dryRun,
-		force:   force,
-		verbose: verbose,
+		dryRun: dryRun,
+		force:  force,
 	}
 }
 
@@ -84,10 +63,7 @@ func (m *Manager) ValidateSource(sourcePath string) error {
 
 // CheckLink checks the status of a symlink
 func (m *Manager) CheckLink(linkPath, expectedTarget string) *LinkInfo {
-	info := &LinkInfo{
-		Path:         linkPath,
-		ExpectedPath: expectedTarget,
-	}
+	info := &LinkInfo{}
 
 	// Check if link exists
 	linkInfo, err := os.Lstat(linkPath)

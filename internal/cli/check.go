@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/martinmose/agentlink/internal/config"
-	"github.com/martinmose/agentlink/internal/symlink"
+	"github.com/snapsynapse/agentlink/internal/config"
+	"github.com/snapsynapse/agentlink/internal/symlink"
 	"github.com/spf13/cobra"
 )
 
@@ -54,7 +54,7 @@ func runCheck(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create symlink manager
-	manager := symlink.NewManager(false, false, verbose)
+	manager := symlink.NewManager(false, false)
 
 	// Check each link
 	hasProblems := false
@@ -81,8 +81,6 @@ func runCheck(cmd *cobra.Command, args []string) error {
 	for _, linkPath := range cfg.Links {
 		info := manager.CheckLink(linkPath, cfg.Source)
 
-		_ = info.Status.String() // We handle status display in the switch below
-
 		if info.Status != symlink.StatusOK {
 			hasProblems = true
 		}
@@ -108,7 +106,7 @@ func runCheck(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if hasProblems || sourceStatus != "OK" {
+	if hasProblems {
 		fmt.Printf("\nFound problems. Run 'agentlink sync' to fix them.\n")
 		return fmt.Errorf("configuration has problems")
 	}

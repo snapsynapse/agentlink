@@ -138,18 +138,15 @@ func CreateDefaultGlobalConfig(path string) error {
 	}
 
 	defaultConfig := `# Agentlink global configuration
-# This file was auto-created. Uncomment and modify as needed.
+# Edit ~/AGENTS.md as the single source of truth.
 
-# Example: Use a file in your Claude config as source
-# source: ~/.config/claude/CLAUDE.md
-# links:
-#   - ~/.config/opencode/AGENTS.md
-#   - ~/.config/some-tool/INSTRUCTIONS.md
-
-source: ~/.config/agentlink/INSTRUCTIONS.md
+source: ~/AGENTS.md
 links:
-  - ~/.config/agentlink/CLAUDE.md
-  - ~/.config/agentlink/AGENTS.md
+  - ~/.claude/CLAUDE.md
+  - ~/.gemini/GEMINI.md
+  - ~/.qwen/QWEN.md
+  - ~/.codex/AGENTS.md
+  - ~/.config/opencode/AGENTS.md
 `
 
 	if err := os.WriteFile(path, []byte(defaultConfig), 0644); err != nil {
@@ -162,13 +159,12 @@ links:
 // CreateProjectConfig creates a project config file
 func CreateProjectConfig(path string) error {
 	config := `# Choose the file you actually edit as the source:
-source: CLAUDE.md
+source: AGENTS.md
 links:
-  - AGENTS.md                    # Root level
-  - OPENCODE.md                  # Root level
-  # - .agent/AGENTS.md           # Inside .agent directory  
-  # - .codex/instructions.md     # Different name and location
-  # - config/ai/GEMINI.md        # Nested directories
+  - CLAUDE.md
+  - GEMINI.md
+  - QWEN.md
+  # - .github/copilot-instructions.md
 `
 
 	if err := os.WriteFile(path, []byte(config), 0644); err != nil {

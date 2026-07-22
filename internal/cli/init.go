@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/martinmose/agentlink/internal/config"
+	"github.com/snapsynapse/agentlink/internal/config"
 	"github.com/spf13/cobra"
 )
 

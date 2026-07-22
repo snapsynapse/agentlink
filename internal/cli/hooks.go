@@ -22,8 +22,8 @@ Supported triggers:
   --launchd   macOS LaunchAgent for periodic sync (every 60 minutes)
   --all       Install all triggers
 
-Use 'agentlink hooks install' to set up triggers and 'agentlink hooks remove'
-to uninstall them.
+Use 'agentlink hooks install --all' to set up every trigger and
+'agentlink hooks remove --all' to uninstall them.
 
 For git hooks, agentlink only writes to an absolute global core.hooksPath. If
 your global core.hooksPath is relative, unset it or replace it with an absolute
@@ -128,18 +128,24 @@ func runHooksRemove(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("specify at least one trigger: --git, --zsh, --launchd, or --all")
 	}
 
+	var errs []string
 	if hookGit {
 		if err := removeGitHooks(); err != nil {
-			return err
+			errs = append(errs, fmt.Sprintf("git: %v", err))
 		}
 	}
 	if hookZsh {
 		if err := removeZshHook(); err != nil {
-			return err
+			errs = append(errs, fmt.Sprintf("zsh: %v", err))
 		}
 	}
 	if hookLaunchd {
-		removeLaunchdAgent()
+		if err := removeLaunchdAgent(); err != nil {
+			errs = append(errs, fmt.Sprintf("launchd: %v", err))
+		}
+	}
+	if len(errs) > 0 {
+		return fmt.Errorf("some hooks failed to remove:\n  %s", strings.Join(errs, "\n  "))
 	}
 
 	return nil
@@ -295,8 +301,10 @@ func zshHookContent(binaryPath string) string {
 # Sync agent instruction symlinks when entering a git repo.
 # Installed by: agentlink hooks install --zsh
 agentlink_chpwd() {
-  if [ -d .git ] && [ -f .agentlink.yaml ]; then
-    %s sync --quiet 2>/dev/null &!
+  local agentlink_root
+  agentlink_root=$(git rev-parse --show-toplevel 2>/dev/null) || return
+  if [ -f "$agentlink_root/.agentlink.yaml" ]; then
+    (cd "$agentlink_root" && %s sync --quiet 2>/dev/null) &!
   fi
 }
 autoload -U add-zsh-hook
@@ -310,7 +318,18 @@ func installZshHook(binaryPath string) error {
 	zshrc := filepath.Join(homeDir, ".zshrc")
 
 	if fileContainsAgentlink(zshrc) {
-		printSkip("zsh hook already installed in %s", zshrc)
+		if dryRun {
+			printInfo("Would update chpwd hook in %s", zshrc)
+			return nil
+		}
+		updated, err := rewriteMarkedSection(zshrc, zshHookContent(binaryPath))
+		if err != nil {
+			return fmt.Errorf("cannot update %s: %w", zshrc, err)
+		}
+		if !updated {
+			return fmt.Errorf("cannot update %s: incomplete agentlink marker block", zshrc)
+		}
+		printOK("Updated chpwd hook in %s", zshrc)
 		return nil
 	}
 
@@ -407,26 +426,32 @@ func installLaunchdAgent(binaryPath string) error {
 
 	// Load the agent
 	if err := exec.Command("launchctl", "load", plistPath).Run(); err != nil {
-		printWarning("Plist written but launchctl load failed: %v", err)
-		printInfo("Try: launchctl load %s", plistPath)
-		return nil
+		return fmt.Errorf("plist written but launchctl load failed; try 'launchctl load %s': %w", plistPath, err)
 	}
 
 	printOK("Installed LaunchAgent (60-minute heartbeat)")
 	return nil
 }
 
-func removeLaunchdAgent() {
+func removeLaunchdAgent() error {
 	plistPath := launchdPlistPath()
 
-	if _, err := os.Stat(plistPath); os.IsNotExist(err) {
-		printInfo("No LaunchAgent installed")
-		return
+	if _, err := os.Stat(plistPath); err != nil {
+		if os.IsNotExist(err) {
+			printInfo("No LaunchAgent installed")
+			return nil
+		}
+		return fmt.Errorf("cannot inspect LaunchAgent plist: %w", err)
 	}
 
-	exec.Command("launchctl", "unload", plistPath).Run()
-	os.Remove(plistPath)
+	if err := exec.Command("launchctl", "unload", plistPath).Run(); err != nil {
+		printWarning("launchctl unload failed: %v", err)
+	}
+	if err := os.Remove(plistPath); err != nil {
+		return fmt.Errorf("cannot remove LaunchAgent plist: %w", err)
+	}
 	printOK("Removed LaunchAgent")
+	return nil
 }
 
 // --- Helpers ---
@@ -466,8 +491,15 @@ func fileContainsAgentlink(path string) bool {
 }
 
 func appendOrCreateHook(path, content string) error {
-	// If file exists and already has our marker, skip
+	// If the hook already has our marker, update the managed section in place.
 	if fileContainsAgentlink(path) {
+		updated, err := rewriteMarkedSection(path, content)
+		if err != nil {
+			return err
+		}
+		if !updated {
+			return fmt.Errorf("incomplete agentlink marker block in %s", path)
+		}
 		return ensureUserExecutable(path)
 	}
 
@@ -485,9 +517,9 @@ func appendOrCreateHook(path, content string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
 
 	if _, err = f.WriteString("\n" + content); err != nil {
+		_ = f.Close()
 		return err
 	}
 	if err := f.Close(); err != nil {
@@ -505,6 +537,10 @@ func ensureUserExecutable(path string) error {
 }
 
 func removeMarkedSection(path string) (bool, error) {
+	return rewriteMarkedSection(path, "")
+}
+
+func rewriteMarkedSection(path, replacement string) (bool, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -519,11 +555,14 @@ func removeMarkedSection(path string) (bool, error) {
 
 	content := string(data)
 	startIdx := strings.Index(content, gitHookMarkerStart)
-	endIdx := strings.Index(content, gitHookMarkerEnd)
-
-	if startIdx == -1 || endIdx == -1 {
+	if startIdx == -1 {
 		return false, nil
 	}
+	endOffset := strings.Index(content[startIdx:], gitHookMarkerEnd)
+	if endOffset == -1 {
+		return false, fmt.Errorf("found start marker without end marker")
+	}
+	endIdx := startIdx + endOffset
 
 	// Remove from start marker to end marker (inclusive of trailing newline)
 	endIdx += len(gitHookMarkerEnd)
@@ -531,7 +570,8 @@ func removeMarkedSection(path string) (bool, error) {
 		endIdx++
 	}
 
-	newContent := content[:startIdx] + content[endIdx:]
+	replacement = strings.TrimPrefix(replacement, "\n")
+	newContent := content[:startIdx] + replacement + content[endIdx:]
 
 	// Clean up double blank lines left behind
 	for strings.Contains(newContent, "\n\n\n") {

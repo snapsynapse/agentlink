@@ -104,9 +104,7 @@ Binaries: `darwin-arm64`, `darwin-amd64`, `linux-amd64`, `linux-arm64`.
 ### From source (requires Go 1.23+)
 
 ```bash
-git clone https://github.com/snapsynapse/agentlink.git
-cd agentlink
-go install ./cmd/agentlink/
+go install github.com/snapsynapse/agentlink/cmd/agentlink@latest
 ```
 
 This puts the binary in your Go bin directory (usually `~/go/bin/`). Make sure it's in your PATH:
@@ -216,8 +214,8 @@ agentlink clean              # remove managed symlinks (non-destructive)
 agentlink doctor             # environment + permissions sanity checks for project and global config
 agentlink detect             # auto-detect installed AI coding tools
 agentlink scan [dir]         # scan git repos and manage symlinks
-agentlink hooks install      # install automatic sync triggers
-agentlink hooks remove       # remove sync triggers
+agentlink hooks install --all # install all automatic sync triggers
+agentlink hooks remove --all  # remove all automatic sync triggers
 agentlink hooks status       # show installed trigger status
 ```
 
@@ -302,7 +300,7 @@ The scanner finds repos containing `AGENTS.md` and creates symlinks for tool-spe
 The default scan directory is `~/Git`. Override it per-invocation with the `--dir` flag or positional argument. To change the compiled default, build with:
 
 ```bash
-go build -ldflags "-X github.com/martinmose/agentlink/internal/cli.DefaultScanDir=/your/path" ./cmd/agentlink/
+go build -ldflags "-X github.com/snapsynapse/agentlink/internal/cli.DefaultScanDir=/your/path" ./cmd/agentlink/
 ```
 
 ---
@@ -334,6 +332,9 @@ All injected content is wrapped in markers (`# >>> agentlink >>>` / `# <<< agent
 
 ### Project config (recommended)
 
+See [`examples/project.agentlink.yaml`](examples/project.agentlink.yaml) for a
+copyable project configuration.
+
 Place a single file at repo root:
 
 `.agentlink.yaml`
@@ -349,6 +350,9 @@ Notes:
 - Paths in `links` are relative to the project root.
 
 ### Global config
+
+See [`examples/global.agentlink.yaml`](examples/global.agentlink.yaml) for a
+copyable global configuration.
 
 `~/.config/agentlink/config.yaml`
 ```yaml

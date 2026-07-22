@@ -32,7 +32,7 @@
   <meta property="og:url" content="https://agentlink.run/">
   <meta property="og:locale" content="en_US">
   <meta property="article:published_time" content="2026-04-14T00:00:00Z">
-  <meta property="article:modified_time" content="2026-06-10T00:00:00Z">
+  <meta property="article:modified_time" content="2026-07-21T00:00:00Z">
   <meta property="article:author" content="Sam Rogers">
   <meta property="article:publisher" content="https://snapsynapse.com/">
   <meta property="article:section" content="Developer Tools">
@@ -67,7 +67,7 @@
     "url": "https://agentlink.run/",
     "mainEntityOfPage": { "@type": "WebPage", "@id": "https://agentlink.run/" },
     "datePublished": "2026-04-14",
-    "dateModified": "2026-06-10",
+    "dateModified": "2026-07-21",
     "author": {
       "@type": "Person",
       "name": "Sam Rogers",
@@ -467,7 +467,7 @@
       <span class="sep" aria-hidden="true">&middot;</span>
       Published <time datetime="2026-04-14">April 14, 2026</time>
       <span class="sep" aria-hidden="true">&middot;</span>
-      <span class="version">v0.3.0</span>
+      <span class="version">v0.4.0</span>
       <span class="sep" aria-hidden="true">&middot;</span>
       <a href="https://opensource.org/licenses/MIT" rel="license" target="_blank">MIT</a>
     </p>
@@ -549,7 +549,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
         <tr><td>Anything else</td><td class="tool">(add to config)</td></tr>
       </tbody>
     </table>
-    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: -0.5rem;">Full registry in <code>internal/registry/tools.go</code>. Tools without a project-root instruction file (e.g. Cline, Continue, OpenClaw) still work in global scope via their own config paths — OpenClaw reads <code>~/.openclaw/workspace/AGENTS.md</code>.</p>
+    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: -0.5rem;">Full registry in <code>internal/registry/tools.go</code>. Tools without a project-root instruction file may be detection-only (Cline) or global-only (Continue and OpenClaw). OpenClaw reads <code>~/.openclaw/workspace/AGENTS.md</code>.</p>
     <p>Scope is deliberately narrow: <strong>instruction files only.</strong> No MCP config, no chain configs. Simple on purpose.</p>
   </div>
 </section>
@@ -557,7 +557,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
 <section id="install">
   <div class="container">
     <h2>Install</h2>
-    <p>Pre-built binaries for macOS and Linux are on the <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.3.0" target="_blank" rel="noopener">v0.3.0 release page</a>. Or build from source with Go 1.23+.</p>
+    <p>Pre-built binaries for macOS and Linux are on the <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.4.0" target="_blank" rel="noopener">v0.4.0 release page</a>. Or install directly with Go 1.23+.</p>
 
     <div class="code-grid single">
       <div class="code-block">
@@ -569,10 +569,8 @@ agentlink --version</pre>
       </div>
 
       <div class="code-block">
-        <h3>From source</h3>
-<pre>git clone https://github.com/snapsynapse/agentlink.git
-cd agentlink
-go install ./cmd/agentlink/
+        <h3>Go install</h3>
+<pre>go install github.com/snapsynapse/agentlink/cmd/agentlink@latest
 
 # Verify
 agentlink --help</pre>
@@ -581,12 +579,14 @@ agentlink --help</pre>
       <div class="code-block">
         <h3>Pre-built binary</h3>
 <pre># macOS (Apple Silicon)
-curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.3.0/agentlink-darwin-arm64
+curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.4.0/agentlink-darwin-arm64
+curl -L -o SHA256SUMS.txt https://github.com/snapsynapse/agentlink/releases/download/v0.4.0/SHA256SUMS.txt
+grep ' agentlink-darwin-arm64$' SHA256SUMS.txt | sed 's/agentlink-darwin-arm64/agentlink/' | shasum -a 256 -c -
 chmod +x agentlink && mv agentlink /usr/local/bin/
 
 # macOS (Intel) / Linux
 # Replace darwin-arm64 with darwin-amd64, linux-amd64, or linux-arm64</pre>
-        <p class="annotation">Checksums in <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.3.0" target="_blank" rel="noopener">SHA256SUMS.txt</a> on the release page.</p>
+        <p class="annotation">Checksums in <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.4.0" target="_blank" rel="noopener">SHA256SUMS.txt</a> on the release page.</p>
       </div>
 
       <div class="code-block">
@@ -652,13 +652,13 @@ agentlink scan ~/Git</pre>
         <h3>Automatic triggers</h3>
 <pre># Install git/shell/launchd hooks so
 # sync runs without you thinking about it.
-agentlink hooks install
+agentlink hooks install --all
 
 # Relative global core.hooksPath values
 # are refused; use an absolute path.
 
 # Remove cleanly.
-agentlink hooks remove</pre>
+agentlink hooks remove --all</pre>
       </div>
       <div class="code-block">
         <h3>Safe replacement</h3>
@@ -691,7 +691,7 @@ agentlink sync --force</pre>
       Agentlink began as <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">martinmose/agentlink</a>
       by Martin Mose Facondini (MIT); Snap Synapse maintains this continuation with <code>detect</code>, <code>scan</code>, <code>hooks</code>, automatic backup,
       global-config support, integration tests, and release distribution.
-      Last substantive revision: <time datetime="2026-06-10">2026-06-10</time>.
+      Last substantive revision: <time datetime="2026-07-21">2026-07-21</time>.
       <a href="https://github.com/snapsynapse/agentlink/commits/main/README.md" target="_blank" rel="noopener">Revision history &rarr;</a>
     </aside>
   </div>
@@ -702,7 +702,7 @@ agentlink sync --force</pre>
   <div class="container">
     <div class="footer-grid">
       <div class="footer-meta">
-        <p>Agentlink v0.3.0 &middot; <a href="https://github.com/snapsynapse/agentlink/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a></p>
+        <p>Agentlink v0.4.0 &middot; <a href="https://github.com/snapsynapse/agentlink/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a></p>
         <p>A <a href="https://snapsynapse.com" target="_blank" rel="noopener">Snap Synapse</a> project by <a href="https://snapsynapse.com" target="_blank" rel="noopener author">Sam Rogers</a>, with lineage from <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">martinmose/agentlink</a>.</p>
         <p style="margin-top: 0.5rem;">See also: <a href="https://hardguard25.com/" target="_blank" rel="noopener">HardGuard25</a> &middot; <a href="https://gracefulboundaries.dev/" target="_blank" rel="noopener">Graceful Boundaries</a> &middot; <a href="https://skillprovenance.dev/" target="_blank" rel="noopener">Skill Provenance</a></p>
       </div>

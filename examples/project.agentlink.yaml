@@ -1,0 +1,7 @@
+# Edit AGENTS.md as the single source of truth.
+source: AGENTS.md
+links:
+  - CLAUDE.md
+  - GEMINI.md
+  - QWEN.md
+  - .github/copilot-instructions.md

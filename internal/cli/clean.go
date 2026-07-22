@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/martinmose/agentlink/internal/config"
-	"github.com/martinmose/agentlink/internal/symlink"
+	"github.com/snapsynapse/agentlink/internal/config"
+	"github.com/snapsynapse/agentlink/internal/symlink"
 	"github.com/spf13/cobra"
 )
 
@@ -53,13 +53,14 @@ func runClean(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create symlink manager
-	manager := symlink.NewManager(dryRun, force, verbose)
+	manager := symlink.NewManager(dryRun, force)
 
 	printInfo("Source: %s (will NOT be removed)", cfg.Source)
 
 	// Process each link
 	removedCount := 0
 	skippedCount := 0
+	errorCount := 0
 
 	for _, linkPath := range cfg.Links {
 		if verbose {
@@ -74,6 +75,8 @@ func runClean(cmd *cobra.Command, args []string) error {
 			if !dryRun {
 				if err := manager.RemoveLink(linkPath, cfg.Source); err != nil {
 					printError("Failed to remove %s: %v", linkPath, err)
+					errorCount++
+					skippedCount++
 					continue
 				}
 			}
@@ -104,7 +107,10 @@ func runClean(cmd *cobra.Command, args []string) error {
 	if dryRun {
 		printInfo("Dry run completed - would remove %d symlinks, skip %d items", removedCount, skippedCount)
 	} else {
-		printInfo("Clean completed - removed %d symlinks, skipped %d items", removedCount, skippedCount)
+		printInfo("Clean completed - removed %d symlinks, skipped %d items, %d errors", removedCount, skippedCount, errorCount)
+	}
+	if errorCount > 0 {
+		return fmt.Errorf("clean completed with %d removal error(s)", errorCount)
 	}
 
 	return nil

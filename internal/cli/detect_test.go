@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/martinmose/agentlink/internal/config"
-	"github.com/martinmose/agentlink/internal/registry"
+	"github.com/snapsynapse/agentlink/internal/config"
+	"github.com/snapsynapse/agentlink/internal/registry"
 )
 
 func TestGenerateConfigNativeToolsIsSuccessfulNoOp(t *testing.T) {

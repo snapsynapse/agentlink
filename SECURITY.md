@@ -2,13 +2,13 @@
 
 ## Supported versions
 
-Only the latest tagged release on `main` receives security fixes. This is
-a small fork maintained by Snap Synapse — there is no LTS branch.
+Only the latest tagged release on `main` receives security fixes. This is a
+small standalone project maintained by Snap Synapse. There is no LTS branch.
 
 | Version | Supported |
 |---------|-----------|
-| 0.3.x   | Yes       |
-| < 0.3   | No        |
+| 0.4.x   | Yes       |
+| < 0.4   | No        |
 
 ## Reporting a vulnerability
 

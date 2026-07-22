@@ -39,6 +39,36 @@ func TestRunScanReturnsErrorWhenLinkCannotBeCreated(t *testing.T) {
 	}
 }
 
+func TestRunScanRejectsInvalidAgentsSource(t *testing.T) {
+	root := t.TempDir()
+	repo := filepath.Join(root, "repo")
+	if err := os.MkdirAll(filepath.Join(repo, ".git"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(filepath.Join(repo, "AGENTS.md"), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	oldDryRun, oldForce, oldVerbose, oldScanDir := dryRun, force, verbose, scanDir
+	t.Cleanup(func() {
+		dryRun, force, verbose, scanDir = oldDryRun, oldForce, oldVerbose, oldScanDir
+	})
+	dryRun, force, verbose, scanDir = false, false, false, ""
+
+	err := runScan(scanCmd, []string{root})
+	if err == nil {
+		t.Fatal("runScan() error = nil, want invalid source error")
+	}
+	if got := err.Error(); got != "scan completed with 1 link error(s)" {
+		t.Fatalf("runScan() error = %q, want aggregate error count", got)
+	}
+	for _, target := range repoLinkTargets() {
+		if _, err := os.Lstat(filepath.Join(repo, target)); !os.IsNotExist(err) {
+			t.Fatalf("scan created %s for invalid source", target)
+		}
+	}
+}
+
 func TestFindGitReposDetectsStandardRepo(t *testing.T) {
 	root := t.TempDir()
 	repo := filepath.Join(root, "repo")

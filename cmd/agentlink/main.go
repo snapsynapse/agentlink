@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/martinmose/agentlink/internal/cli"
+	"github.com/snapsynapse/agentlink/internal/cli"
 )
 
 func main() {

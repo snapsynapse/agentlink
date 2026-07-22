@@ -20,7 +20,6 @@ CLAUDE.md
 .env
 .env.*
 .gocache/
-.flox/
 .agents/
 .perplexity-research/
 node_modules/

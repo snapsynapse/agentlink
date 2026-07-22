@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/martinmose/agentlink/internal/symlink"
+	"github.com/snapsynapse/agentlink/internal/symlink"
 )
 
 func TestProcessLinkDryRunBackupDoesNotMutateExistingFile(t *testing.T) {
@@ -30,7 +30,7 @@ func TestProcessLinkDryRunBackupDoesNotMutateExistingFile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	manager := symlink.NewManager(true, true, false)
+	manager := symlink.NewManager(true, true)
 	if err := processLink(manager, link, source); err != nil {
 		t.Fatalf("processLink() failed: %v", err)
 	}

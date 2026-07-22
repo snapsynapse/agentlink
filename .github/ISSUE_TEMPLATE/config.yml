@@ -5,4 +5,4 @@ contact_links:
     about: Please report security issues privately via a GitHub Security Advisory.
   - name: Upstream project
     url: https://github.com/martinmose/agentlink
-    about: This is a fork. If your issue also affects upstream, consider reporting there too.
+    about: If your issue also affects the original upstream project, consider reporting it there too.

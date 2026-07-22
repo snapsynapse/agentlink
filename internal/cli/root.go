@@ -8,10 +8,8 @@ import (
 )
 
 var (
-	// Build-time variables
+	// Build-time variable
 	version = "dev"
-	commit  = "none"
-	date    = "unknown"
 
 	// Command flags
 	dryRun  bool
@@ -37,10 +35,6 @@ func Execute() error {
 }
 
 func init() {
-	// Suppress unused variable warnings for build-time variables
-	_ = commit
-	_ = date
-
 	// Global flags
 	rootCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", false, "show what would be done without making filesystem changes")
 	rootCmd.PersistentFlags().BoolVarP(&force, "force", "f", false, "replace conflicting regular files without backup")

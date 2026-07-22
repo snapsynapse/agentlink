@@ -250,3 +250,46 @@ func TestGlobalConfigPath(t *testing.T) {
 		t.Errorf("GlobalConfigPath() = %s, want %s", got, want)
 	}
 }
+
+func TestCreateDefaultGlobalConfigUsesAgentsSource(t *testing.T) {
+	configPath := filepath.Join(t.TempDir(), "nested", "config.yaml")
+	if err := CreateDefaultGlobalConfig(configPath); err != nil {
+		t.Fatalf("CreateDefaultGlobalConfig() failed: %v", err)
+	}
+
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(data)
+	if !strings.Contains(text, "source: ~/AGENTS.md") {
+		t.Fatalf("global config does not use ~/AGENTS.md as source:\n%s", text)
+	}
+	for _, want := range []string{"~/.claude/CLAUDE.md", "~/.gemini/GEMINI.md", "~/.qwen/QWEN.md"} {
+		if !strings.Contains(text, want) {
+			t.Errorf("global config missing %s", want)
+		}
+	}
+}
+
+func TestCreateProjectConfigUsesAgentsSource(t *testing.T) {
+	configPath := filepath.Join(t.TempDir(), ".agentlink.yaml")
+	if err := CreateProjectConfig(configPath); err != nil {
+		t.Fatalf("CreateProjectConfig() failed: %v", err)
+	}
+
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(data)
+	if !strings.Contains(text, "source: AGENTS.md") {
+		t.Fatalf("project config does not use AGENTS.md as source:\n%s", text)
+	}
+	if strings.Contains(text, "OPENCODE.md") {
+		t.Fatalf("project config contains obsolete OPENCODE.md link:\n%s", text)
+	}
+	if _, err := LoadConfig(configPath); err != nil {
+		t.Fatalf("generated project config is not loadable: %v", err)
+	}
+}

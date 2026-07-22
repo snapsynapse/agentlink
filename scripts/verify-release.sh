@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-version="${1:-v0.2.0}"
+version="${1:?usage: scripts/verify-release.sh <version, e.g. v0.4.0>}"
 repo="${REPO:-snapsynapse/agentlink}"
 
 case "$version" in
@@ -14,7 +14,7 @@ tmp="$(mktemp -d "${TMPDIR:-/tmp}/agentlink-release-${version}.XXXXXX")"
 gh release view "$version" --repo "$repo" --json tagName,url,assets >"$tmp/release-view.json"
 gh release download "$version" --repo "$repo" --dir "$tmp" --clobber
 
-for asset in agentlink-darwin-arm64 agentlink-darwin-amd64 agentlink-linux-amd64 agentlink-linux-arm64 SHA256SUMS.txt; do
+for asset in agentlink-darwin-arm64 agentlink-darwin-amd64 agentlink-linux-amd64 agentlink-linux-arm64 SHA256SUMS.txt "RELEASE_NOTES-${version#v}.md"; do
   test -f "$tmp/$asset"
 done
 

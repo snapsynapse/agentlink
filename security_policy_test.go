@@ -1,29 +1,65 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"testing"
 )
 
-func TestSecurityPolicyMatchesLatestLocalTagFamily(t *testing.T) {
-	out, err := exec.Command("git", "tag", "--sort=-v:refname").Output()
-	if err != nil {
-		t.Skipf("cannot inspect local git tags: %v", err)
+type releaseVersion struct {
+	major int
+	minor int
+	patch int
+}
+
+func (v releaseVersion) newerThan(other releaseVersion) bool {
+	if v.major != other.major {
+		return v.major > other.major
 	}
-	tags := strings.Fields(string(out))
-	if len(tags) == 0 {
-		t.Skip("no local git tags available")
+	if v.minor != other.minor {
+		return v.minor > other.minor
+	}
+	return v.patch > other.patch
+}
+
+func parseReleaseVersion(value string) (releaseVersion, error) {
+	var version releaseVersion
+	_, err := fmt.Sscanf(strings.TrimPrefix(value, "v"), "%d.%d.%d", &version.major, &version.minor, &version.patch)
+	return version, err
+}
+
+func TestSecurityPolicyMatchesLatestDeclaredReleaseFamily(t *testing.T) {
+	changelog, err := os.ReadFile("CHANGELOG.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	match := regexp.MustCompile(`(?m)^## \[(\d+\.\d+\.\d+)\] - \d{4}-\d{2}-\d{2}$`).FindSubmatch(changelog)
+	if match == nil {
+		t.Fatal("CHANGELOG.md has no dated release")
+	}
+	latest, err := parseReleaseVersion(string(match[1]))
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	latest := strings.TrimPrefix(tags[0], "v")
-	parts := strings.Split(latest, ".")
-	if len(parts) < 2 {
-		t.Fatalf("latest tag %q is not semver-like", tags[0])
+	if out, tagErr := exec.Command("git", "tag", "--sort=-v:refname").Output(); tagErr == nil {
+		tags := strings.Fields(string(out))
+		if len(tags) > 0 {
+			tagVersion, parseErr := parseReleaseVersion(tags[0])
+			if parseErr != nil {
+				t.Fatalf("latest tag %q is not semver-like: %v", tags[0], parseErr)
+			}
+			if tagVersion.newerThan(latest) {
+				latest = tagVersion
+			}
+		}
 	}
-	supportedFamily := parts[0] + "." + parts[1] + ".x"
-	unsupportedFloor := "< " + parts[0] + "." + parts[1]
+
+	supportedFamily := fmt.Sprintf("%d.%d.x", latest.major, latest.minor)
+	unsupportedFloor := fmt.Sprintf("< %d.%d", latest.major, latest.minor)
 
 	data, err := os.ReadFile("SECURITY.md")
 	if err != nil {

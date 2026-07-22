@@ -6,7 +6,8 @@ Sync one AGENTS.md to every AI coding tool on your machine, with zero magic, jus
 
 Agentlink is a small Go CLI that keeps AI coding assistant instruction files in sync across every tool on a machine by declaring one real source file and symlinking every tool-specific alias to it. Tools expect different filenames (AGENTS.md for Codex, Cursor, OpenCode, Crush, and Kiro; CLAUDE.md for Claude Code; GEMINI.md for Gemini CLI; QWEN.md for Qwen Code; .github/copilot-instructions.md for GitHub Copilot) and different global paths (~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.openclaw/workspace/AGENTS.md). Agentlink fixes the drift problem without code generation: edit one real file, every tool sees the change instantly. The registry covers 23 tools out of the box; any other path can be added in config.
 
-Install: brew install snapsynapse/tap/agentlink (or pre-built binaries and go install; see README).
+Install: brew install snapsynapse/tap/agentlink, or go install github.com/snapsynapse/agentlink/cmd/agentlink@latest. Pre-built binaries are linked from README.md.
+Current release: v0.4.0.
 
 Scope is deliberately narrow: instruction files only. No MCP servers, no chain configs, no templating.
 
@@ -34,7 +35,8 @@ Scope is deliberately narrow: instruction files only. No MCP servers, no chain c
 - docs/.well-known/assistant-guide-manifest.txt: GuideCheck sidecar manifest
 - cmd/agentlink/: Go CLI entry point
 - internal/: sync logic, detect, scan, hooks, backup
-- .agentlink.yaml: example project config
+- examples/project.agentlink.yaml: copyable project configuration
+- examples/global.agentlink.yaml: copyable global configuration
 - CHANGELOG.md: version history
 - LICENSE: MIT
 
@@ -48,7 +50,7 @@ Scope is deliberately narrow: instruction files only. No MCP servers, no chain c
 
 This repository is the canonical home for current Agentlink project direction, issues, releases, and documentation. It preserves upstream MIT attribution while carrying the Snap Synapse continuation: detect, scan, hooks, automatic backup, global-config support, integration tests, and release distribution. Full attribution and the PR #2 to #3 lineage note are in NOTICE.
 
-Last updated: 2026-06-10
+Last updated: 2026-07-21
 
 ## Related projects from the same author
 

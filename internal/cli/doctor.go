@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/martinmose/agentlink/internal/config"
+	"github.com/snapsynapse/agentlink/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -78,7 +78,10 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 		fmt.Printf("Home directory: %s\n", homeDir)
 
 		configDir := filepath.Join(homeDir, ".config", "agentlink")
-		if err := checkDirectoryAccess(configDir, true); err != nil {
+		if _, err := os.Stat(configDir); os.IsNotExist(err) {
+			fmt.Printf("⚠️  Config directory does not exist yet: %s\n", configDir)
+			fmt.Printf("    (This is normal - agentlink sync will create it when needed)\n")
+		} else if err := checkDirectoryAccess(configDir); err != nil {
 			fmt.Printf("✗ Config directory issue: %v\n", err)
 			hasIssues = true
 		} else {
@@ -148,27 +151,23 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 }
 
 func checkSymlinkSupport() error {
-	// Create a temporary file and symlink to test
-	tmpDir := os.TempDir()
+	tmpDir, err := os.MkdirTemp("", "agentlink-symlink-check-*")
+	if err != nil {
+		return fmt.Errorf("cannot create temporary directory: %w", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
 	testFile := filepath.Join(tmpDir, "agentlink_test_target")
 	testLink := filepath.Join(tmpDir, "agentlink_test_link")
-
-	// Clean up any existing test files
-	os.Remove(testFile)
-	os.Remove(testLink)
 
 	// Create test target file
 	if err := os.WriteFile(testFile, []byte("test"), 0644); err != nil {
 		return fmt.Errorf("cannot create test file: %w", err)
 	}
-	defer os.Remove(testFile)
-
 	// Try to create symlink
 	if err := os.Symlink(testFile, testLink); err != nil {
 		return fmt.Errorf("cannot create symlinks: %w", err)
 	}
-	defer os.Remove(testLink)
-
 	// Verify symlink works
 	if _, err := os.Readlink(testLink); err != nil {
 		return fmt.Errorf("cannot read symlink: %w", err)
@@ -196,16 +195,10 @@ func isInPath(binaryPath string) bool {
 	return err == nil
 }
 
-func checkDirectoryAccess(dirPath string, createIfMissing bool) error {
+func checkDirectoryAccess(dirPath string) error {
 	info, err := os.Stat(dirPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			if createIfMissing {
-				if err := os.MkdirAll(dirPath, 0755); err != nil {
-					return fmt.Errorf("cannot create directory: %w", err)
-				}
-				return nil
-			}
 			return fmt.Errorf("directory does not exist")
 		}
 		return fmt.Errorf("cannot stat directory: %w", err)
@@ -215,12 +208,19 @@ func checkDirectoryAccess(dirPath string, createIfMissing bool) error {
 		return fmt.Errorf("path exists but is not a directory")
 	}
 
-	// Test write access by creating a temporary file
-	testFile := filepath.Join(dirPath, ".agentlink_test")
-	if err := os.WriteFile(testFile, []byte("test"), 0644); err != nil {
+	// Test write access using a unique temporary file.
+	testFile, err := os.CreateTemp(dirPath, ".agentlink-test-*")
+	if err != nil {
 		return fmt.Errorf("directory is not writable: %w", err)
 	}
-	os.Remove(testFile)
+	testPath := testFile.Name()
+	if err := testFile.Close(); err != nil {
+		_ = os.Remove(testPath)
+		return fmt.Errorf("cannot close temporary file: %w", err)
+	}
+	if err := os.Remove(testPath); err != nil {
+		return fmt.Errorf("cannot remove temporary file: %w", err)
+	}
 
 	return nil
 }

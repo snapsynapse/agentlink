@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/martinmose/agentlink/internal/registry"
-	"github.com/martinmose/agentlink/internal/symlink"
+	"github.com/snapsynapse/agentlink/internal/registry"
+	"github.com/snapsynapse/agentlink/internal/symlink"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +24,7 @@ different filenames (e.g., CLAUDE.md, GEMINI.md).
 
 The scan directory defaults to ~/Git. Override with the --dir flag or by
 passing a directory argument. Set a permanent default at build time with
--ldflags "-X github.com/martinmose/agentlink/internal/cli.DefaultScanDir=/your/path".
+-ldflags "-X github.com/snapsynapse/agentlink/internal/cli.DefaultScanDir=/your/path".
 
 Only creates symlinks in repos that already have an AGENTS.md file.
 Does not inject files into repos that lack one.`,
@@ -82,7 +82,7 @@ func runScan(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("Found %d git repositories\n\n", len(repos))
 
-	manager := symlink.NewManager(dryRun, force, verbose)
+	manager := symlink.NewManager(dryRun, force)
 	created := 0
 	skipped := 0
 	errors := 0
@@ -101,6 +101,11 @@ func runScan(cmd *cobra.Command, args []string) error {
 
 		if verbose {
 			printInfo("Processing %s", relativeTo(repo, dir))
+		}
+		if err := manager.ValidateSource(agentsPath); err != nil {
+			printError("%s/AGENTS.md: %v", relativeTo(repo, dir), err)
+			errors++
+			continue
 		}
 
 		for _, target := range linkTargets {

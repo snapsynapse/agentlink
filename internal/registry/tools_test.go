@@ -82,33 +82,6 @@ func TestDetectAllDoesNotPanic(t *testing.T) {
 	_ = DetectAll()
 }
 
-func TestToolsWithGlobalConfigFilters(t *testing.T) {
-	filtered := ToolsWithGlobalConfig()
-	if len(filtered) == 0 {
-		t.Fatal("ToolsWithGlobalConfig() returned empty slice")
-	}
-	for _, tool := range filtered {
-		if tool.GlobalConfigPath == "" {
-			t.Errorf("tool %q has empty GlobalConfigPath but was returned by ToolsWithGlobalConfig()", tool.Name)
-		}
-	}
-	if len(filtered) >= len(All()) {
-		t.Error("ToolsWithGlobalConfig() did not filter anything")
-	}
-}
-
-func TestToolsReadingAgentsMDFilters(t *testing.T) {
-	filtered := ToolsReadingAgentsMD()
-	if len(filtered) == 0 {
-		t.Fatal("ToolsReadingAgentsMD() returned empty slice")
-	}
-	for _, tool := range filtered {
-		if !tool.ReadsAgentsMD {
-			t.Errorf("tool %q has ReadsAgentsMD=false but was returned by ToolsReadingAgentsMD()", tool.Name)
-		}
-	}
-}
-
 func TestExpandHome(t *testing.T) {
 	tests := []struct {
 		input   string

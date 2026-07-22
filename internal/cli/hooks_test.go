@@ -31,6 +31,22 @@ func TestZshHookContentQuotesBinaryPath(t *testing.T) {
 	}
 }
 
+func TestZshHookContentSupportsSubdirectoriesAndWorktrees(t *testing.T) {
+	content := zshHookContent("/tmp/agentlink")
+	for _, want := range []string{
+		"git rev-parse --show-toplevel",
+		`[ -f "$agentlink_root/.agentlink.yaml" ]`,
+		`cd "$agentlink_root"`,
+	} {
+		if !strings.Contains(content, want) {
+			t.Fatalf("zshHookContent() missing %q:\n%s", want, content)
+		}
+	}
+	if strings.Contains(content, "[ -d .git ]") {
+		t.Fatalf("zshHookContent() still requires a .git directory:\n%s", content)
+	}
+}
+
 func TestLaunchdPlistContentEscapesBinaryPath(t *testing.T) {
 	binaryPath := "/tmp/Agent Link/bin/agent'link & <test>"
 	content := launchdPlistContent(binaryPath)
@@ -129,13 +145,40 @@ func TestAppendOrCreateHookMakesExistingHookExecutable(t *testing.T) {
 
 func TestAppendOrCreateHookRepairsModeWhenAlreadyInstalled(t *testing.T) {
 	hookPath := filepath.Join(t.TempDir(), "post-merge")
-	if err := os.WriteFile(hookPath, []byte("#!/bin/sh\n"+gitHookContent("/tmp/agentlink")), 0644); err != nil {
+	oldContent := gitHookContent("/tmp/old-agentlink")
+	if err := os.WriteFile(hookPath, []byte("#!/bin/sh\necho before\n"+oldContent+"echo after\n"), 0644); err != nil {
 		t.Fatal(err)
 	}
-	if err := appendOrCreateHook(hookPath, gitHookContent("/tmp/agentlink")); err != nil {
+	newContent := gitHookContent("/tmp/new-agentlink")
+	if err := appendOrCreateHook(hookPath, newContent); err != nil {
 		t.Fatalf("appendOrCreateHook() failed: %v", err)
 	}
 	assertUserExecutable(t, hookPath)
+	data, err := os.ReadFile(hookPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := string(data)
+	if strings.Contains(got, "/tmp/old-agentlink") || !strings.Contains(got, "/tmp/new-agentlink") {
+		t.Fatalf("managed hook section was not updated:\n%s", got)
+	}
+	if !strings.Contains(got, "echo before") || !strings.Contains(got, "echo after") {
+		t.Fatalf("unmanaged hook content was not preserved:\n%s", got)
+	}
+}
+
+func TestRewriteMarkedSectionRejectsIncompleteBlock(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "hook")
+	if err := os.WriteFile(path, []byte("#!/bin/sh\n"+gitHookMarkerStart+"\nold\n"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	updated, err := rewriteMarkedSection(path, gitHookContent("/tmp/agentlink"))
+	if err == nil {
+		t.Fatal("rewriteMarkedSection() error = nil, want incomplete marker error")
+	}
+	if updated {
+		t.Fatal("rewriteMarkedSection() updated incomplete marker block")
+	}
 }
 
 func assertUserExecutable(t *testing.T, path string) {

@@ -13,23 +13,26 @@ case "$version" in v*) version="${version#v}" ;; esac
 tag="v$version"
 repo="${REPO:-snapsynapse/agentlink}"
 tap_repo="${TAP_REPO:-snapsynapse/homebrew-tap}"
-module="github.com/martinmose/agentlink"
+module="github.com/snapsynapse/agentlink"
+notes_file="RELEASE_NOTES-$version.md"
 
 test -z "$(git status --porcelain)" || { echo "working tree not clean" >&2; exit 1; }
 grep -Fq "[$version]" CHANGELOG.md || { echo "CHANGELOG.md has no [$version] section" >&2; exit 1; }
+test -f "$notes_file" || { echo "missing $notes_file" >&2; exit 1; }
 
 echo "==> Tests"
+go mod tidy -diff
 go vet ./...
 go test ./...
+go test -race ./...
+go test -tags=integration .
 
 echo "==> Build $tag"
 rm -rf dist && mkdir -p dist
-commit="$(git rev-parse --short HEAD)"
-date_utc="$(date -u +%Y-%m-%d)"
 for target in darwin/arm64 darwin/amd64 linux/amd64 linux/arm64; do
   goos="${target%/*}" goarch="${target#*/}"
   GOOS="$goos" GOARCH="$goarch" go build -trimpath \
-    -ldflags "-s -w -X $module/internal/cli.version=$version -X $module/internal/cli.commit=$commit -X $module/internal/cli.date=$date_utc" \
+    -ldflags "-s -w -X $module/internal/cli.version=$version" \
     -o "dist/agentlink-$goos-$goarch" ./cmd/agentlink
 done
 (cd dist && shasum -a 256 agentlink-* > SHA256SUMS.txt)
@@ -43,15 +46,14 @@ if [ "$prev_tag" != "$tag" ] && grep -Fq "$prev_tag" docs/index.html; then
 fi
 
 echo "==> Tag and release"
-git tag "$tag"
-git push origin main "$tag"
+git tag -a "$tag" -m "Agentlink $tag"
+git push origin HEAD:main "$tag"
 gh release create "$tag" --repo "$repo" --latest \
   --title "Agentlink $tag" \
-  --notes "See https://github.com/$repo/blob/main/CHANGELOG.md for details.
-
-Verify downloads: \`shasum -a 256 -c SHA256SUMS.txt\`" \
+  --notes-file "$notes_file" \
   dist/agentlink-darwin-arm64 dist/agentlink-darwin-amd64 \
-  dist/agentlink-linux-amd64 dist/agentlink-linux-arm64 dist/SHA256SUMS.txt
+  dist/agentlink-linux-amd64 dist/agentlink-linux-arm64 dist/SHA256SUMS.txt \
+  "$notes_file"
 
 echo "==> Update Homebrew tap"
 sha() { awk -v f="agentlink-$1" '$2==f{print $1}' dist/SHA256SUMS.txt; }

@@ -3,12 +3,40 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+var integrationBinaryPath string
+
+func TestMain(m *testing.M) {
+	repoRoot, err := os.Getwd()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "cannot determine repository root: %v\n", err)
+		os.Exit(1)
+	}
+	tmpDir, err := os.MkdirTemp("", "agentlink-integration-*")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "cannot create integration temp directory: %v\n", err)
+		os.Exit(1)
+	}
+	integrationBinaryPath = filepath.Join(tmpDir, "agentlink")
+	cmd := exec.Command("go", "build", "-o", integrationBinaryPath, "./cmd/agentlink")
+	cmd.Dir = repoRoot
+	if output, err := cmd.CombinedOutput(); err != nil {
+		fmt.Fprintf(os.Stderr, "cannot build integration binary: %v\n%s", err, output)
+		_ = os.RemoveAll(tmpDir)
+		os.Exit(1)
+	}
+
+	code := m.Run()
+	_ = os.RemoveAll(tmpDir)
+	os.Exit(code)
+}
 
 func TestIntegrationBasicWorkflow(t *testing.T) {
 	if testing.Short() {
@@ -33,11 +61,7 @@ func TestIntegrationBasicWorkflow(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Use the pre-built binary
-	binaryPath := filepath.Join(origDir, "agentlink")
-	if _, err := os.Stat(binaryPath); err != nil {
-		t.Fatalf("Binary not found at %s. Make sure to run 'go build -o agentlink ./cmd/agentlink' first", binaryPath)
-	}
+	binaryPath := integrationBinaryPath
 
 	// Test 1: Init command
 	cmd := exec.Command(binaryPath, "init")
@@ -64,7 +88,7 @@ func TestIntegrationBasicWorkflow(t *testing.T) {
 
 	// Test 3: Create source file and sync
 	sourceContent := "# Test Source\nThis is a test instruction file."
-	if err := os.WriteFile("CLAUDE.md", []byte(sourceContent), 0644); err != nil {
+	if err := os.WriteFile("AGENTS.md", []byte(sourceContent), 0644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -79,7 +103,7 @@ func TestIntegrationBasicWorkflow(t *testing.T) {
 	}
 
 	// Test 4: Verify symlinks were created
-	for _, link := range []string{"AGENTS.md", "OPENCODE.md"} {
+	for _, link := range []string{"CLAUDE.md", "GEMINI.md", "QWEN.md"} {
 		info, err := os.Lstat(link)
 		if err != nil {
 			t.Errorf("Link %s was not created: %v", link, err)
@@ -143,14 +167,7 @@ func TestIntegrationSyncForceCannotReplaceSourceWithSelfLink(t *testing.T) {
 	}
 
 	tmpDir := t.TempDir()
-	origDir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	binaryPath := filepath.Join(origDir, "agentlink")
-	if _, err := os.Stat(binaryPath); err != nil {
-		t.Fatalf("Binary not found at %s. Make sure to run 'go build -o agentlink ./cmd/agentlink' first", binaryPath)
-	}
+	binaryPath := integrationBinaryPath
 
 	sourcePath := filepath.Join(tmpDir, "AGENTS.md")
 	const sourceContent = "# irreplaceable source\n"
@@ -190,15 +207,7 @@ func TestIntegrationDoctorCommand(t *testing.T) {
 		t.Skip("Skipping integration test in short mode")
 	}
 
-	// Use the pre-built binary
-	origDir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	binaryPath := filepath.Join(origDir, "agentlink")
-	if _, err := os.Stat(binaryPath); err != nil {
-		t.Fatalf("Binary not found at %s. Make sure to run 'go build -o agentlink ./cmd/agentlink' first", binaryPath)
-	}
+	binaryPath := integrationBinaryPath
 
 	// Run doctor command
 	cmd := exec.Command(binaryPath, "doctor")
@@ -228,14 +237,7 @@ func TestIntegrationDetectCommand(t *testing.T) {
 		t.Skip("Skipping integration test in short mode")
 	}
 
-	origDir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	binaryPath := filepath.Join(origDir, "agentlink")
-	if _, err := os.Stat(binaryPath); err != nil {
-		t.Fatalf("Binary not found at %s", binaryPath)
-	}
+	binaryPath := integrationBinaryPath
 
 	cmd := exec.Command(binaryPath, "detect")
 	output, err := cmd.CombinedOutput()
@@ -267,7 +269,7 @@ func TestIntegrationDetectGenerate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	binaryPath := filepath.Join(origDir, "agentlink")
+	binaryPath := integrationBinaryPath
 	cmd := exec.Command(binaryPath, "detect", "--generate")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -289,10 +291,6 @@ func TestIntegrationScanCommand(t *testing.T) {
 	}
 
 	tmpDir := t.TempDir()
-	origDir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	// Create a fake git repo with AGENTS.md
 	repoDir := filepath.Join(tmpDir, "fake-repo")
@@ -310,7 +308,7 @@ func TestIntegrationScanCommand(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	binaryPath := filepath.Join(origDir, "agentlink")
+	binaryPath := integrationBinaryPath
 	cmd := exec.Command(binaryPath, "scan", tmpDir)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -344,16 +342,12 @@ func TestIntegrationScanDryRun(t *testing.T) {
 	}
 
 	tmpDir := t.TempDir()
-	origDir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	repoDir := filepath.Join(tmpDir, "repo")
 	os.MkdirAll(filepath.Join(repoDir, ".git"), 0755)
 	os.WriteFile(filepath.Join(repoDir, "AGENTS.md"), []byte("content"), 0644)
 
-	binaryPath := filepath.Join(origDir, "agentlink")
+	binaryPath := integrationBinaryPath
 	cmd := exec.Command(binaryPath, "scan", "--dry-run", tmpDir)
 	if err := cmd.Run(); err != nil {
 		t.Fatalf("scan --dry-run failed: %v", err)
@@ -383,17 +377,17 @@ func TestIntegrationSyncBackup(t *testing.T) {
 
 	os.Mkdir(".git", 0755)
 
-	binaryPath := filepath.Join(origDir, "agentlink")
+	binaryPath := integrationBinaryPath
 	if err := exec.Command(binaryPath, "init").Run(); err != nil {
 		t.Fatal(err)
 	}
 
 	sourceContent := "# Source"
-	os.WriteFile("CLAUDE.md", []byte(sourceContent), 0644)
+	os.WriteFile("AGENTS.md", []byte(sourceContent), 0644)
 
-	// Create real non-empty AGENTS.md that conflicts
+	// Create real non-empty CLAUDE.md that conflicts
 	existingContent := "old content to back up"
-	os.WriteFile("AGENTS.md", []byte(existingContent), 0644)
+	os.WriteFile("CLAUDE.md", []byte(existingContent), 0644)
 
 	cmd := exec.Command(binaryPath, "sync", "--backup")
 	output, err := cmd.CombinedOutput()
@@ -401,17 +395,17 @@ func TestIntegrationSyncBackup(t *testing.T) {
 		t.Fatalf("sync --backup failed: %v\n%s", err, output)
 	}
 
-	// AGENTS.md should now be a symlink
-	info, err := os.Lstat("AGENTS.md")
+	// CLAUDE.md should now be a symlink
+	info, err := os.Lstat("CLAUDE.md")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if info.Mode()&os.ModeSymlink == 0 {
-		t.Error("AGENTS.md was not replaced with symlink")
+		t.Error("CLAUDE.md was not replaced with symlink")
 	}
 
-	// AGENTS.md.bak should exist with old content
-	bakData, err := os.ReadFile("AGENTS.md.bak")
+	// CLAUDE.md.bak should exist with old content
+	bakData, err := os.ReadFile("CLAUDE.md.bak")
 	if err != nil {
 		t.Fatalf("backup file not created: %v", err)
 	}
@@ -438,14 +432,14 @@ func TestIntegrationSyncBackupEmptyFile(t *testing.T) {
 
 	os.Mkdir(".git", 0755)
 
-	binaryPath := filepath.Join(origDir, "agentlink")
+	binaryPath := integrationBinaryPath
 	if err := exec.Command(binaryPath, "init").Run(); err != nil {
 		t.Fatal(err)
 	}
 
-	os.WriteFile("CLAUDE.md", []byte("source"), 0644)
+	os.WriteFile("AGENTS.md", []byte("source"), 0644)
 	// Create 0-byte conflicting file
-	os.WriteFile("AGENTS.md", []byte{}, 0644)
+	os.WriteFile("CLAUDE.md", []byte{}, 0644)
 
 	cmd := exec.Command(binaryPath, "sync", "--backup")
 	output, err := cmd.CombinedOutput()
@@ -454,16 +448,16 @@ func TestIntegrationSyncBackupEmptyFile(t *testing.T) {
 	}
 
 	// Symlink should be created
-	info, err := os.Lstat("AGENTS.md")
+	info, err := os.Lstat("CLAUDE.md")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if info.Mode()&os.ModeSymlink == 0 {
-		t.Error("AGENTS.md was not replaced with symlink")
+		t.Error("CLAUDE.md was not replaced with symlink")
 	}
 
 	// No .bak should exist for empty file
-	if _, err := os.Stat("AGENTS.md.bak"); err == nil {
+	if _, err := os.Stat("CLAUDE.md.bak"); err == nil {
 		t.Error("backup created for empty file (should be skipped)")
 	}
 
@@ -491,9 +485,9 @@ func TestIntegrationQuietFlag(t *testing.T) {
 
 	os.Mkdir(".git", 0755)
 
-	binaryPath := filepath.Join(origDir, "agentlink")
+	binaryPath := integrationBinaryPath
 	exec.Command(binaryPath, "init").Run()
-	os.WriteFile("CLAUDE.md", []byte("src"), 0644)
+	os.WriteFile("AGENTS.md", []byte("src"), 0644)
 
 	cmd := exec.Command(binaryPath, "sync", "--quiet")
 	output, err := cmd.CombinedOutput()
@@ -512,11 +506,7 @@ func TestIntegrationHooksStatus(t *testing.T) {
 		t.Skip("Skipping integration test in short mode")
 	}
 
-	origDir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	binaryPath := filepath.Join(origDir, "agentlink")
+	binaryPath := integrationBinaryPath
 
 	cmd := exec.Command(binaryPath, "hooks", "status")
 	output, err := cmd.CombinedOutput()
@@ -537,11 +527,7 @@ func TestIntegrationHooksInstallRequiresFlag(t *testing.T) {
 		t.Skip("Skipping integration test in short mode")
 	}
 
-	origDir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	binaryPath := filepath.Join(origDir, "agentlink")
+	binaryPath := integrationBinaryPath
 
 	cmd := exec.Command(binaryPath, "hooks", "install")
 	if err := cmd.Run(); err == nil {
@@ -566,11 +552,7 @@ func TestIntegrationForceFlag(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Use the pre-built binary
-	binaryPath := filepath.Join(origDir, "agentlink")
-	if _, err := os.Stat(binaryPath); err != nil {
-		t.Fatalf("Binary not found at %s. Make sure to run 'go build -o agentlink ./cmd/agentlink' first", binaryPath)
-	}
+	binaryPath := integrationBinaryPath
 
 	// Create .git and initialize project
 	os.Mkdir(".git", 0755)
@@ -581,12 +563,12 @@ func TestIntegrationForceFlag(t *testing.T) {
 	}
 
 	// Create source file
-	if err := os.WriteFile("CLAUDE.md", []byte("source"), 0644); err != nil {
+	if err := os.WriteFile("AGENTS.md", []byte("source"), 0644); err != nil {
 		t.Fatal(err)
 	}
 
 	// Create conflicting file
-	if err := os.WriteFile("AGENTS.md", []byte("conflicting content"), 0644); err != nil {
+	if err := os.WriteFile("CLAUDE.md", []byte("conflicting content"), 0644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -603,7 +585,7 @@ func TestIntegrationForceFlag(t *testing.T) {
 	}
 
 	// Verify the file was replaced with a symlink
-	info, err := os.Lstat("AGENTS.md")
+	info, err := os.Lstat("CLAUDE.md")
 	if err != nil {
 		t.Fatal(err)
 	}

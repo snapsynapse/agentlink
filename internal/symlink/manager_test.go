@@ -54,7 +54,7 @@ func TestValidateSource(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			manager := NewManager(false, false, false)
+			manager := NewManager(false, false)
 			sourcePath := tt.setup()
 
 			err := manager.ValidateSource(sourcePath)
@@ -67,7 +67,7 @@ func TestValidateSource(t *testing.T) {
 
 func TestCheckLink(t *testing.T) {
 	tmpDir := t.TempDir()
-	manager := NewManager(false, false, false)
+	manager := NewManager(false, false)
 
 	// Create source file
 	source := filepath.Join(tmpDir, "source.md")
@@ -130,7 +130,7 @@ func TestCheckLink(t *testing.T) {
 
 func TestCreateLink(t *testing.T) {
 	tmpDir := t.TempDir()
-	manager := NewManager(false, false, false)
+	manager := NewManager(false, false)
 
 	// Create source file
 	source := filepath.Join(tmpDir, "source.md")
@@ -161,7 +161,7 @@ func TestCreateLink(t *testing.T) {
 
 func TestFixLink(t *testing.T) {
 	tmpDir := t.TempDir()
-	manager := NewManager(false, true, false) // force enabled
+	manager := NewManager(false, true) // force enabled
 
 	// Create source file
 	source := filepath.Join(tmpDir, "source.md")
@@ -236,7 +236,7 @@ func TestFixLink(t *testing.T) {
 
 func TestDryRun(t *testing.T) {
 	tmpDir := t.TempDir()
-	manager := NewManager(true, false, false) // dry-run enabled
+	manager := NewManager(true, false) // dry-run enabled
 
 	source := filepath.Join(tmpDir, "source.md")
 	os.WriteFile(source, []byte("test"), 0644)
@@ -257,7 +257,7 @@ func TestDryRun(t *testing.T) {
 
 func TestDryRunForceDoesNotMutateExistingPaths(t *testing.T) {
 	tmpDir := t.TempDir()
-	manager := NewManager(true, true, false)
+	manager := NewManager(true, true)
 
 	source := filepath.Join(tmpDir, "source.md")
 	if err := os.WriteFile(source, []byte("source"), 0644); err != nil {
@@ -337,7 +337,7 @@ func TestDryRunForceDoesNotMutateExistingPaths(t *testing.T) {
 
 func TestFixLinkForceRefusesDirectories(t *testing.T) {
 	tmpDir := t.TempDir()
-	manager := NewManager(false, true, false)
+	manager := NewManager(false, true)
 
 	source := filepath.Join(tmpDir, "source.md")
 	if err := os.WriteFile(source, []byte("source"), 0644); err != nil {
@@ -376,7 +376,7 @@ func TestFixLinkRefusesDestinationAliasedToSourceByParentSymlink(t *testing.T) {
 	}
 	alias := filepath.Join(aliasDir, "AGENTS.md")
 
-	manager := NewManager(false, true, false)
+	manager := NewManager(false, true)
 	if _, err := manager.FixLink(alias, source); err == nil {
 		t.Fatal("FixLink() replaced a source reached through a symlinked parent")
 	}
@@ -403,7 +403,7 @@ func TestFixLinkAllowsCorrectManagedSymlinkResolvingToSource(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	action, err := NewManager(false, true, false).FixLink(link, source)
+	action, err := NewManager(false, true).FixLink(link, source)
 	if err != nil {
 		t.Fatalf("FixLink() rejected correct managed symlink: %v", err)
 	}
@@ -423,17 +423,17 @@ func TestFixLinkHardlinkRequiresForceButCanBeReplaced(t *testing.T) {
 		t.Skipf("hardlinks unavailable: %v", err)
 	}
 
-	if _, err := NewManager(false, false, false).FixLink(link, source); err == nil {
+	if _, err := NewManager(false, false).FixLink(link, source); err == nil {
 		t.Fatal("FixLink() replaced hardlink without force")
 	}
-	action, err := NewManager(false, true, false).FixLink(link, source)
+	action, err := NewManager(false, true).FixLink(link, source)
 	if err != nil {
 		t.Fatalf("FixLink() failed to replace hardlink with force: %v", err)
 	}
 	if action != "replace" {
 		t.Fatalf("FixLink() action = %q, want replace", action)
 	}
-	if got := NewManager(false, false, false).CheckLink(link, source).Status; got != StatusOK {
+	if got := NewManager(false, false).CheckLink(link, source).Status; got != StatusOK {
 		t.Fatalf("replacement link status = %v, want %v", got, StatusOK)
 	}
 	data, err := os.ReadFile(source)

@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/martinmose/agentlink/internal/config"
-	"github.com/martinmose/agentlink/internal/symlink"
+	"github.com/snapsynapse/agentlink/internal/config"
+	"github.com/snapsynapse/agentlink/internal/symlink"
 	"github.com/spf13/cobra"
 )
 
@@ -62,7 +62,7 @@ func runSync(cmd *cobra.Command, args []string) error {
 
 	// If --backup is set, enable force (backup happens before replacement)
 	effectiveForce := force || syncBackup
-	manager := symlink.NewManager(dryRun, effectiveForce, verbose)
+	manager := symlink.NewManager(dryRun, effectiveForce)
 
 	// Validate source file
 	if err := manager.ValidateSource(cfg.Source); err != nil {

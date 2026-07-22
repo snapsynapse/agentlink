@@ -266,33 +266,6 @@ func DetectAll() []Detected {
 	return results
 }
 
-// DetectInstalled returns only tools that were found on the system.
-func DetectInstalled() []Detected {
-	return DetectAll()
-}
-
-// ToolsWithGlobalConfig returns tools that have a user-level config path.
-func ToolsWithGlobalConfig() []Tool {
-	var tools []Tool
-	for _, t := range All() {
-		if t.GlobalConfigPath != "" {
-			tools = append(tools, t)
-		}
-	}
-	return tools
-}
-
-// ToolsReadingAgentsMD returns tools that natively read AGENTS.md.
-func ToolsReadingAgentsMD() []Tool {
-	var tools []Tool
-	for _, t := range All() {
-		if t.ReadsAgentsMD {
-			tools = append(tools, t)
-		}
-	}
-	return tools
-}
-
 func detectTool(tool Tool) *Detected {
 	homeDir, _ := os.UserHomeDir()
 
