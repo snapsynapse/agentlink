@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-07-21
+
+### Fixed
+
+- Binaries installed with `go install` now derive their version from Go build
+  metadata, so `agentlink --version` reports the tagged module version instead
+  of `dev`. Release linker flags remain authoritative for packaged binaries.
+
 ## [0.4.0] - 2026-07-21
 
 ### Added
@@ -198,7 +206,8 @@ by Martin Mose Facondini (MIT). Fork additions offered back upstream in
 [martinmose/agentlink#2](https://github.com/martinmose/agentlink/pull/2).
 See [NOTICE](NOTICE) for the full fork provenance.
 
-[Unreleased]: https://github.com/snapsynapse/agentlink/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/snapsynapse/agentlink/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/snapsynapse/agentlink/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/snapsynapse/agentlink/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/snapsynapse/agentlink/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/snapsynapse/agentlink/releases/tag/v0.2.0

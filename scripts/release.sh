@@ -2,13 +2,13 @@
 # Release agentlink: build binaries, tag, publish the GitHub release, and
 # update the Homebrew tap formula in snapsynapse/homebrew-tap.
 #
-# Usage: scripts/release.sh 0.4.0
+# Usage: scripts/release.sh 1.2.3
 #
 # Expects: clean working tree, CHANGELOG.md already has the version section,
 # gh authenticated, and push access to snapsynapse/homebrew-tap.
 set -eu
 
-version="${1:?usage: scripts/release.sh <version, e.g. 0.4.0>}"
+version="${1:?usage: scripts/release.sh <version, e.g. 1.2.3>}"
 case "$version" in v*) version="${version#v}" ;; esac
 tag="v$version"
 repo="${REPO:-snapsynapse/agentlink}"

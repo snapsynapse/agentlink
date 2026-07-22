@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 	"os"
+	"runtime/debug"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -35,11 +37,31 @@ func Execute() error {
 }
 
 func init() {
+	rootCmd.Version = resolvedVersion()
+
 	// Global flags
 	rootCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", false, "show what would be done without making filesystem changes")
 	rootCmd.PersistentFlags().BoolVarP(&force, "force", "f", false, "replace conflicting regular files without backup")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "suppress non-error output")
+}
+
+func resolvedVersion() string {
+	moduleVersion := ""
+	if info, ok := debug.ReadBuildInfo(); ok {
+		moduleVersion = info.Main.Version
+	}
+	return versionFromBuildInfo(version, moduleVersion)
+}
+
+func versionFromBuildInfo(linkerVersion, moduleVersion string) string {
+	if linkerVersion != "" && linkerVersion != "dev" {
+		return linkerVersion
+	}
+	if moduleVersion != "" && moduleVersion != "(devel)" {
+		return strings.TrimPrefix(moduleVersion, "v")
+	}
+	return "dev"
 }
 
 // printInfo prints an info message

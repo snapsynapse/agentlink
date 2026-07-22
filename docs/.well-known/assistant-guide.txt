@@ -10,8 +10,8 @@ Before acting:
 identifier: assistant-guide
 profile: human-verifiable-assistant-guide
 profile-version: 0.7.1
-guide-version: 1.2.0
-applies-to: agentlink >=0.4.0
+guide-version: 1.2.1
+applies-to: agentlink >=0.4.1
 canonical-url: https://agentlink.run/.well-known/assistant-guide.txt
 repository-url: https://github.com/snapsynapse/agentlink
 source-path: docs/.well-known/assistant-guide.txt
@@ -70,7 +70,7 @@ notes: Taps snapsynapse/homebrew-tap and installs agentlink from GitHub release 
 id: install-via-go
 class: networked, persistence-changing, code-executing
 approval: required
-command: go install github.com/snapsynapse/agentlink/cmd/agentlink@v0.4.0
+command: go install github.com/snapsynapse/agentlink/cmd/agentlink@v0.4.1
 runner: argv
 cwd: .
 egress: github.com, proxy.golang.org, sum.golang.org
@@ -81,7 +81,7 @@ notes: Requires Go 1.23+ and installs the pinned release into the configured Go 
 id: download-binary
 class: networked, persistence-changing
 approval: required
-command: curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.4.0/agentlink-darwin-arm64
+command: curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.4.1/agentlink-darwin-arm64
 runner: argv
 cwd: .
 egress: github.com, objects.githubusercontent.com
@@ -92,7 +92,7 @@ notes: Fallback path. Substitute darwin-amd64, linux-amd64, or linux-arm64 in th
 id: verify-checksum
 class: networked
 approval: required
-command: curl -L -o SHA256SUMS.txt https://github.com/snapsynapse/agentlink/releases/download/v0.4.0/SHA256SUMS.txt
+command: curl -L -o SHA256SUMS.txt https://github.com/snapsynapse/agentlink/releases/download/v0.4.1/SHA256SUMS.txt
 runner: argv
 cwd: .
 egress: github.com, objects.githubusercontent.com

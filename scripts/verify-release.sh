@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-version="${1:?usage: scripts/verify-release.sh <version, e.g. v0.4.0>}"
+version="${1:?usage: scripts/verify-release.sh <version, e.g. v1.2.3>}"
 repo="${REPO:-snapsynapse/agentlink}"
 
 case "$version" in
