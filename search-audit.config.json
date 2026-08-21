@@ -1,0 +1,90 @@
+{
+  "$schema": "portfolio-search-indexing-audit/v4",
+  "contractVersion": 4,
+  "canonicalOrigin": "https://agentlink.run/",
+  "outputDir": "docs",
+  "sitemaps": [
+    "sitemap.xml"
+  ],
+  "minimumWords": 120,
+  "thinPageExemptions": [],
+  "expectedNoindex": [
+    "/404.html"
+  ],
+  "requireJsonLd": false,
+  "jsonLdRequiredPaths": [
+    "/"
+  ],
+  "lastmodAgreementPaths": [
+    "/"
+  ],
+  "compareRepositorySitemaps": true,
+  "internalSourceRules": [],
+  "requiredFiles": [
+    {
+      "path": "robots.txt",
+      "contentTypes": [
+        "text/plain"
+      ],
+      "contains": [
+        "User-agent: GPTBot",
+        "User-agent: ClaudeBot",
+        "User-agent: PerplexityBot",
+        "User-agent: Google-Extended",
+        "Sitemap: https://agentlink.run/sitemap.xml"
+      ]
+    },
+    {
+      "path": "sitemap.xml",
+      "contentTypes": [
+        "xml"
+      ],
+      "contains": []
+    },
+    {
+      "path": "favicon.svg",
+      "contentTypes": [
+        "image/svg+xml",
+        "svg"
+      ],
+      "contains": []
+    },
+    {
+      "path": ".well-known/assistant-guide-manifest.txt",
+      "contentTypes": [
+        "text/plain"
+      ],
+      "contains": []
+    },
+    {
+      "path": ".well-known/assistant-guide.txt",
+      "contentTypes": [
+        "text/plain"
+      ],
+      "contains": []
+    }
+  ],
+  "redirects": [
+    {
+      "from": "http://agentlink.run/",
+      "to": "https://agentlink.run/"
+    },
+    {
+      "from": "https://www.agentlink.run/",
+      "to": "https://agentlink.run/"
+    },
+    {
+      "from": "http://www.agentlink.run/",
+      "to": "https://agentlink.run/"
+    }
+  ],
+  "hosted404Patterns": [
+    "There isn't a GitHub Pages site here",
+    "<title>Page not found",
+    "404 File not found",
+    "<title>Page not found &mdash; Agentlink</title>"
+  ],
+  "expectedNotFoundPaths": [
+    "/__search-audit-404__"
+  ]
+}

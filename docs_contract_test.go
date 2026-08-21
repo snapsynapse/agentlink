@@ -37,25 +37,32 @@ func TestPublishedGoInstallUsesCanonicalModule(t *testing.T) {
 }
 
 func TestReleaseSurfacesUseCurrentVersion(t *testing.T) {
-	const version = "v0.4.1"
+	const version = "v0.4.2"
 	wants := map[string][]string{
-		"CHANGELOG.md": {"## [0.4.1] - 2026-07-21"},
+		"CHANGELOG.md": {"## [0.4.2] - 2026-08-20"},
 		"SECURITY.md":  {"| 0.4.x   | Yes"},
 		"docs/index.html": {
-			"Agentlink v0.4.1",
-			"/releases/tag/v0.4.1",
-			"/releases/download/v0.4.1/agentlink-darwin-arm64",
+			"Agentlink v0.4.2",
+			"/releases/tag/v0.4.2",
+			"/releases/download/v0.4.2/agentlink-darwin-arm64",
 		},
-		"docs/llms.txt": {"Current release: v0.4.1."},
+		"docs/llms.txt": {"Current release: v0.4.2."},
 		"docs/.well-known/assistant-guide.txt": {
-			"guide-version: 1.2.1",
-			"go install github.com/snapsynapse/agentlink/cmd/agentlink@v0.4.1",
-			"/releases/download/v0.4.1/agentlink-darwin-arm64",
+			"guide-version: 1.2.2",
+			"go install github.com/snapsynapse/agentlink/cmd/agentlink@v0.4.2",
+			"/releases/download/v0.4.2/agentlink-darwin-arm64",
 		},
 		"docs/.well-known/assistant-guide-manifest.txt": {
-			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.4.1/",
+			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.4.2/",
 		},
-		"RELEASE_NOTES-0.4.1.md": {"# Agentlink v0.4.1"},
+		"assistant-guide.txt": {
+			"guide-version: 1.2.2",
+			"applies-to: agentlink >=0.4.2",
+		},
+		"assistant-guide-manifest.txt": {
+			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.4.2/",
+		},
+		"RELEASE_NOTES-0.4.2.md": {"# Agentlink v0.4.2"},
 	}
 
 	for path, required := range wants {

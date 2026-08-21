@@ -70,24 +70,23 @@ returned and has a unique name. No code changes elsewhere are required.
 
 ## Releasing (maintainers)
 
-Distribution has two halves: GitHub release assets on this repo, and the
-Homebrew formula in [snapsynapse/homebrew-tap](https://github.com/snapsynapse/homebrew-tap)
-(`Formula/agentlink.rb`), which is what `brew install snapsynapse/tap/agentlink`
-resolves to. Both are updated by one script:
+Read `RELEASE_CHECKLIST.md` first. Release preparation and publication are
+separate. Prepare and verify deterministic assets without external writes:
 
 ```bash
-scripts/release.sh 0.4.0
+scripts/prepare-release.sh 0.4.2
 ```
 
-It runs the test gates, cross-builds the four binaries with version stamps,
-writes `SHA256SUMS.txt`, bumps the landing page, tags and publishes the
-GitHub release, rewrites the tap formula with the new URLs and checksums,
-and runs `scripts/verify-release.sh`. Two manual follow-ups: add the
-CHANGELOG section before running the script (it refuses to release a
-version the CHANGELOG does not mention), and if the assistant guide's
-pinned fallback download URLs should track the new release, update
-`docs/.well-known/assistant-guide.txt`, re-verify it, and update its
-manifest.
+After the reviewed release commit is merged and exact-head CI passes, run the
+publication command from clean, synchronized `main`:
+
+```bash
+scripts/release.sh 0.4.2
+```
+
+It tags the existing commit, publishes the declared assets, updates the
+Homebrew formula, and independently downloads and verifies the release. It
+does not edit, commit, or push `main`.
 
 ## Where to ask questions
 

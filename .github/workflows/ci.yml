@@ -12,10 +12,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
       with:
         go-version: 1.23
 
@@ -51,7 +51,11 @@ jobs:
 
     - name: Check release script syntax
       if: matrix.os == 'ubuntu-24.04'
-      run: sh -n scripts/release.sh scripts/verify-release.sh
+      run: sh -n scripts/check-release-contract.sh scripts/prepare-release.sh scripts/release.sh scripts/verify-release.sh
+
+    - name: Check release contract
+      if: matrix.os == 'ubuntu-24.04'
+      run: sh scripts/check-release-contract.sh
 
     - name: Check reachable vulnerabilities
       if: matrix.os == 'ubuntu-24.04'

@@ -1,11 +1,5 @@
 #!/bin/sh
-# Release agentlink: build binaries, tag, publish the GitHub release, and
-# update the Homebrew tap formula in snapsynapse/homebrew-tap.
-#
-# Usage: scripts/release.sh 1.2.3
-#
-# Expects: clean working tree, CHANGELOG.md already has the version section,
-# gh authenticated, and push access to snapsynapse/homebrew-tap.
+# Publish a prepared Agentlink release and update snapsynapse/homebrew-tap.
 set -eu
 
 version="${1:?usage: scripts/release.sh <version, e.g. 1.2.3>}"
@@ -13,55 +7,44 @@ case "$version" in v*) version="${version#v}" ;; esac
 tag="v$version"
 repo="${REPO:-snapsynapse/agentlink}"
 tap_repo="${TAP_REPO:-snapsynapse/homebrew-tap}"
-module="github.com/snapsynapse/agentlink"
+targets_file="scripts/release-targets.txt"
 notes_file="RELEASE_NOTES-$version.md"
 
+test "$(git branch --show-current)" = "main" || { echo "release must run from main" >&2; exit 1; }
 test -z "$(git status --porcelain)" || { echo "working tree not clean" >&2; exit 1; }
-grep -Fq "[$version]" CHANGELOG.md || { echo "CHANGELOG.md has no [$version] section" >&2; exit 1; }
-test -f "$notes_file" || { echo "missing $notes_file" >&2; exit 1; }
-
-echo "==> Tests"
-go mod tidy -diff
-go vet ./...
-go test ./...
-go test -race ./...
-go test -tags=integration .
-
-echo "==> Build $tag"
-rm -rf dist && mkdir -p dist
-for target in darwin/arm64 darwin/amd64 linux/amd64 linux/arm64; do
-  goos="${target%/*}" goarch="${target#*/}"
-  GOOS="$goos" GOARCH="$goarch" go build -trimpath \
-    -ldflags "-s -w -X $module/internal/cli.version=$version" \
-    -o "dist/agentlink-$goos-$goarch" ./cmd/agentlink
-done
-(cd dist && shasum -a 256 agentlink-* > SHA256SUMS.txt)
-
-echo "==> Bump landing page"
-prev_tag="$(git describe --tags --abbrev=0)"
-if [ "$prev_tag" != "$tag" ] && grep -Fq "$prev_tag" docs/index.html; then
-  sed -i '' "s|$prev_tag|$tag|g" docs/index.html
-  git add docs/index.html
-  git commit -qm "Bump landing page to $tag"
+git fetch origin main --tags
+test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" || { echo "local main does not match origin/main" >&2; exit 1; }
+if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+  echo "tag already exists: $tag" >&2
+  exit 1
+fi
+if gh release view "$tag" --repo "$repo" >/dev/null 2>&1; then
+  echo "GitHub Release already exists: $tag" >&2
+  exit 1
 fi
 
-echo "==> Tag and release"
+sh scripts/prepare-release.sh "$version"
+
+set -- "dist/SHA256SUMS.txt" "$notes_file"
+while IFS= read -r target || test -n "$target"; do
+  set -- "$@" "dist/agentlink-${target%/*}-${target#*/}"
+done < "$targets_file"
+
 git tag -a "$tag" -m "Agentlink $tag"
-git push origin HEAD:main "$tag"
+git push origin "$tag"
 gh release create "$tag" --repo "$repo" --latest \
+  --target "$(git rev-parse HEAD)" \
   --title "Agentlink $tag" \
   --notes-file "$notes_file" \
-  dist/agentlink-darwin-arm64 dist/agentlink-darwin-amd64 \
-  dist/agentlink-linux-amd64 dist/agentlink-linux-arm64 dist/SHA256SUMS.txt \
-  "$notes_file"
+  "$@"
 
-echo "==> Update Homebrew tap"
 sha() { awk -v f="agentlink-$1" '$2==f{print $1}' dist/SHA256SUMS.txt; }
-tmp="$(mktemp -d)"
-gh repo clone "$tap_repo" "$tmp/tap" -- --depth 1 -q
-cat > "$tmp/tap/Formula/agentlink.rb" <<EOF
+tap_tmp="$(mktemp -d "${TMPDIR:-/tmp}/agentlink-tap.XXXXXX")"
+trap 'rm -rf "$tap_tmp"' EXIT HUP INT TERM
+gh repo clone "$tap_repo" "$tap_tmp/tap" -- --depth 1 -q
+cat > "$tap_tmp/tap/Formula/agentlink.rb" <<EOF
 class Agentlink < Formula
-  desc "Sync one AGENTS.md to every AI coding tool — symlinks, no codegen"
+  desc "Sync one AGENTS.md to every AI coding tool - symlinks, no codegen"
   homepage "https://agentlink.run/"
   version "$version"
   license "MIT"
@@ -95,10 +78,9 @@ class Agentlink < Formula
   end
 end
 EOF
-git -C "$tmp/tap" commit -aqm "agentlink $version"
-git -C "$tmp/tap" push -q
-rm -rf "$tmp"
+git -C "$tap_tmp/tap" add Formula/agentlink.rb
+git -C "$tap_tmp/tap" commit -qm "agentlink $version"
+git -C "$tap_tmp/tap" push -q
 
-echo "==> Verify"
 sh scripts/verify-release.sh "$tag"
-echo "Done."
+echo "Published and verified Agentlink $tag."

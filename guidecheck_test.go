@@ -88,6 +88,26 @@ func TestGuideCheckManifestMatchesGuide(t *testing.T) {
 	}
 }
 
+func TestGuideCheckTrustAnchorsMatch(t *testing.T) {
+	pairs := [][2]string{
+		{"assistant-guide.txt", "docs/.well-known/assistant-guide.txt"},
+		{"assistant-guide-manifest.txt", "docs/.well-known/assistant-guide-manifest.txt"},
+	}
+	for _, pair := range pairs {
+		reviewCopy, err := os.ReadFile(pair[0])
+		if err != nil {
+			t.Fatal(err)
+		}
+		servedCopy, err := os.ReadFile(pair[1])
+		if err != nil {
+			t.Fatal(err)
+		}
+		if string(reviewCopy) != string(servedCopy) {
+			t.Fatalf("trust-anchor drift between %s and %s", pair[0], pair[1])
+		}
+	}
+}
+
 func readGuideCheckManifest(path string) (map[string]string, error) {
 	f, err := os.Open(path)
 	if err != nil {

@@ -1,0 +1,26 @@
+name: Accessibility Regression Gate
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+    - name: Checkout
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      with:
+        persist-credentials: false
+
+    - name: Scan the published page artifact
+      uses: snapsynapse/skill-a11y-audit/.github/actions/scan@88b55612e34c9a436b6d0b886ae2bdca9b3b6b17 # v2.7.0
+      with:
+        serve-path: docs
+        port: '8088'
+        urls: http://127.0.0.1:8088/
+        fail-on: errors
+        output: artifacts/a11y-scan.json
+        artifact-name: agentlink-a11y-scan
