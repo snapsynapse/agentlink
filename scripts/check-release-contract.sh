@@ -30,4 +30,9 @@ if grep -Eq 'git (commit|push origin HEAD:main)' scripts/release.sh; then
   exit 1
 fi
 
+if grep -Fq 'version "$version"' scripts/release.sh; then
+  echo "release.sh must let Homebrew derive the version from the release URL" >&2
+  exit 1
+fi
+
 echo "Release contract OK: $count targets, preparation separated from publication."

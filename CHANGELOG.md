@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Let Homebrew derive the formula version from the tagged release URL so generated formulas pass strict audit.
+
 ## [0.4.2] - 2026-08-20
 
 ### Added
