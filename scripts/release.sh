@@ -46,7 +46,6 @@ cat > "$tap_tmp/tap/Formula/agentlink.rb" <<EOF
 class Agentlink < Formula
   desc "Sync one AGENTS.md to every AI coding tool - symlinks, no codegen"
   homepage "https://agentlink.run/"
-  version "$version"
   license "MIT"
 
   on_macos do
