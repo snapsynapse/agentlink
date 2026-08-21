@@ -47,8 +47,9 @@ Snap Synapse project. Upstream attribution is preserved in `NOTICE`.
 
 ## Current status
 
-- Actively maintained; v0.4.1 packages the 2026-07-21 release-readiness,
-  filesystem-safety, hook-reliability, adoption, and CI work
+- Actively maintained; v0.4.2 packages the 2026-08-20 repository lifecycle,
+  deterministic release, accessibility, search-contract, trust-anchor, and
+  GitHub configuration work
 - CI (GitHub Actions, `.github/workflows/ci.yml`) enforces build, unit tests,
   integration tests, the race detector, module consistency, `gofmt`, `go vet`,
   `staticcheck`, spelling, workflow semantics, reachable-vulnerability checks,

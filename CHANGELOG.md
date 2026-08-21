@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-08-20
+
+### Added
+
+- Repository-owned offline and production search contracts for the canonical
+  Agentlink site, including sitemap parity, discovery-file, redirect, and 404
+  verification.
+- A zero-baseline accessibility regression workflow that scans the tracked
+  `docs/` artifact with the pinned skill-a11y-audit action.
+- A deterministic release-preparation command that cross-builds every declared
+  target twice, compares the binaries, checks checksums and embedded versions,
+  and never publishes.
+- Repo-scoped intent, release-checklist, GitHub desired-state, Dependabot, and
+  lifecycle evidence contracts.
+
+### Changed
+
+- Release targets now have one authoritative inventory consumed by preparation,
+  publication, and verification.
+- Release publication no longer edits or commits the landing page or pushes
+  `main`; it requires clean, synchronized `main` and publishes only the tag,
+  GitHub Release assets, and matching Homebrew formula.
+- GitHub Actions dependencies are pinned to immutable commits.
+- The assistant guide and manifest now have byte-identical root review copies.
+- Crawler policy explicitly permits major AI, search, and social crawlers.
+
+### Fixed
+
+- Inline links on the landing page are now underlined instead of relying on
+  color alone, resolving the automated WCAG 1.4.1 finding.
+- The repository ignore baseline now covers all portfolio-required local,
+  generated, browser, and private search-evidence directories.
+
 ## [0.4.1] - 2026-07-21
 
 ### Fixed
@@ -206,7 +239,8 @@ by Martin Mose Facondini (MIT). Fork additions offered back upstream in
 [martinmose/agentlink#2](https://github.com/martinmose/agentlink/pull/2).
 See [NOTICE](NOTICE) for the full fork provenance.
 
-[Unreleased]: https://github.com/snapsynapse/agentlink/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/snapsynapse/agentlink/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/snapsynapse/agentlink/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/snapsynapse/agentlink/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/snapsynapse/agentlink/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/snapsynapse/agentlink/compare/v0.2.0...v0.3.0
