@@ -5,3 +5,6 @@ links:
   - GEMINI.md
   - QWEN.md
   - .github/copilot-instructions.md
+
+# Layered alternative: remove CLAUDE.md above and keep a real CLAUDE.md whose
+# first line is @AGENTS.md, followed by Claude-specific guidance.

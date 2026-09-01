@@ -52,6 +52,44 @@ func TestAllToolsHaveName(t *testing.T) {
 	}
 }
 
+func TestPreferredAgentsMDIntegrations(t *testing.T) {
+	byName := make(map[string]Tool)
+	for _, tool := range All() {
+		byName[tool.Name] = tool
+		if got := tool.AgentsMDIntegration(); got == "" {
+			t.Errorf("tool %q has empty AGENTS.md integration", tool.Name)
+		}
+	}
+
+	if got := byName["Claude Code"].AgentsMDIntegration(); got != IntegrationImport {
+		t.Errorf("Claude Code integration = %q, want %q", got, IntegrationImport)
+	}
+	if got := byName["Gemini CLI"].AgentsMDIntegration(); got != IntegrationConfigurable {
+		t.Errorf("Gemini CLI integration = %q, want %q", got, IntegrationConfigurable)
+	}
+	if got := byName["Codex CLI"].AgentsMDIntegration(); got != IntegrationNative {
+		t.Errorf("Codex CLI integration = %q, want %q", got, IntegrationNative)
+	}
+	if got := byName["Qwen Code"].AgentsMDIntegration(); got != IntegrationSymlink {
+		t.Errorf("Qwen Code integration = %q, want %q", got, IntegrationSymlink)
+	}
+}
+
+func TestNestedRepoFileSupportIsExplicit(t *testing.T) {
+	byName := make(map[string]Tool)
+	for _, tool := range All() {
+		byName[tool.Name] = tool
+	}
+	for _, name := range []string{"Claude Code", "Gemini CLI"} {
+		if !byName[name].SupportsNestedRepoFile {
+			t.Errorf("%s should declare documented nested repo-file support", name)
+		}
+	}
+	if byName["Qwen Code"].SupportsNestedRepoFile {
+		t.Error("Qwen Code nested support should fail closed until documented")
+	}
+}
+
 func TestAllToolsHaveUniqueName(t *testing.T) {
 	seen := make(map[string]bool)
 	for _, tool := range All() {

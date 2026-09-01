@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	detectGenerate bool
+	detectGenerate     bool
+	detectPreferNative bool
 )
 
 var detectCmd = &cobra.Command{
@@ -26,6 +27,7 @@ Use --generate to produce a .agentlink.yaml pre-filled with detected tool paths.
 
 func init() {
 	detectCmd.Flags().BoolVar(&detectGenerate, "generate", false, "generate .agentlink.yaml from detected tools")
+	detectCmd.Flags().BoolVar(&detectPreferNative, "prefer-native", false, "with --generate, recommend native, configurable, or import integrations before symlinks")
 	rootCmd.AddCommand(detectCmd)
 }
 
@@ -52,6 +54,7 @@ func runDetect(cmd *cobra.Command, args []string) error {
 			if d.Tool.ReadsAgentsMD {
 				fmt.Printf("  %-20s  reads AGENTS.md natively\n", "")
 			}
+			fmt.Printf("  %-20s  preferred integration: %s\n", "", d.Tool.AgentsMDIntegration())
 		}
 	}
 
@@ -90,11 +93,23 @@ func generateConfig(detected []registry.Detected) error {
 	// Build link list from detected tools
 	var links []string
 	seen := make(map[string]bool)
+	var recommendations []registry.Tool
+	unsupportedCount := 0
 
 	// AGENTS.md is the source, so never include it as its own link target.
 	seen["AGENTS.md"] = true
 
 	for _, d := range detected {
+		integration := d.Tool.AgentsMDIntegration()
+		if integration == registry.IntegrationUnsupported {
+			unsupportedCount++
+		}
+		if detectPreferNative && (integration == registry.IntegrationNative || integration == registry.IntegrationConfigurable || integration == registry.IntegrationImport) {
+			if integration != registry.IntegrationNative {
+				recommendations = append(recommendations, d.Tool)
+			}
+			continue
+		}
 		if d.Tool.RepoFileName != "" && d.Tool.RepoFileName != "AGENTS.md" {
 			if !seen[d.Tool.RepoFileName] {
 				links = append(links, d.Tool.RepoFileName)
@@ -106,6 +121,11 @@ func generateConfig(detected []registry.Detected) error {
 	if len(links) == 0 {
 		if len(detected) == 0 {
 			printInfo("No supported tools detected; no config generated")
+		} else if len(recommendations) > 0 {
+			printInfo("No symlink config generated; preferred integrations are available")
+			printIntegrationRecommendations(recommendations)
+		} else if unsupportedCount == len(detected) {
+			printInfo("Detected tools have no symlinkable repository instruction path; no config generated")
 		} else {
 			printInfo("Detected tools read AGENTS.md directly; no config is needed")
 		}
@@ -142,7 +162,19 @@ func generateConfig(detected []registry.Detected) error {
 
 	abs, _ := filepath.Abs(configPath)
 	printOK("Generated %s with %d links from detected tools", abs, len(links))
+	printIntegrationRecommendations(recommendations)
 	return nil
+}
+
+func printIntegrationRecommendations(tools []registry.Tool) {
+	for _, tool := range tools {
+		switch tool.AgentsMDIntegration() {
+		case registry.IntegrationImport:
+			printInfo("%s: keep %s as a real file and import @AGENTS.md", tool.Name, tool.RepoFileName)
+		case registry.IntegrationConfigurable:
+			printInfo("%s: configure the tool to load AGENTS.md directly", tool.Name)
+		}
+	}
 }
 
 func filterDetectedWithGlobalConfig(detected []registry.Detected) []registry.Detected {

@@ -31,6 +31,7 @@ Before asking an assistant to perform local Agentlink setup or verification work
 ## Why Agentlink?
 
 - **One real file, many aliases**: pick a *source* (`CLAUDE.md` or `AGENTS.md` or whatever), symlink the rest.
+- **Layering stays explicit**: keep a tool-specific file real when it imports the shared source and adds tool-only guidance; omit that file from Agentlink's links.
 - **No codegen**: no templates, no transforms, no surprise diffs.
 - **Project + global**: works in repos *and* under `~/.config/...`.
 - **Auto-detect**: scans your system for installed AI tools and reports what it finds.
@@ -64,6 +65,22 @@ Result:
 ./.cursorrules                        -> AGENTS.md  (symlink)
 ./GEMINI.md                           -> AGENTS.md  (symlink)
 ```
+
+### Identical aliases vs. layered wrappers
+
+Use a symlink when two tools should read identical bytes. Use a real tool-specific wrapper when one tool needs the shared instructions plus its own additions. For Claude Code, keep `CLAUDE.md` out of `links` and commit it as a real file:
+
+```markdown
+@AGENTS.md
+
+## Claude-specific guidance
+
+Use plan mode for changes under `src/billing/`.
+```
+
+Agentlink continues to manage the aliases that remain in `.agentlink.yaml`. It does not generate, parse, or rewrite the wrapper. Claude Code expands the import and then appends the remaining `CLAUDE.md` content; Claude's own hierarchy determines how root, parent, local, and nested files combine. Agentlink does not normalize precedence between harnesses. See the [Claude Code memory documentation](https://code.claude.com/docs/en/memory).
+
+Gemini CLI can similarly be configured to load `AGENTS.md` directly through `context.fileName`, avoiding a `GEMINI.md` alias. See the [Gemini CLI context documentation](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md).
 
 Global mode (in HOME) is the same idea:
 
@@ -251,36 +268,37 @@ Agentlink maintains a registry of known AI coding tools and their configuration 
 ```bash
 agentlink detect             # list installed tools
 agentlink detect --generate  # generate .agentlink.yaml from detected tools
+agentlink detect --generate --prefer-native # recommend imports/config before symlinks
 agentlink detect -v          # show global config paths and AGENTS.md support
 ```
 
 ### Supported tools
 
-| Tool | Global Config | Repo File | Reads AGENTS.md |
-|------|--------------|-----------|-----------------|
-| Aider | -- | AGENTS.md | Yes |
-| Amp | ~/.config/AGENTS.md | AGENTS.md | Yes |
-| Antigravity | -- | AGENTS.md | Yes |
-| Autohand | -- | AGENTS.md | Yes |
-| Claude Code | ~/.claude/CLAUDE.md | CLAUDE.md | No (CLAUDE.md) |
-| Cline | -- | -- | No |
-| Continue | ~/.continue/config.yaml | -- | No |
-| Crush | -- | AGENTS.md | Yes |
-| Cursor | -- | AGENTS.md | Yes |
-| Factory (Droid) | ~/.factory/AGENTS.md | AGENTS.md | Yes |
-| Gemini CLI | ~/.gemini/GEMINI.md | GEMINI.md | No (GEMINI.md) |
-| GitHub Copilot | -- | .github/copilot-instructions.md | No |
-| Goose | ~/.config/goose/.goosehints | .goosehints | No |
-| Junie | -- | .junie/AGENTS.md | Yes |
-| Kilo Code | -- | AGENTS.md | Yes |
-| Kiro | -- | AGENTS.md | Yes |
-| Codex CLI | ~/.codex/AGENTS.md | AGENTS.md | Yes |
-| OpenClaw | ~/.openclaw/workspace/AGENTS.md | -- | Yes |
-| OpenCode | ~/.config/opencode/AGENTS.md | AGENTS.md | Yes |
-| Qwen Code | ~/.qwen/QWEN.md | QWEN.md | No (QWEN.md) |
-| RooCode | -- | .roo/rules/rules.md | No |
-| Windsurf | -- | AGENTS.md | Yes |
-| Zed | -- | AGENTS.md | Yes |
+| Tool | Global Config | Repo File | Preferred AGENTS.md integration |
+|------|--------------|-----------|---------------------------------|
+| Aider | -- | AGENTS.md | Native |
+| Amp | ~/.config/AGENTS.md | AGENTS.md | Native |
+| Antigravity | -- | AGENTS.md | Native |
+| Autohand | -- | AGENTS.md | Native |
+| Claude Code | ~/.claude/CLAUDE.md | CLAUDE.md | Import from real CLAUDE.md |
+| Cline | -- | -- | Unsupported |
+| Continue | ~/.continue/config.yaml | -- | Unsupported |
+| Crush | -- | AGENTS.md | Native |
+| Cursor | -- | AGENTS.md | Native |
+| Factory (Droid) | ~/.factory/AGENTS.md | AGENTS.md | Native |
+| Gemini CLI | ~/.gemini/GEMINI.md | GEMINI.md | Configurable |
+| GitHub Copilot | -- | .github/copilot-instructions.md | Symlink |
+| Goose | ~/.config/goose/.goosehints | .goosehints | Symlink |
+| Junie | -- | .junie/AGENTS.md | Native |
+| Kilo Code | -- | AGENTS.md | Native |
+| Kiro | -- | AGENTS.md | Native |
+| Codex CLI | ~/.codex/AGENTS.md | AGENTS.md | Native |
+| OpenClaw | ~/.openclaw/workspace/AGENTS.md | -- | Native (global) |
+| OpenCode | ~/.config/opencode/AGENTS.md | AGENTS.md | Native |
+| Qwen Code | ~/.qwen/QWEN.md | QWEN.md | Symlink |
+| RooCode | -- | .roo/rules/rules.md | Symlink |
+| Windsurf | -- | AGENTS.md | Native |
+| Zed | -- | AGENTS.md | Native |
 
 To add a new tool, edit `internal/registry/tools.go` and add an entry to the `All()` function.
 
@@ -295,9 +313,12 @@ agentlink scan                    # scan ~/Git (default)
 agentlink scan ~/Projects         # scan a different directory
 agentlink scan --dir ~/Work       # alternative syntax
 agentlink scan --dry-run          # preview without changes
+agentlink scan --nested           # also link beside nested AGENTS.md files
 ```
 
-The scanner finds repos containing `AGENTS.md` and creates symlinks for tool-specific filenames (`CLAUDE.md`, `GEMINI.md`, etc.). It recognizes standard repos, git worktrees, and submodule-style checkouts where `.git` is a file. It does **not** inject `AGENTS.md` into repos that lack one.
+The scanner recognizes standard repos, git worktrees, and submodule-style checkouts where `.git` is a file. When a repository has `.agentlink.yaml`, that explicit configuration is authoritative: only its declared source and links are managed. Without a config, `scan` uses root `AGENTS.md` and the registry's root-level aliases. Existing real alias files are preserved as intentionally unmanaged unless `--force` is supplied, so a layered `CLAUDE.md` is not treated as an error.
+
+`--nested` is opt-in and applies only to unconfigured repositories. It finds nested `AGENTS.md` files and creates sibling aliases only for registry entries with documented nested discovery, currently Claude Code and Gemini CLI. Unknown tools fail closed at the repository root rather than being assumed equivalent. The walk skips hidden directories, nested repositories, `node_modules`, `vendor`, `dist`, `build`, `handoffs`, and `working`. Tool-specific precedence is unchanged and remains the consuming harness's responsibility. The [AGENTS.md convention](https://agents.md/) gives the nearest file precedence; other tools may concatenate or order nested files differently.
 
 The default scan directory is `~/Git`. Override it per-invocation with the `--dir` flag or positional argument. To change the compiled default, build with:
 
@@ -350,6 +371,7 @@ links:
 Notes:
 - **`source` must be a real file**, not a symlink (Agentlink warns if it is).
 - Paths in `links` are relative to the project root.
+- To layer tool-specific guidance, omit that tool's path from `links` and keep its wrapper as a real committed file.
 
 ### Global config
 
@@ -426,7 +448,10 @@ For the emerging AGENTS.md standard, see [agents.md](https://agents.md/) (now un
 ## FAQ
 
 **Why not templates or generators?**
-Because 90% of the time the files **should be identical**. When they're not, this tool isn't the right fit (or add a second source and stop linking that one).
+Because most aliases should be identical. When one tool needs an additional layer, keep its wrapper real, import the shared source using that tool's supported syntax, and omit the wrapper from Agentlink's links. Agentlink deliberately does not generate or transform it.
+
+**Do imports and nested files have the same priority everywhere?**
+No cross-tool guarantee exists. Agentlink manages filesystem aliases, not instruction precedence. Claude Code expands imports into its context and combines discovered `CLAUDE.md` files according to Claude's hierarchy. AGENTS.md-aware tools apply their own documented scoping rules. Verify effective context with the consuming tool when precedence matters.
 
 **What if my source differs per project?**
 Perfect -- put a `.agentlink.yaml` in each repo and choose the source you actually edit there.

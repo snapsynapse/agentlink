@@ -45,6 +45,21 @@ func TestGenerateConfigNoDetectedToolsIsSuccessfulNoOp(t *testing.T) {
 	}
 }
 
+func TestGenerateConfigUnsupportedToolsIsSuccessfulNoOp(t *testing.T) {
+	withDetectTestDir(t)
+	setDetectTestFlags(t)
+
+	detected := []registry.Detected{{Tool: registry.Tool{Name: "Unsupported"}}}
+	stdout, _ := captureOutput(t, func() {
+		if err := generateConfig(detected); err != nil {
+			t.Fatalf("generateConfig() error = %v, want nil", err)
+		}
+	})
+	if !strings.Contains(stdout, "no symlinkable repository instruction path") {
+		t.Fatalf("generateConfig() output = %q, want unsupported-tool message", stdout)
+	}
+}
+
 func TestGenerateConfigEmptyLinkSetDoesNotOverwriteExistingConfigWithForce(t *testing.T) {
 	withDetectTestDir(t)
 	setDetectTestFlags(t)
@@ -88,6 +103,30 @@ func TestGenerateConfigProducesLoadableConfig(t *testing.T) {
 	}
 }
 
+func TestGenerateConfigPreferNativeRecommendsImportAndConfiguration(t *testing.T) {
+	withDetectTestDir(t)
+	setDetectTestFlags(t)
+	detectPreferNative = true
+
+	detected := []registry.Detected{
+		{Tool: registry.Tool{Name: "Claude Code", RepoFileName: "CLAUDE.md", PreferredIntegration: registry.IntegrationImport}},
+		{Tool: registry.Tool{Name: "Gemini CLI", RepoFileName: "GEMINI.md", PreferredIntegration: registry.IntegrationConfigurable}},
+	}
+	stdout, _ := captureOutput(t, func() {
+		if err := generateConfig(detected); err != nil {
+			t.Fatalf("generateConfig() error = %v", err)
+		}
+	})
+	for _, want := range []string{"No symlink config generated", "import @AGENTS.md", "configure the tool to load AGENTS.md directly"} {
+		if !strings.Contains(stdout, want) {
+			t.Errorf("generateConfig() output = %q, want %q", stdout, want)
+		}
+	}
+	if _, err := os.Stat(".agentlink.yaml"); !os.IsNotExist(err) {
+		t.Fatalf(".agentlink.yaml exists after recommendation-only generation: %v", err)
+	}
+}
+
 func withDetectTestDir(t *testing.T) string {
 	t.Helper()
 	oldDir, err := os.Getwd()
@@ -104,7 +143,7 @@ func withDetectTestDir(t *testing.T) string {
 
 func setDetectTestFlags(t *testing.T) {
 	t.Helper()
-	oldDryRun, oldForce := dryRun, force
-	dryRun, force = false, false
-	t.Cleanup(func() { dryRun, force = oldDryRun, oldForce })
+	oldDryRun, oldForce, oldPreferNative := dryRun, force, detectPreferNative
+	dryRun, force, detectPreferNative = false, false, false
+	t.Cleanup(func() { dryRun, force, detectPreferNative = oldDryRun, oldForce, oldPreferNative })
 }

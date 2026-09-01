@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestRunScanReturnsErrorWhenLinkCannotBeCreated(t *testing.T) {
+func TestRunScanPreservesUnmanagedRegularFile(t *testing.T) {
 	root := t.TempDir()
 	repo := filepath.Join(root, "repo")
 	if err := os.MkdirAll(filepath.Join(repo, ".git"), 0755); err != nil {
@@ -24,18 +24,19 @@ func TestRunScanReturnsErrorWhenLinkCannotBeCreated(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	oldDryRun, oldForce, oldVerbose, oldScanDir := dryRun, force, verbose, scanDir
+	oldDryRun, oldForce, oldVerbose, oldScanDir, oldScanNested := dryRun, force, verbose, scanDir, scanNested
 	t.Cleanup(func() {
-		dryRun, force, verbose, scanDir = oldDryRun, oldForce, oldVerbose, oldScanDir
+		dryRun, force, verbose, scanDir, scanNested = oldDryRun, oldForce, oldVerbose, oldScanDir, oldScanNested
 	})
-	dryRun, force, verbose, scanDir = false, false, false, ""
+	dryRun, force, verbose, scanDir, scanNested = false, false, false, "", false
 
 	err := runScan(scanCmd, []string{root})
-	if err == nil {
-		t.Fatal("runScan() error = nil, want aggregate link error")
+	if err != nil {
+		t.Fatalf("runScan() error = %v, want preserved unmanaged file", err)
 	}
-	if got := err.Error(); got != "scan completed with 1 link error(s)" {
-		t.Fatalf("runScan() error = %q, want aggregate error count", got)
+	got, err := os.ReadFile(filepath.Join(repo, targets[0]))
+	if err != nil || string(got) != "conflict" {
+		t.Fatalf("existing file changed: content=%q err=%v", got, err)
 	}
 }
 
@@ -49,11 +50,11 @@ func TestRunScanRejectsInvalidAgentsSource(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	oldDryRun, oldForce, oldVerbose, oldScanDir := dryRun, force, verbose, scanDir
+	oldDryRun, oldForce, oldVerbose, oldScanDir, oldScanNested := dryRun, force, verbose, scanDir, scanNested
 	t.Cleanup(func() {
-		dryRun, force, verbose, scanDir = oldDryRun, oldForce, oldVerbose, oldScanDir
+		dryRun, force, verbose, scanDir, scanNested = oldDryRun, oldForce, oldVerbose, oldScanDir, oldScanNested
 	})
-	dryRun, force, verbose, scanDir = false, false, false, ""
+	dryRun, force, verbose, scanDir, scanNested = false, false, false, "", false
 
 	err := runScan(scanCmd, []string{root})
 	if err == nil {
@@ -66,6 +67,153 @@ func TestRunScanRejectsInvalidAgentsSource(t *testing.T) {
 		if _, err := os.Lstat(filepath.Join(repo, target)); !os.IsNotExist(err) {
 			t.Fatalf("scan created %s for invalid source", target)
 		}
+	}
+}
+
+func TestRunScanRespectsExplicitProjectConfig(t *testing.T) {
+	root := t.TempDir()
+	repo := filepath.Join(root, "repo")
+	if err := os.MkdirAll(filepath.Join(repo, ".git"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	for path, content := range map[string]string{
+		"AGENTS.md":       "shared",
+		"CLAUDE.md":       "@AGENTS.md\n\n# Claude-specific\n",
+		".agentlink.yaml": "source: AGENTS.md\nlinks:\n  - GEMINI.md\n",
+	} {
+		if err := os.WriteFile(filepath.Join(repo, path), []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	setScanTestFlags(t, false)
+	if err := runScan(scanCmd, []string{root}); err != nil {
+		t.Fatalf("runScan() error = %v", err)
+	}
+	assertScanSymlinkTarget(t, filepath.Join(repo, "GEMINI.md"), "AGENTS.md")
+	got, err := os.ReadFile(filepath.Join(repo, "CLAUDE.md"))
+	if err != nil || string(got) != "@AGENTS.md\n\n# Claude-specific\n" {
+		t.Fatalf("layered CLAUDE.md changed: content=%q err=%v", got, err)
+	}
+}
+
+func TestRunScanKeepsDeclaredLinkStrict(t *testing.T) {
+	root := t.TempDir()
+	repo := filepath.Join(root, "repo")
+	if err := os.MkdirAll(filepath.Join(repo, ".git"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	for path, content := range map[string]string{
+		"AGENTS.md":       "shared",
+		"CLAUDE.md":       "@AGENTS.md\n",
+		".agentlink.yaml": "source: AGENTS.md\nlinks:\n  - CLAUDE.md\n",
+	} {
+		if err := os.WriteFile(filepath.Join(repo, path), []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	setScanTestFlags(t, false)
+	err := runScan(scanCmd, []string{root})
+	if err == nil || err.Error() != "scan completed with 1 link error(s)" {
+		t.Fatalf("runScan() error = %v, want one declared-link error", err)
+	}
+	got, readErr := os.ReadFile(filepath.Join(repo, "CLAUDE.md"))
+	if readErr != nil || string(got) != "@AGENTS.md\n" {
+		t.Fatalf("declared conflicting file changed: content=%q err=%v", got, readErr)
+	}
+}
+
+func TestRunScanNestedIsOptIn(t *testing.T) {
+	root := t.TempDir()
+	repo := filepath.Join(root, "repo")
+	packageDir := filepath.Join(repo, "packages", "api")
+	if err := os.MkdirAll(filepath.Join(repo, ".git"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(packageDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range []string{filepath.Join(repo, "AGENTS.md"), filepath.Join(packageDir, "AGENTS.md")} {
+		if err := os.WriteFile(path, []byte("instructions"), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	setScanTestFlags(t, false)
+	if err := runScan(scanCmd, []string{root}); err != nil {
+		t.Fatalf("root-only runScan() error = %v", err)
+	}
+	if _, err := os.Lstat(filepath.Join(packageDir, nestedRepoLinkTargets()[0])); !os.IsNotExist(err) {
+		t.Fatalf("nested link exists without --nested: %v", err)
+	}
+
+	setScanTestFlags(t, true)
+	if err := runScan(scanCmd, []string{root}); err != nil {
+		t.Fatalf("nested runScan() error = %v", err)
+	}
+	assertScanSymlinkTarget(t, filepath.Join(packageDir, nestedRepoLinkTargets()[0]), "AGENTS.md")
+	if _, err := os.Lstat(filepath.Join(packageDir, "QWEN.md")); !os.IsNotExist(err) {
+		t.Fatalf("nested scan created an alias without verified nested support: %v", err)
+	}
+}
+
+func TestNestedRepoLinkTargetsFailClosed(t *testing.T) {
+	got := nestedRepoLinkTargets()
+	want := map[string]bool{"CLAUDE.md": true, "GEMINI.md": true}
+	if len(got) != len(want) {
+		t.Fatalf("nestedRepoLinkTargets() = %v, want only documented targets", got)
+	}
+	for _, target := range got {
+		if !want[target] {
+			t.Errorf("nestedRepoLinkTargets() includes undocumented target %q", target)
+		}
+	}
+}
+
+func TestFindNestedAgentsFilesSkipsGeneratedAndNestedRepos(t *testing.T) {
+	repo := t.TempDir()
+	wanted := filepath.Join(repo, "packages", "api", "AGENTS.md")
+	skipped := []string{
+		filepath.Join(repo, "node_modules", "pkg", "AGENTS.md"),
+		filepath.Join(repo, ".hidden", "AGENTS.md"),
+		filepath.Join(repo, "nested-repo", "AGENTS.md"),
+	}
+	for _, path := range append([]string{wanted}, skipped...) {
+		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte("instructions"), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.Mkdir(filepath.Join(repo, "nested-repo", ".git"), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	got := findNestedAgentsFiles(repo)
+	if len(got) != 1 || got[0] != wanted {
+		t.Fatalf("findNestedAgentsFiles() = %v, want [%s]", got, wanted)
+	}
+}
+
+func setScanTestFlags(t *testing.T, nested bool) {
+	t.Helper()
+	oldDryRun, oldForce, oldVerbose, oldScanDir, oldScanNested := dryRun, force, verbose, scanDir, scanNested
+	dryRun, force, verbose, scanDir, scanNested = false, false, false, "", nested
+	t.Cleanup(func() {
+		dryRun, force, verbose, scanDir, scanNested = oldDryRun, oldForce, oldVerbose, oldScanDir, oldScanNested
+	})
+}
+
+func assertScanSymlinkTarget(t *testing.T, path, want string) {
+	t.Helper()
+	got, err := os.Readlink(path)
+	if err != nil {
+		t.Fatalf("Readlink(%s): %v", path, err)
+	}
+	if got != want {
+		t.Fatalf("Readlink(%s) = %q, want %q", path, got, want)
 	}
 }
 

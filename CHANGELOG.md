@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Integration metadata that distinguishes native, configurable, import,
+  symlink, and unsupported AGENTS.md consumption paths.
+- `detect --generate --prefer-native` recommendations for Claude imports and
+  configurable direct AGENTS.md support before symlink aliases.
+- Opt-in `scan --nested` support for documented nested-capable aliases beside
+  nested AGENTS.md files in unconfigured repositories; unknown tools fail
+  closed at the repository root.
+
+### Changed
+
+- `scan` now treats a repository's `.agentlink.yaml` as authoritative and
+  preserves undeclared real wrapper files during automatic scanning.
+- Documentation now distinguishes identical symlink aliases from layered
+  tool-specific wrappers and leaves import and directory precedence to the
+  consuming harness.
+
 ### Fixed
 
 - Let Homebrew derive the formula version from the tagged release URL so generated formulas pass strict audit.

@@ -32,7 +32,7 @@
   <meta property="og:url" content="https://agentlink.run/">
   <meta property="og:locale" content="en_US">
   <meta property="article:published_time" content="2026-04-14T00:00:00Z">
-  <meta property="article:modified_time" content="2026-08-20T00:00:00Z">
+  <meta property="article:modified_time" content="2026-09-01T00:00:00Z">
   <meta property="article:author" content="Sam Rogers">
   <meta property="article:publisher" content="https://snapsynapse.com/">
   <meta property="article:section" content="Developer Tools">
@@ -67,7 +67,7 @@
     "url": "https://agentlink.run/",
     "mainEntityOfPage": { "@type": "WebPage", "@id": "https://agentlink.run/" },
     "datePublished": "2026-04-14",
-    "dateModified": "2026-08-20",
+    "dateModified": "2026-09-01",
     "author": {
       "@type": "Person",
       "name": "Sam Rogers",
@@ -500,6 +500,10 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
         <p>Pick a source (<code>AGENTS.md</code>, <code>CLAUDE.md</code>, whatever). Every other tool file is a symlink to it. No duplicates, no drift.</p>
       </div>
       <div class="pillar">
+        <h3>Layer when needed</h3>
+        <p>If one tool needs extra guidance, keep its wrapper real, import the shared source, and omit that wrapper from Agentlink. Identical aliases stay linked; tool-specific layers stay explicit.</p>
+      </div>
+      <div class="pillar">
         <h3>Zero codegen</h3>
         <p>No templates, no transforms, no surprise diffs. Symlinks are a 50-year-old OS feature. Edit the source, every tool sees it instantly.</p>
       </div>
@@ -550,7 +554,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
         <tr><td>Anything else</td><td class="tool">(add to config)</td></tr>
       </tbody>
     </table>
-    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: -0.5rem;">Full registry in <code>internal/registry/tools.go</code>. Tools without a project-root instruction file may be detection-only (Cline) or global-only (Continue and OpenClaw). OpenClaw reads <code>~/.openclaw/workspace/AGENTS.md</code>.</p>
+    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: -0.5rem;">Full registry in <code>internal/registry/tools.go</code>. It distinguishes native, configurable, import, symlink, and unsupported AGENTS.md integrations. Claude Code can import <code>@AGENTS.md</code> from a real <code>CLAUDE.md</code>; Gemini CLI can be configured to load <code>AGENTS.md</code> directly.</p>
     <p>Scope is deliberately narrow: <strong>instruction files only.</strong> No MCP config, no chain configs. Simple on purpose.</p>
   </div>
 </section>
@@ -637,16 +641,33 @@ agentlink sync</pre>
       </div>
 
       <div class="code-block">
+        <h3>Layered Claude wrapper</h3>
+<pre># Keep CLAUDE.md out of .agentlink.yaml.
+# CLAUDE.md remains a real committed file.
+@AGENTS.md
+
+## Claude-specific guidance
+Use plan mode under src/billing/.</pre>
+        <p class="annotation">Agentlink does not generate or rewrite wrappers. Import expansion and nested precedence remain the consuming tool&rsquo;s responsibility.</p>
+      </div>
+
+      <div class="code-block">
         <h3>Detect installed tools</h3>
 <pre># Scan the system for AI tool installs
 # and report what's found.
 agentlink detect
 
+# Prefer native/config/import guidance.
+agentlink detect --generate --prefer-native
+
 # Walk a directory tree and wire up
-# symlinks in every repo with AGENTS.md,
-# including worktrees and submodule-style
-# checkouts where .git is a file.
-agentlink scan ~/Git</pre>
+# symlinks in every repo with AGENTS.md.
+agentlink scan ~/Git
+
+# Also link beside nested AGENTS.md files
+# in repos without .agentlink.yaml.
+agentlink scan ~/Git --nested</pre>
+        <p class="annotation">An explicit <code>.agentlink.yaml</code> is authoritative. Automatic scanning preserves existing real wrappers unless <code>--force</code> is supplied. Nested mode creates only aliases with documented nested discovery; unknown tools remain root-only.</p>
       </div>
 
       <div class="code-block">
@@ -692,7 +713,7 @@ agentlink sync --force</pre>
       Agentlink began as <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">martinmose/agentlink</a>
       by Martin Mose Facondini (MIT); Snap Synapse maintains this continuation with <code>detect</code>, <code>scan</code>, <code>hooks</code>, automatic backup,
       global-config support, integration tests, and release distribution.
-      Last substantive revision: <time datetime="2026-08-20">2026-08-20</time>.
+      Last substantive revision: <time datetime="2026-09-01">2026-09-01</time>.
       <a href="https://github.com/snapsynapse/agentlink/commits/main/README.md" target="_blank" rel="noopener">Revision history &rarr;</a>
     </aside>
   </div>

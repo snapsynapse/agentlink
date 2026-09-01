@@ -4,21 +4,26 @@ Sync one AGENTS.md to every AI coding tool on your machine, with zero magic, jus
 
 ## Summary
 
-Agentlink is a small Go CLI that keeps AI coding assistant instruction files in sync across every tool on a machine by declaring one real source file and symlinking every tool-specific alias to it. Tools expect different filenames (AGENTS.md for Codex, Cursor, OpenCode, Crush, and Kiro; CLAUDE.md for Claude Code; GEMINI.md for Gemini CLI; QWEN.md for Qwen Code; .github/copilot-instructions.md for GitHub Copilot) and different global paths (~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.openclaw/workspace/AGENTS.md). Agentlink fixes the drift problem without code generation: edit one real file, every tool sees the change instantly. The registry covers 23 tools out of the box; any other path can be added in config.
+Agentlink is a small Go CLI that keeps AI coding assistant instruction files in sync across every tool on a machine by declaring one real source file and symlinking tool-specific aliases to it. Tools expect different filenames (AGENTS.md for Codex, Cursor, OpenCode, Crush, and Kiro; CLAUDE.md for Claude Code; GEMINI.md for Gemini CLI; QWEN.md for Qwen Code; .github/copilot-instructions.md for GitHub Copilot) and different global paths (~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.openclaw/workspace/AGENTS.md). Agentlink fixes identical-file drift without code generation. When a tool needs additional guidance, its real wrapper can import the shared source and remain intentionally unmanaged while Agentlink manages the other aliases. The registry covers 23 tools and records each tool's preferred native, configurable, import, symlink, or unsupported integration.
 
 Install: brew install snapsynapse/tap/agentlink, or go install github.com/snapsynapse/agentlink/cmd/agentlink@latest. Pre-built binaries are linked from README.md.
 Current release: v0.4.2.
 
 Scope is deliberately narrow: instruction files only. No MCP servers, no chain configs, no templating.
 
+Agentlink does not define instruction precedence. Claude Code expands @ imports and applies its own CLAUDE.md hierarchy. AGENTS.md-aware tools apply their documented directory scoping. Agentlink only manages filesystem relationships.
+
 ## Key concepts
 
 - source: the one real instruction file you edit (e.g. AGENTS.md)
 - links: tool-specific aliases that become symlinks pointing at the source
+- layered wrapper: a real tool-specific file that imports the source and adds tool-only guidance; omit it from links
 - project config: .agentlink.yaml at repo root, scoped to that project
 - global config: ~/.config/agentlink/config.yaml, scoped to the user's home directory
 - detect: scan the system for installed AI tools and report what was found
-- scan: walk a directory tree and wire up symlinks in every git repo that has an AGENTS.md
+- scan: respect each repo's explicit .agentlink.yaml; otherwise wire root aliases while preserving existing real wrappers
+- nested scan: opt-in --nested mode links only documented nested-capable aliases beside nested AGENTS.md files in unconfigured repos; unknown tools fail closed at root
+- integration preference: detect --generate --prefer-native recommends native, configurable, or import options before symlinks
 - hooks: install git, shell, and launchd triggers so sync runs automatically
 - idempotent: re-running is safe; broken or misdirected links are repaired
 - dry-run: hard preview mode; no symlinks, removals, or backups are written
@@ -50,7 +55,7 @@ Scope is deliberately narrow: instruction files only. No MCP servers, no chain c
 
 This repository is the canonical home for current Agentlink project direction, issues, releases, and documentation. It preserves upstream MIT attribution while carrying the Snap Synapse continuation: detect, scan, hooks, automatic backup, global-config support, integration tests, and release distribution. Full attribution and the PR #2 to #3 lineage note are in NOTICE.
 
-Last updated: 2026-08-20
+Last updated: 2026-09-01
 
 ## Related projects from the same author
 

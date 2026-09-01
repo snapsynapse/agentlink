@@ -47,4 +47,5 @@ Agentlink publishes a GuideCheck assistant guide for bounded installation and re
 
 ## Changelog
 
+- 2026-09-01: Clarified that Agentlink manages identical filesystem aliases while explicit real wrappers may layer tool-specific guidance; added integration metadata, config-aware scanning, and opt-in nested alias discovery without adding content generation.
 - 2026-08-20: Added the first repo-scoped intent contract during the repository lifecycle pilot.

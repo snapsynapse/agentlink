@@ -6,6 +6,19 @@ import (
 	"path/filepath"
 )
 
+// AgentsMDIntegration describes the least invasive supported way for a tool
+// to consume AGENTS.md. It is advisory metadata: Agentlink still creates only
+// symlinks and never writes tool-specific import or settings files.
+type AgentsMDIntegration string
+
+const (
+	IntegrationNative       AgentsMDIntegration = "native"
+	IntegrationConfigurable AgentsMDIntegration = "configurable"
+	IntegrationImport       AgentsMDIntegration = "import"
+	IntegrationSymlink      AgentsMDIntegration = "symlink"
+	IntegrationUnsupported  AgentsMDIntegration = "unsupported"
+)
+
 // Tool represents a known AI coding agent/tool and its configuration paths.
 type Tool struct {
 	// Name is the display name of the tool.
@@ -25,6 +38,16 @@ type Tool struct {
 	// ReadsAgentsMD indicates whether the tool natively reads AGENTS.md.
 	ReadsAgentsMD bool
 
+	// PreferredIntegration overrides the integration inferred from
+	// ReadsAgentsMD and RepoFileName. Use it when a tool supports a less
+	// invasive option such as configuration or an explicit import.
+	PreferredIntegration AgentsMDIntegration
+
+	// SupportsNestedRepoFile indicates that the tool discovers its repo file
+	// below the repository root. Leave false unless the behavior is documented
+	// and deterministic; nested scanning fails closed for unknown tools.
+	SupportsNestedRepoFile bool
+
 	// DetectPaths are directories or files whose existence indicates the tool
 	// is installed. Checked in order; first match wins. Supports ~ prefix.
 	DetectPaths []string
@@ -32,6 +55,20 @@ type Tool struct {
 	// DetectCommands are CLI commands checked via PATH lookup.
 	// Checked only if DetectPaths yields no match.
 	DetectCommands []string
+}
+
+// AgentsMDIntegration returns the preferred AGENTS.md integration for a tool.
+func (t Tool) AgentsMDIntegration() AgentsMDIntegration {
+	if t.PreferredIntegration != "" {
+		return t.PreferredIntegration
+	}
+	if t.ReadsAgentsMD {
+		return IntegrationNative
+	}
+	if t.RepoFileName != "" {
+		return IntegrationSymlink
+	}
+	return IntegrationUnsupported
 }
 
 // Detected holds the result of a tool detection check.
@@ -82,13 +119,15 @@ func All() []Tool {
 			DetectCommands:   []string{"autohand"},
 		},
 		{
-			Name:             "Claude Code",
-			Description:      "Anthropic CLI for agentic coding",
-			GlobalConfigPath: "~/.claude/CLAUDE.md",
-			RepoFileName:     "CLAUDE.md",
-			ReadsAgentsMD:    false,
-			DetectPaths:      []string{"~/.claude"},
-			DetectCommands:   []string{"claude"},
+			Name:                   "Claude Code",
+			Description:            "Anthropic CLI for agentic coding",
+			GlobalConfigPath:       "~/.claude/CLAUDE.md",
+			RepoFileName:           "CLAUDE.md",
+			ReadsAgentsMD:          false,
+			PreferredIntegration:   IntegrationImport,
+			SupportsNestedRepoFile: true,
+			DetectPaths:            []string{"~/.claude"},
+			DetectCommands:         []string{"claude"},
 		},
 		{
 			Name:             "Cline",
@@ -136,13 +175,15 @@ func All() []Tool {
 			DetectCommands:   []string{"factory"},
 		},
 		{
-			Name:             "Gemini CLI",
-			Description:      "Google Gemini command-line tool",
-			GlobalConfigPath: "~/.gemini/GEMINI.md",
-			RepoFileName:     "GEMINI.md",
-			ReadsAgentsMD:    false,
-			DetectPaths:      []string{"~/.gemini"},
-			DetectCommands:   []string{"gemini"},
+			Name:                   "Gemini CLI",
+			Description:            "Google Gemini command-line tool",
+			GlobalConfigPath:       "~/.gemini/GEMINI.md",
+			RepoFileName:           "GEMINI.md",
+			ReadsAgentsMD:          false,
+			PreferredIntegration:   IntegrationConfigurable,
+			SupportsNestedRepoFile: true,
+			DetectPaths:            []string{"~/.gemini"},
+			DetectCommands:         []string{"gemini"},
 		},
 		{
 			Name:             "GitHub Copilot",

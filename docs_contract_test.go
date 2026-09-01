@@ -36,6 +36,37 @@ func TestPublishedGoInstallUsesCanonicalModule(t *testing.T) {
 	}
 }
 
+func TestPublishedLayeringAndNestedScanContract(t *testing.T) {
+	wants := map[string][]string{
+		"README.md": {
+			"Identical aliases vs. layered wrappers",
+			"agentlink detect --generate --prefer-native",
+			"agentlink scan --nested",
+		},
+		"docs/index.html": {
+			"Layered Claude wrapper",
+			"agentlink detect --generate --prefer-native",
+			"agentlink scan ~/Git --nested",
+		},
+		"docs/llms.txt": {
+			"layered wrapper:",
+			"detect --generate --prefer-native",
+			"opt-in --nested mode",
+		},
+	}
+	for path, required := range wants {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, want := range required {
+			if !strings.Contains(string(data), want) {
+				t.Errorf("%s missing layering contract %q", path, want)
+			}
+		}
+	}
+}
+
 func TestReleaseSurfacesUseCurrentVersion(t *testing.T) {
 	const version = "v0.4.2"
 	wants := map[string][]string{
