@@ -19,12 +19,17 @@ go test -tags=integration ./...
 ```
 
 The integration suite builds a real binary and exercises `sync`, `scan`,
-`detect`, and `hooks` against temporary directories. Run it before sending
-a pull request.
+`detect`, and `hooks` against temporary directories. Its scan contracts check
+exact root and nested topology, relative targets, explicit-config authority,
+wrapper preservation, idempotence, and byte-preserving dry runs. Run it before
+sending a pull request.
 
 ## Code style
 
 - `gofmt -s` clean. `go vet ./...` clean. `staticcheck ./...` clean.
+- CI pins Go 1.23 and `staticcheck` 2025.1.1. Use that pair for exact local
+  parity; a `staticcheck` binary built for an older export format may reject
+  packages compiled by a newer Go toolchain before analysis begins.
 - No new runtime dependencies unless discussed in an issue first. The
   compiled binary has zero runtime dependencies today — keeping it that
   way is a feature.
@@ -64,9 +69,13 @@ New tools go in `internal/registry/tools.go`. Each entry needs:
 - `GlobalConfig` — the global config path using `~` for home
 - `RepoFile` — the file the tool reads from a repo root
 - `ReadsAgentsMD` — true if the tool already reads `AGENTS.md` natively
+- `PreferredIntegration` — native, configurable, import, symlink, or unsupported
+- `SupportsNestedRepoFile` — true only for documented nested discovery
+- `NestedSupportReference` — public HTTPS documentation required when nested discovery is enabled
 
-Add a unit-test entry in `tools_test.go` confirming the new tool is
-returned and has a unique name. No code changes elsewhere are required.
+Registry invariants and the README supported-tools table are tested. Update
+the table with the registry entry and add a focused behavior assertion when
+the tool introduces a new integration mode or nested-discovery claim.
 
 ## Releasing (maintainers)
 

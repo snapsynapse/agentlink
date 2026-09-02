@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/snapsynapse/agentlink/internal/config"
+	"github.com/snapsynapse/agentlink/internal/registry"
 )
 
 func TestPublishedHookExamplesIncludeRequiredSelector(t *testing.T) {
@@ -37,21 +38,25 @@ func TestPublishedGoInstallUsesCanonicalModule(t *testing.T) {
 }
 
 func TestPublishedLayeringAndNestedScanContract(t *testing.T) {
+	const jonathanGuide = "https://limitededitionjonathan.substack.com/p/i-wrote-this-agentsmd-guide-for-the"
 	wants := map[string][]string{
 		"README.md": {
 			"Identical aliases vs. layered wrappers",
 			"agentlink detect --generate --prefer-native",
 			"agentlink scan --nested",
+			jonathanGuide,
 		},
 		"docs/index.html": {
 			"Layered Claude wrapper",
 			"agentlink detect --generate --prefer-native",
 			"agentlink scan ~/Git --nested",
+			jonathanGuide,
 		},
 		"docs/llms.txt": {
 			"layered wrapper:",
 			"detect --generate --prefer-native",
 			"opt-in --nested mode",
+			jonathanGuide,
 		},
 	}
 	for path, required := range wants {
@@ -64,6 +69,83 @@ func TestPublishedLayeringAndNestedScanContract(t *testing.T) {
 				t.Errorf("%s missing layering contract %q", path, want)
 			}
 		}
+	}
+}
+
+func TestReadmeSupportedToolsTableMatchesRegistry(t *testing.T) {
+	data, err := os.ReadFile("README.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(data)
+	start := strings.Index(text, "### Supported tools")
+	end := strings.Index(text, "## Repo Scanning")
+	if start == -1 || end == -1 || end <= start {
+		t.Fatal("README supported-tools table boundaries not found")
+	}
+
+	type documentedTool struct {
+		global      string
+		repo        string
+		integration string
+	}
+	documented := make(map[string]documentedTool)
+	for _, line := range strings.Split(text[start:end], "\n") {
+		if !strings.HasPrefix(line, "|") {
+			continue
+		}
+		cells := strings.Split(strings.Trim(line, "|"), "|")
+		if len(cells) != 4 {
+			continue
+		}
+		for i := range cells {
+			cells[i] = strings.TrimSpace(cells[i])
+		}
+		if cells[0] == "Tool" || strings.HasPrefix(cells[0], "---") {
+			continue
+		}
+		documented[cells[0]] = documentedTool{
+			global:      cells[1],
+			repo:        cells[2],
+			integration: cells[3],
+		}
+	}
+
+	tools := registry.All()
+	if len(documented) != len(tools) {
+		t.Errorf("README documents %d tools, registry contains %d", len(documented), len(tools))
+	}
+	for _, tool := range tools {
+		got, ok := documented[tool.Name]
+		if !ok {
+			t.Errorf("README supported-tools table is missing registry tool %q", tool.Name)
+			continue
+		}
+		wantGlobal := tool.GlobalConfigPath
+		if wantGlobal == "" {
+			wantGlobal = "--"
+		}
+		wantRepo := tool.RepoFileName
+		if wantRepo == "" {
+			wantRepo = "--"
+		}
+		wantIntegration := map[registry.AgentsMDIntegration]string{
+			registry.IntegrationNative:       "Native",
+			registry.IntegrationConfigurable: "Configurable",
+			registry.IntegrationImport:       "Import from real " + tool.RepoFileName,
+			registry.IntegrationSymlink:      "Symlink",
+			registry.IntegrationUnsupported:  "Unsupported",
+		}[tool.AgentsMDIntegration()]
+		if tool.AgentsMDIntegration() == registry.IntegrationNative && tool.RepoFileName == "" && tool.GlobalConfigPath != "" {
+			wantIntegration = "Native (global)"
+		}
+		if got.global != wantGlobal || got.repo != wantRepo || got.integration != wantIntegration {
+			t.Errorf("README row for %q = {%q, %q, %q}, want {%q, %q, %q}", tool.Name, got.global, got.repo, got.integration, wantGlobal, wantRepo, wantIntegration)
+		}
+		delete(documented, tool.Name)
+	}
+	for name := range documented {
+		t.Errorf("README supported-tools table contains unknown tool %q", name)
 	}
 }
 

@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -87,6 +88,41 @@ func TestNestedRepoFileSupportIsExplicit(t *testing.T) {
 	}
 	if byName["Qwen Code"].SupportsNestedRepoFile {
 		t.Error("Qwen Code nested support should fail closed until documented")
+	}
+}
+
+func TestRegistryIntegrationMetadataIsInternallyConsistent(t *testing.T) {
+	validIntegrations := map[AgentsMDIntegration]bool{
+		IntegrationNative:       true,
+		IntegrationConfigurable: true,
+		IntegrationImport:       true,
+		IntegrationSymlink:      true,
+		IntegrationUnsupported:  true,
+	}
+
+	for _, tool := range All() {
+		integration := tool.AgentsMDIntegration()
+		if !validIntegrations[integration] {
+			t.Errorf("tool %q has invalid integration %q", tool.Name, integration)
+		}
+		if tool.ReadsAgentsMD && integration != IntegrationNative {
+			t.Errorf("tool %q reads AGENTS.md but prefers contradictory integration %q", tool.Name, integration)
+		}
+		if tool.SupportsNestedRepoFile {
+			if tool.RepoFileName == "" {
+				t.Errorf("tool %q claims nested discovery without a repo filename", tool.Name)
+			}
+			if integration == IntegrationUnsupported {
+				t.Errorf("tool %q claims nested discovery with unsupported integration", tool.Name)
+			}
+			if tool.NestedSupportReference == "" {
+				t.Errorf("tool %q claims nested discovery without a documentation reference", tool.Name)
+			} else if parsed, err := url.ParseRequestURI(tool.NestedSupportReference); err != nil || parsed.Scheme != "https" || parsed.Host == "" {
+				t.Errorf("tool %q has invalid nested-support reference %q", tool.Name, tool.NestedSupportReference)
+			}
+		} else if tool.NestedSupportReference != "" {
+			t.Errorf("tool %q has a nested-support reference without enabling nested discovery", tool.Name)
+		}
 	}
 }
 

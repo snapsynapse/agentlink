@@ -48,6 +48,11 @@ type Tool struct {
 	// and deterministic; nested scanning fails closed for unknown tools.
 	SupportsNestedRepoFile bool
 
+	// NestedSupportReference identifies the public documentation used to
+	// justify SupportsNestedRepoFile. Keep this empty when nested discovery is
+	// not enabled so registry validation can fail closed on unsupported claims.
+	NestedSupportReference string
+
 	// DetectPaths are directories or files whose existence indicates the tool
 	// is installed. Checked in order; first match wins. Supports ~ prefix.
 	DetectPaths []string
@@ -126,6 +131,7 @@ func All() []Tool {
 			ReadsAgentsMD:          false,
 			PreferredIntegration:   IntegrationImport,
 			SupportsNestedRepoFile: true,
+			NestedSupportReference: "https://code.claude.com/docs/en/memory",
 			DetectPaths:            []string{"~/.claude"},
 			DetectCommands:         []string{"claude"},
 		},
@@ -182,6 +188,7 @@ func All() []Tool {
 			ReadsAgentsMD:          false,
 			PreferredIntegration:   IntegrationConfigurable,
 			SupportsNestedRepoFile: true,
+			NestedSupportReference: "https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md",
 			DetectPaths:            []string{"~/.gemini"},
 			DetectCommands:         []string{"gemini"},
 		},

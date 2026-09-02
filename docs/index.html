@@ -648,7 +648,7 @@ agentlink sync</pre>
 
 ## Claude-specific guidance
 Use plan mode under src/billing/.</pre>
-        <p class="annotation">Agentlink does not generate or rewrite wrappers. Import expansion and nested precedence remain the consuming tool&rsquo;s responsibility.</p>
+        <p class="annotation">Agentlink does not generate or rewrite wrappers. Import expansion and nested precedence remain the consuming tool&rsquo;s responsibility. Jonathan Whitaker&rsquo;s <a href="https://limitededitionjonathan.substack.com/p/i-wrote-this-agentsmd-guide-for-the" target="_blank" rel="noopener">AGENTS.md guide for the CEO of Shopify</a> explains the nested symlink workaround behind the &ldquo;symlink by default, real wrapper at exception points&rdquo; recommendation.</p>
       </div>
 
       <div class="code-block">
@@ -667,7 +667,7 @@ agentlink scan ~/Git
 # Also link beside nested AGENTS.md files
 # in repos without .agentlink.yaml.
 agentlink scan ~/Git --nested</pre>
-        <p class="annotation">An explicit <code>.agentlink.yaml</code> is authoritative. Automatic scanning preserves existing real wrappers unless <code>--force</code> is supplied. Nested mode creates only aliases with documented nested discovery; unknown tools remain root-only.</p>
+        <p class="annotation">An explicit <code>.agentlink.yaml</code> is authoritative. Automatic scanning preserves existing real wrappers unless <code>--force</code> is supplied. Nested mode creates only aliases with documented nested discovery; unknown tools remain root-only. Deterministic integration tests verify exact topology, idempotence, and byte-preserving dry runs.</p>
       </div>
 
       <div class="code-block">

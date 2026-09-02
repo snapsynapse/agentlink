@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Opt-in `scan --nested` support for documented nested-capable aliases beside
   nested AGENTS.md files in unconfigured repositories; unknown tools fail
   closed at the repository root.
+- Deterministic scan contracts covering compiled-CLI topology, relative link
+  targets, explicit-config authority, preserved wrappers, idempotence, and
+  byte-preserving dry runs, plus registry and documentation parity checks.
 
 ### Changed
 
@@ -24,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation now distinguishes identical symlink aliases from layered
   tool-specific wrappers and leaves import and directory precedence to the
   consuming harness.
+- Documentation now links Jonathan Whitaker's nested symlink workaround and
+  frames the supported pattern as symlinks by default with real wrappers at
+  exception points.
 
 ### Fixed
 

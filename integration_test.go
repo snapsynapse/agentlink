@@ -3,10 +3,12 @@
 package main
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -357,6 +359,211 @@ func TestIntegrationScanDryRun(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(repoDir, "CLAUDE.md")); err == nil {
 		t.Error("dry-run created files")
 	}
+}
+
+func TestIntegrationScanNestedTopologyAndIdempotence(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	scanRoot := t.TempDir()
+	unconfiguredRepo := filepath.Join(scanRoot, "unconfigured")
+	unconfiguredPackage := filepath.Join(unconfiguredRepo, "packages", "api")
+	configuredRepo := filepath.Join(scanRoot, "configured")
+	configuredPackage := filepath.Join(configuredRepo, "packages", "web")
+	for _, dir := range []string{
+		filepath.Join(unconfiguredRepo, ".git"),
+		unconfiguredPackage,
+		filepath.Join(configuredRepo, ".git"),
+		configuredPackage,
+	} {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	const unconfiguredWrapper = "@AGENTS.md\n\n# Claude-only\n"
+	const configuredWrapper = "@GUIDE.md\n\n# Configured Claude-only\n"
+	files := map[string]string{
+		filepath.Join(unconfiguredRepo, "AGENTS.md"):     "root shared",
+		filepath.Join(unconfiguredRepo, "CLAUDE.md"):     unconfiguredWrapper,
+		filepath.Join(unconfiguredPackage, "AGENTS.md"):  "package shared",
+		filepath.Join(configuredRepo, "GUIDE.md"):        "configured source",
+		filepath.Join(configuredRepo, "AGENTS.md"):       "unmanaged root",
+		filepath.Join(configuredRepo, "CLAUDE.md"):       configuredWrapper,
+		filepath.Join(configuredPackage, "AGENTS.md"):    "unmanaged nested",
+		filepath.Join(configuredRepo, ".agentlink.yaml"): "source: GUIDE.md\nlinks:\n  - GEMINI.md\n",
+	}
+	for path, content := range files {
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	cmd := exec.Command(integrationBinaryPath, "scan", "--nested", scanRoot)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("scan --nested failed: %v\n%s", err, output)
+	}
+
+	for path, target := range map[string]string{
+		filepath.Join(unconfiguredRepo, "GEMINI.md"):    "AGENTS.md",
+		filepath.Join(unconfiguredRepo, ".goosehints"):  "AGENTS.md",
+		filepath.Join(unconfiguredRepo, "QWEN.md"):      "AGENTS.md",
+		filepath.Join(unconfiguredPackage, "CLAUDE.md"): "AGENTS.md",
+		filepath.Join(unconfiguredPackage, "GEMINI.md"): "AGENTS.md",
+		filepath.Join(configuredRepo, "GEMINI.md"):      "GUIDE.md",
+	} {
+		assertIntegrationSymlink(t, path, target)
+	}
+	for path, content := range map[string]string{
+		filepath.Join(unconfiguredRepo, "CLAUDE.md"): unconfiguredWrapper,
+		filepath.Join(configuredRepo, "CLAUDE.md"):   configuredWrapper,
+	} {
+		got, readErr := os.ReadFile(path)
+		if readErr != nil || string(got) != content {
+			t.Errorf("wrapper %s changed: content=%q err=%v", path, got, readErr)
+		}
+	}
+	for _, path := range []string{
+		filepath.Join(unconfiguredPackage, "QWEN.md"),
+		filepath.Join(configuredRepo, "QWEN.md"),
+		filepath.Join(configuredRepo, ".goosehints"),
+		filepath.Join(configuredPackage, "CLAUDE.md"),
+		filepath.Join(configuredPackage, "GEMINI.md"),
+	} {
+		if _, statErr := os.Lstat(path); !os.IsNotExist(statErr) {
+			t.Errorf("scan created undeclared or unsupported path %s: %v", path, statErr)
+		}
+	}
+
+	firstSnapshot := snapshotIntegrationTree(t, scanRoot)
+	cmd = exec.Command(integrationBinaryPath, "scan", "--nested", scanRoot)
+	secondOutput, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("second scan --nested failed: %v\n%s", err, secondOutput)
+	}
+	if strings.Contains(string(secondOutput), "[create]") || strings.Contains(string(secondOutput), "[ok] Fixed") {
+		t.Errorf("idempotent scan reported a mutation:\n%s", secondOutput)
+	}
+	if !strings.Contains(string(secondOutput), "Scan complete: 0 links created/fixed") {
+		t.Errorf("idempotent scan summary is not mutation-free:\n%s", secondOutput)
+	}
+	if secondSnapshot := snapshotIntegrationTree(t, scanRoot); secondSnapshot != firstSnapshot {
+		t.Errorf("second scan changed filesystem topology\nbefore:\n%s\nafter:\n%s", firstSnapshot, secondSnapshot)
+	}
+}
+
+func TestIntegrationScanNestedDryRunIsBytePreservingAndComplete(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	scanRoot := t.TempDir()
+	repo := filepath.Join(scanRoot, "repo")
+	packageDir := filepath.Join(repo, "packages", "api")
+	if err := os.MkdirAll(filepath.Join(repo, ".git"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(packageDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	for path, content := range map[string]string{
+		filepath.Join(repo, "AGENTS.md"):       "root shared",
+		filepath.Join(packageDir, "AGENTS.md"): "package shared",
+	} {
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	before := snapshotIntegrationTree(t, scanRoot)
+	cmd := exec.Command(integrationBinaryPath, "scan", "--nested", "--dry-run", scanRoot)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("scan --nested --dry-run failed: %v\n%s", err, output)
+	}
+	after := snapshotIntegrationTree(t, scanRoot)
+	if after != before {
+		t.Fatalf("dry-run changed filesystem contents\nbefore:\n%s\nafter:\n%s", before, after)
+	}
+
+	out := string(output)
+	expectedCreates := []string{
+		"[create] repo/CLAUDE.md -> AGENTS.md",
+		"[create] repo/GEMINI.md -> AGENTS.md",
+		"[create] repo/.goosehints -> AGENTS.md",
+		"[create] repo/QWEN.md -> AGENTS.md",
+		"[create] repo/packages/api/CLAUDE.md -> AGENTS.md",
+		"[create] repo/packages/api/GEMINI.md -> AGENTS.md",
+	}
+	for _, want := range expectedCreates {
+		if !strings.Contains(out, want) {
+			t.Errorf("dry-run output missing proposed action %q:\n%s", want, out)
+		}
+	}
+	if got := strings.Count(out, "[create]"); got != len(expectedCreates) {
+		t.Errorf("dry-run reported %d create actions, want exactly %d:\n%s", got, len(expectedCreates), out)
+	}
+	if !strings.Contains(out, "Dry run - no changes made") {
+		t.Errorf("dry-run output missing immutability summary:\n%s", out)
+	}
+}
+
+func assertIntegrationSymlink(t *testing.T, path, wantTarget string) {
+	t.Helper()
+	info, err := os.Lstat(path)
+	if err != nil {
+		t.Fatalf("expected symlink %s: %v", path, err)
+	}
+	if info.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("%s is not a symlink", path)
+	}
+	gotTarget, err := os.Readlink(path)
+	if err != nil {
+		t.Fatalf("read symlink %s: %v", path, err)
+	}
+	if gotTarget != wantTarget {
+		t.Fatalf("symlink %s points to %q, want relative target %q", path, gotTarget, wantTarget)
+	}
+}
+
+func snapshotIntegrationTree(t *testing.T, root string) string {
+	t.Helper()
+	var entries []string
+	err := filepath.Walk(root, func(path string, info os.FileInfo, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		switch {
+		case info.Mode()&os.ModeSymlink != 0:
+			target, err := os.Readlink(path)
+			if err != nil {
+				return err
+			}
+			entries = append(entries, fmt.Sprintf("link %s %s", rel, target))
+		case info.IsDir():
+			entries = append(entries, fmt.Sprintf("dir %s %04o", rel, info.Mode().Perm()))
+		case info.Mode().IsRegular():
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			entries = append(entries, fmt.Sprintf("file %s %04o %x", rel, info.Mode().Perm(), sha256.Sum256(data)))
+		default:
+			entries = append(entries, fmt.Sprintf("special %s %s", rel, info.Mode()))
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("snapshot tree %s: %v", root, err)
+	}
+	sort.Strings(entries)
+	return strings.Join(entries, "\n")
 }
 
 func TestIntegrationSyncBackup(t *testing.T) {

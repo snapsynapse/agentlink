@@ -124,6 +124,48 @@ func TestRunScanKeepsDeclaredLinkStrict(t *testing.T) {
 	}
 }
 
+func TestRunScanExplicitConfigOverridesNestedDiscoveryAndDefaultSource(t *testing.T) {
+	root := t.TempDir()
+	repo := filepath.Join(root, "repo")
+	packageDir := filepath.Join(repo, "packages", "api")
+	if err := os.MkdirAll(filepath.Join(repo, ".git"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(packageDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	files := map[string]string{
+		filepath.Join(repo, "GUIDE.md"):        "configured source",
+		filepath.Join(repo, "AGENTS.md"):       "unmanaged root source",
+		filepath.Join(repo, "CLAUDE.md"):       "@GUIDE.md\n\n# Claude-only\n",
+		filepath.Join(packageDir, "AGENTS.md"): "unmanaged nested source",
+		filepath.Join(repo, ".agentlink.yaml"): "source: GUIDE.md\nlinks:\n  - GEMINI.md\n",
+	}
+	for path, content := range files {
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	setScanTestFlags(t, true)
+	if err := runScan(scanCmd, []string{root}); err != nil {
+		t.Fatalf("runScan() error = %v", err)
+	}
+	assertScanSymlinkTarget(t, filepath.Join(repo, "GEMINI.md"), "GUIDE.md")
+	if got, err := os.ReadFile(filepath.Join(repo, "CLAUDE.md")); err != nil || string(got) != "@GUIDE.md\n\n# Claude-only\n" {
+		t.Fatalf("configured wrapper changed: content=%q err=%v", got, err)
+	}
+	for _, path := range []string{
+		filepath.Join(repo, "QWEN.md"),
+		filepath.Join(packageDir, "CLAUDE.md"),
+		filepath.Join(packageDir, "GEMINI.md"),
+	} {
+		if _, err := os.Lstat(path); !os.IsNotExist(err) {
+			t.Errorf("explicit config allowed undeclared scan output %s: %v", path, err)
+		}
+	}
+}
+
 func TestRunScanNestedIsOptIn(t *testing.T) {
 	root := t.TempDir()
 	repo := filepath.Join(root, "repo")
@@ -167,6 +209,14 @@ func TestNestedRepoLinkTargetsFailClosed(t *testing.T) {
 	for _, target := range got {
 		if !want[target] {
 			t.Errorf("nestedRepoLinkTargets() includes undocumented target %q", target)
+		}
+	}
+}
+
+func TestRepoLinkTargetsNeverSelfLinkAgentsSource(t *testing.T) {
+	for _, target := range repoLinkTargets() {
+		if filepath.Clean(target) == "AGENTS.md" {
+			t.Fatalf("repoLinkTargets() includes source self-link %q", target)
 		}
 	}
 }

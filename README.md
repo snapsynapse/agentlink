@@ -80,6 +80,8 @@ Use plan mode for changes under `src/billing/`.
 
 Agentlink continues to manage the aliases that remain in `.agentlink.yaml`. It does not generate, parse, or rewrite the wrapper. Claude Code expands the import and then appends the remaining `CLAUDE.md` content; Claude's own hierarchy determines how root, parent, local, and nested files combine. Agentlink does not normalize precedence between harnesses. See the [Claude Code memory documentation](https://code.claude.com/docs/en/memory).
 
+For monorepos, the practical rule is "symlink by default, real wrapper at exception points": place a sibling alias beside each nested `AGENTS.md` when the tool documents nested discovery, but replace an alias with a real importing wrapper wherever that tool needs additional local guidance. Jonathan Whitaker's [AGENTS.md guide for the CEO of Shopify](https://limitededitionjonathan.substack.com/p/i-wrote-this-agentsmd-guide-for-the) describes the nested symlink workaround and the operational problem it addresses. Agentlink can create the identical aliases with `scan --nested`; wrapper contents remain a manual, committed project decision.
+
 Gemini CLI can similarly be configured to load `AGENTS.md` directly through `context.fileName`, avoiding a `GEMINI.md` alias. See the [Gemini CLI context documentation](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md).
 
 Global mode (in HOME) is the same idea:
@@ -319,6 +321,8 @@ agentlink scan --nested           # also link beside nested AGENTS.md files
 The scanner recognizes standard repos, git worktrees, and submodule-style checkouts where `.git` is a file. When a repository has `.agentlink.yaml`, that explicit configuration is authoritative: only its declared source and links are managed. Without a config, `scan` uses root `AGENTS.md` and the registry's root-level aliases. Existing real alias files are preserved as intentionally unmanaged unless `--force` is supplied, so a layered `CLAUDE.md` is not treated as an error.
 
 `--nested` is opt-in and applies only to unconfigured repositories. It finds nested `AGENTS.md` files and creates sibling aliases only for registry entries with documented nested discovery, currently Claude Code and Gemini CLI. Unknown tools fail closed at the repository root rather than being assumed equivalent. The walk skips hidden directories, nested repositories, `node_modules`, `vendor`, `dist`, `build`, `handoffs`, and `working`. Tool-specific precedence is unchanged and remains the consuming harness's responsibility. The [AGENTS.md convention](https://agents.md/) gives the nearest file precedence; other tools may concatenate or order nested files differently.
+
+The integration suite verifies the exact root and nested topology, relative targets, explicit-config authority, wrapper preservation, root-only behavior for unknown integrations, repeat-run idempotence, and byte-preserving dry runs. Registry invariants require a public documentation reference before nested discovery can be enabled, and a documentation contract keeps this README's supported-tools table aligned with the registry.
 
 The default scan directory is `~/Git`. Override it per-invocation with the `--dir` flag or positional argument. To change the compiled default, build with:
 

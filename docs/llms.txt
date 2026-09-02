@@ -24,10 +24,13 @@ Agentlink does not define instruction precedence. Claude Code expands @ imports 
 - scan: respect each repo's explicit .agentlink.yaml; otherwise wire root aliases while preserving existing real wrappers
 - nested scan: opt-in --nested mode links only documented nested-capable aliases beside nested AGENTS.md files in unconfigured repos; unknown tools fail closed at root
 - integration preference: detect --generate --prefer-native recommends native, configurable, or import options before symlinks
+- nested symlink reference: Jonathan Whitaker's AGENTS.md guide explains the practical monorepo workaround: https://limitededitionjonathan.substack.com/p/i-wrote-this-agentsmd-guide-for-the
 - hooks: install git, shell, and launchd triggers so sync runs automatically
 - idempotent: re-running is safe; broken or misdirected links are repaired
 - dry-run: hard preview mode; no symlinks, removals, or backups are written
 - replacement safety: backup and force operate on regular files only; directories and special files are refused
+- deterministic scan contracts: compiled-CLI fixtures verify exact topology, relative targets, explicit-config authority, wrapper preservation, root-only unknown integrations, idempotence, and byte-preserving dry runs
+- registry governance: nested discovery requires a public documentation reference, and the README supported-tools table is checked against the registry
 - git hook safety: global core.hooksPath must be absolute for install, remove, and status
 - assistant guide: https://agentlink.run/.well-known/assistant-guide.txt
 - guidecheck conformance target: Level 4 guide-file conformance
