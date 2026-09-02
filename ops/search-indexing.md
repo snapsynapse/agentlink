@@ -69,7 +69,10 @@ For a creator-profile or external-platform property, replace the website validat
 - 2026-09-01 pre-change production contract: one sitemap HTML page, zero production defects, exact repository-to-production parity.
 - 2026-09-01 GSC Page indexing report, last updated 2026-08-27: one indexed canonical page and four excluded URLs. Three are expected HTTP or `www` redirects. One is the crawlable `/.well-known/assistant-guide.txt` machine surface and is intentionally omitted from the HTML sitemap.
 - 2026-09-01 GSC sitemap observation: `https://agentlink.run/sitemap.xml` was successful, submitted 2026-04-20, last read 2026-05-26, and reported one discovered page before this publication tranche.
-- The post-deployment repository and production results, plus any sitemap refresh confirmation, belong in the dated provider evidence and action ledger. An accepted refresh is pending recrawl until a later report proves discovery.
+- 2026-09-01 publication commit `a7008e305e3fefcfbcbebdd6299e13c13b95dbba`: five canonical HTML pages; offline and approved local-server contracts both passed with zero defects and zero infrastructure findings.
+- GitHub Actions checks, accessibility regression checks, and the legacy Pages build all completed successfully for the publication commit. Pages remained configured for `main:/docs`, the `agentlink.run` custom domain, and enforced HTTPS.
+- The deployed production contract passed with five pages, zero defects, and zero infrastructure findings.
+- GSC accepted one refresh of the verified production sitemap at 2026-09-01 20:37 MDT. The row then reported `Success`, submitted 2026-09-01, last read 2026-09-01, and five discovered pages. Discovery is confirmed; inclusion of the four new pages in search results remains pending recrawl.
 
 ## Console action ledger
 
@@ -77,6 +80,7 @@ Read this table before opening the console. Add only observed actions and confir
 
 | Provider and property | Action and target | Accepted at | Confirmation | Result class | Repeat policy | Next review |
 |---|---|---|---|---|---|---|
-| Google Search Console `sc-domain:agentlink.run` | Existing sitemap submission for `https://agentlink.run/sitemap.xml` | 2026-04-20 (observed 2026-09-01) | Status Success; last read 2026-05-26; one discovered page | pending recrawl | Do not remove or re-add. Refresh once only after the five-page production sitemap is live. | After material deployment and separately approved refresh |
+| Google Search Console `sc-domain:agentlink.run` | Existing sitemap submission for `https://agentlink.run/sitemap.xml` | 2026-04-20 (observed 2026-09-01) | Status Success; last read 2026-05-26; one discovered page | completed with stale evidence | Superseded by the one authorized refresh below; never remove and re-add as routine recovery. | Closed by the 2026-09-01 refresh |
+| Google Search Console `sc-domain:agentlink.run` | Refresh `https://agentlink.run/sitemap.xml` after verified five-page deployment | 2026-09-01 20:37 MDT | `Sitemap submitted successfully`; then Status Success, submitted 2026-09-01, last read 2026-09-01, five discovered pages | completed sitemap refresh; new-page indexing pending recrawl | Do not repeat before a material sitemap change or a named GSC failure. Do not request indexing or validate exclusions under this action. | Next Page indexing report update after 2026-09-01; checkpoint 2026-09-15 |
 
 Keep rejected attempts and unknown outcomes distinct from accepted actions. Do not repeat an accepted action merely because the provider report remains stale.
