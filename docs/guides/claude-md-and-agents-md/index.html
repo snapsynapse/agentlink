@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>CLAUDE.md and AGENTS.md: symlink or wrapper? | Agentlink</title>
+  <meta name="description" content="Choose between linking CLAUDE.md to AGENTS.md or keeping a real Claude-specific wrapper that imports shared project instructions.">
+  <meta name="author" content="Sam Rogers">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="theme-color" content="#f97316">
+  <link rel="canonical" href="https://agentlink.run/guides/claude-md-and-agents-md/">
+  <link rel="stylesheet" href="/assets/docs.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable summary">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Agentlink">
+  <meta property="og:title" content="CLAUDE.md and AGENTS.md: symlink or wrapper?">
+  <meta property="og:description" content="A practical decision rule for shared and Claude-specific coding instructions.">
+  <meta property="og:url" content="https://agentlink.run/guides/claude-md-and-agents-md/">
+  <meta property="og:image" content="https://agentlink.run/imgs/og.png">
+  <meta property="og:image:alt" content="Agentlink source and alias map for AI coding instruction files">
+  <meta property="article:published_time" content="2026-09-01T00:00:00Z">
+  <meta property="article:modified_time" content="2026-09-01T00:00:00Z">
+  <meta property="article:author" content="Sam Rogers">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CLAUDE.md and AGENTS.md: symlink or wrapper?">
+  <meta name="twitter:description" content="A practical decision rule for shared and Claude-specific coding instructions.">
+  <meta name="twitter:image" content="https://agentlink.run/imgs/og.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "CLAUDE.md and AGENTS.md: symlink or wrapper?",
+    "description": "Choose between linking CLAUDE.md to AGENTS.md or keeping a real Claude-specific wrapper that imports shared project instructions.",
+    "url": "https://agentlink.run/guides/claude-md-and-agents-md/",
+    "mainEntityOfPage": "https://agentlink.run/guides/claude-md-and-agents-md/",
+    "datePublished": "2026-09-01",
+    "dateModified": "2026-09-01",
+    "inLanguage": "en",
+    "image": "https://agentlink.run/imgs/og.png",
+    "author": { "@type": "Person", "name": "Sam Rogers", "url": "https://snapsynapse.com/" },
+    "publisher": { "@type": "Organization", "name": "Snap Synapse", "url": "https://snapsynapse.com/" },
+    "about": { "@type": "SoftwareApplication", "name": "Agentlink", "url": "https://agentlink.run/" }
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<nav class="site-nav" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a class="brand" href="/">Agentlink</a>
+    <div class="nav-links">
+      <a href="/guides/claude-md-and-agents-md/" aria-current="page">Guides</a>
+      <a href="/reference/supported-tools/">Supported tools</a>
+      <a href="https://github.com/snapsynapse/agentlink">GitHub</a>
+    </div>
+  </div>
+</nav>
+<main class="page" id="main-content">
+  <article>
+    <p class="eyebrow">Agentlink guide</p>
+    <h1>CLAUDE.md and AGENTS.md: symlink or wrapper?</h1>
+    <p class="lede">Link the files only when their content should remain identical. Keep a real <code>CLAUDE.md</code> wrapper when Claude Code needs extra instructions, a deliberate import, or a different scope.</p>
+    <p class="meta"><span>By Sam Rogers</span><span>Published September 1, 2026</span><span>Agentlink v0.5.0</span></p>
+
+    <h2>Use a symlink for identical guidance</h2>
+    <p>If both tools should receive the same project rules, a <code>CLAUDE.md</code> symlink to <code>AGENTS.md</code> is the simplest topology. There is one source to edit and review. The link is transparent in the repository, and Agentlink can repair it if it becomes broken or points somewhere else.</p>
+    <pre><code># .agentlink.yaml
+source: AGENTS.md
+links:
+  - CLAUDE.md
+
+agentlink sync --dry-run
+agentlink sync</code></pre>
+
+    <h2>Use a real wrapper for Claude-specific guidance</h2>
+    <p>Claude Code supports importing another file from a real <code>CLAUDE.md</code>. This is the better fit when most instructions are shared but Claude needs an additional planning rule, directory note, or workflow convention. Leave <code>CLAUDE.md</code> out of Agentlink&rsquo;s <code>links</code> list so it remains an ordinary committed file:</p>
+    <pre><code># CLAUDE.md
+@AGENTS.md
+
+## Claude-specific guidance
+Use plan mode before changing files under src/billing/.</code></pre>
+    <p>Agentlink does not generate or edit wrappers. The wrapper&rsquo;s import expansion, precedence, and nested discovery are features of Claude Code, so verify them against the tool version you actually use.</p>
+
+    <h2>Decision table</h2>
+    <table>
+      <thead><tr><th>Requirement</th><th>Recommended topology</th></tr></thead>
+      <tbody>
+        <tr><td>Every instruction must be byte-identical</td><td>Symlink <code>CLAUDE.md</code> to the source.</td></tr>
+        <tr><td>Claude needs additional guidance</td><td>Real <code>CLAUDE.md</code> importing <code>@AGENTS.md</code>.</td></tr>
+        <tr><td>Claude guidance intentionally differs</td><td>Real independent <code>CLAUDE.md</code>; do not link it.</td></tr>
+        <tr><td>You are unsure which integration is preferred</td><td>Run <code>agentlink detect --generate --prefer-native</code> and inspect the recommendation.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Avoid accidental replacement</h2>
+    <p>If a real <code>CLAUDE.md</code> already exists, a normal sync reports the conflict rather than overwriting it. Review the file first. Use <code>--backup</code> only when converting that regular file into an alias is intentional, and keep the backup outside your final committed topology. Agentlink refuses to recursively replace a directory or special file.</p>
+    <aside class="note"><strong>Practical rule:</strong> start with shared instructions, then create real wrappers only at exception points. The filesystem should make every exception visible.</aside>
+
+    <h2>Monorepos add another scope decision</h2>
+    <p>A root wrapper does not prove that every nested package uses the same precedence model. For a large repository, document the root defaults first, add nested instruction files only where the local work truly differs, and confirm that each consuming tool discovers those nested files. The <a href="/guides/monorepo-instruction-files/">monorepo instruction-file guide</a> explains Agentlink&rsquo;s fail-closed behavior.</p>
+
+    <nav class="related" aria-label="Related Agentlink guides">
+      <a href="/guides/agents-md-symlinks/"><strong>AGENTS.md symlinks</strong><span>Set up one source and several aliases.</span></a>
+      <a href="/guides/monorepo-instruction-files/"><strong>Monorepo instruction files</strong><span>Control root and nested scopes safely.</span></a>
+      <a href="/reference/supported-tools/"><strong>Supported tools</strong><span>Compare integration modes and paths.</span></a>
+      <a href="/"><strong>Agentlink overview</strong><span>Install the CLI and review its safety model.</span></a>
+    </nav>
+  </article>
+</main>
+<footer class="site-footer"><div class="footer-inner">Agentlink is free, open-source software from <a href="https://snapsynapse.com/">Snap Synapse</a>. <a href="https://github.com/snapsynapse/agentlink/blob/main/LICENSE">MIT license</a>.</div></footer>
+</body>
+</html>

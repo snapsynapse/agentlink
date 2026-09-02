@@ -13,6 +13,15 @@ Scope is deliberately narrow: instruction files only. No MCP servers, no chain c
 
 Agentlink does not define instruction precedence. Claude Code expands @ imports and applies its own CLAUDE.md hierarchy. AGENTS.md-aware tools apply their documented directory scoping. Agentlink only manages filesystem relationships.
 
+## Website guides
+
+- AGENTS.md symlinks: https://agentlink.run/guides/agents-md-symlinks/
+- CLAUDE.md and AGENTS.md: https://agentlink.run/guides/claude-md-and-agents-md/
+- Monorepo instruction files: https://agentlink.run/guides/monorepo-instruction-files/
+- Supported tools and instruction-file paths: https://agentlink.run/reference/supported-tools/
+
+These pages are canonical HTML explanations for people. robots.txt, sitemap.xml, llms.txt, the favicon, and /.well-known/* remain crawlable machine surfaces but are not sitemap HTML targets.
+
 ## Key concepts
 
 - source: the one real instruction file you edit (e.g. AGENTS.md)

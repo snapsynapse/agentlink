@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>AI instruction files in monorepos | Agentlink</title>
+  <meta name="description" content="Organize root and nested AGENTS.md, CLAUDE.md, and GEMINI.md files in monorepos without assuming every AI coding tool has the same precedence rules.">
+  <meta name="author" content="Sam Rogers">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="theme-color" content="#f97316">
+  <link rel="canonical" href="https://agentlink.run/guides/monorepo-instruction-files/">
+  <link rel="stylesheet" href="/assets/docs.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable summary">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Agentlink">
+  <meta property="og:title" content="AI instruction files in monorepos">
+  <meta property="og:description" content="Root defaults, nested exceptions, and fail-closed instruction-file discovery.">
+  <meta property="og:url" content="https://agentlink.run/guides/monorepo-instruction-files/">
+  <meta property="og:image" content="https://agentlink.run/imgs/og.png">
+  <meta property="og:image:alt" content="Agentlink source and alias map for AI coding instruction files">
+  <meta property="article:published_time" content="2026-09-01T00:00:00Z">
+  <meta property="article:modified_time" content="2026-09-01T00:00:00Z">
+  <meta property="article:author" content="Sam Rogers">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI instruction files in monorepos">
+  <meta name="twitter:description" content="Root defaults, nested exceptions, and fail-closed instruction-file discovery.">
+  <meta name="twitter:image" content="https://agentlink.run/imgs/og.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "AI instruction files in monorepos",
+    "description": "Organize root and nested AI coding instruction files without assuming that every tool has the same discovery and precedence rules.",
+    "url": "https://agentlink.run/guides/monorepo-instruction-files/",
+    "mainEntityOfPage": "https://agentlink.run/guides/monorepo-instruction-files/",
+    "datePublished": "2026-09-01",
+    "dateModified": "2026-09-01",
+    "inLanguage": "en",
+    "image": "https://agentlink.run/imgs/og.png",
+    "author": { "@type": "Person", "name": "Sam Rogers", "url": "https://snapsynapse.com/" },
+    "publisher": { "@type": "Organization", "name": "Snap Synapse", "url": "https://snapsynapse.com/" },
+    "about": { "@type": "SoftwareApplication", "name": "Agentlink", "url": "https://agentlink.run/" }
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<nav class="site-nav" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a class="brand" href="/">Agentlink</a>
+    <div class="nav-links">
+      <a href="/guides/monorepo-instruction-files/" aria-current="page">Guides</a>
+      <a href="/reference/supported-tools/">Supported tools</a>
+      <a href="https://github.com/snapsynapse/agentlink">GitHub</a>
+    </div>
+  </div>
+</nav>
+<main class="page" id="main-content">
+  <article>
+    <p class="eyebrow">Agentlink guide</p>
+    <h1>AI instruction files in monorepos</h1>
+    <p class="lede">Start with one root policy, add nested files only for real local differences, and never assume that AGENTS.md, CLAUDE.md, and GEMINI.md share a precedence model.</p>
+    <p class="meta"><span>By Sam Rogers</span><span>Published September 1, 2026</span><span>Agentlink v0.5.0</span></p>
+
+    <h2>Separate content scope from file synchronization</h2>
+    <p>Two questions are easy to conflate. First, which instructions should apply to work in a package? Second, which tool-specific paths should contain identical content? The repository&rsquo;s instruction hierarchy answers the first question. Agentlink&rsquo;s symlinks answer only the second.</p>
+    <p>A durable layout puts shared conventions at the repository root. Add a nested <code>AGENTS.md</code> when a package has genuinely different commands, architecture, or review requirements. Keep the nested file short and local rather than copying the root wholesale.</p>
+
+    <h2>Prefer explicit project configuration</h2>
+    <p>When a repository contains <code>.agentlink.yaml</code>, that configuration is authoritative. Agentlink manages only its declared source and links. This makes the intended topology reviewable and prevents a portfolio-wide scan from guessing how a complex repository should behave.</p>
+    <pre><code># .agentlink.yaml at repository root
+source: AGENTS.md
+links:
+  - CLAUDE.md
+  - GEMINI.md
+  - .github/copilot-instructions.md</code></pre>
+    <p>Keep a tool-specific file out of <code>links</code> when it is a real wrapper or has independent content. For example, a real <code>CLAUDE.md</code> can import <code>@AGENTS.md</code> and add Claude-only guidance.</p>
+
+    <h2>Use nested scan intentionally</h2>
+    <p>For repositories without explicit configuration, <code>agentlink scan</code> manages root aliases by default. The optional <code>--nested</code> flag also looks for nested <code>AGENTS.md</code> files, but creates adjacent aliases only for integrations with documented nested discovery. In v0.5.0, that gate covers Claude Code and Gemini CLI. Unknown tools remain root-only.</p>
+    <pre><code># Preview every repository first
+agentlink scan ~/Git --nested --dry-run
+
+# Apply after reviewing the paths and scopes
+agentlink scan ~/Git --nested</code></pre>
+    <aside class="note"><strong>Why fail closed?</strong> A valid symlink is not useful if the consuming tool never discovers it. Restricting nested links to documented behavior avoids a convincing-looking topology that silently does nothing.</aside>
+
+    <h2>Review checklist</h2>
+    <ol>
+      <li>Write down the root instructions that truly apply across the repository.</li>
+      <li>Add nested instructions only at package boundaries with different work.</li>
+      <li>Choose which tool files must be identical and which need real wrappers.</li>
+      <li>Run a dry scan and inspect paths, relative targets, and preserved files.</li>
+      <li>Test each tool in both root and nested directories; tool behavior remains the final authority.</li>
+      <li>Commit the topology so reviewers can see every source, wrapper, and symlink.</li>
+    </ol>
+
+    <h2>What Agentlink deliberately does not infer</h2>
+    <p>Agentlink does not merge instructions, generate nested content, reconcile conflicting policies, or impose one tool&rsquo;s precedence rules on another. It skips nested repositories, worktrees, dependency directories, build outputs, handoff folders, and other bounded paths during scanning. Existing real aliases are preserved unless replacement is explicitly requested.</p>
+
+    <nav class="related" aria-label="Related Agentlink guides">
+      <a href="/guides/agents-md-symlinks/"><strong>AGENTS.md symlinks</strong><span>Set up one source and several aliases.</span></a>
+      <a href="/guides/claude-md-and-agents-md/"><strong>CLAUDE.md and AGENTS.md</strong><span>Choose an identical alias or layered wrapper.</span></a>
+      <a href="/reference/supported-tools/"><strong>Supported tools</strong><span>Check documented integration modes.</span></a>
+      <a href="/"><strong>Agentlink overview</strong><span>Install the CLI and review its safety model.</span></a>
+    </nav>
+  </article>
+</main>
+<footer class="site-footer"><div class="footer-inner">Agentlink is free, open-source software from <a href="https://snapsynapse.com/">Snap Synapse</a>. <a href="https://github.com/snapsynapse/agentlink/blob/main/LICENSE">MIT license</a>.</div></footer>
+</body>
+</html>

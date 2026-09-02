@@ -3,7 +3,7 @@
 title: "Search indexing"
 purpose: "Property-specific index policy, validation commands, deployment gate, and console follow-up."
 status: active
-updated: 2026-08-20
+updated: 2026-09-01
 owner: "Sam Rogers"
 open_tasks: []
 ---
@@ -11,7 +11,7 @@ open_tasks: []
 
 Canonical origin: `https://agentlink.run/`
 
-Console property ID: `UNSET: verify before console work`
+Console property ID: `sc-domain:agentlink.run` (verified in the visible property selector and GSC `resource_id` on 2026-09-01)
 
 Property mode: `website`
 
@@ -23,7 +23,11 @@ If deployment assembles a separate staging directory, this path must name that e
 
 | Surface | Policy | Reason |
 |---|---|---|
-| `/` | Index and include in sitemap | The single canonical reader destination |
+| `/` | Index and include in sitemap | Canonical product landing page |
+| `/guides/agents-md-symlinks/` | Index and include in sitemap | Practical one-source, many-alias guide |
+| `/guides/claude-md-and-agents-md/` | Index and include in sitemap | Tool-specific wrapper decision guide |
+| `/guides/monorepo-instruction-files/` | Index and include in sitemap | Root and nested scope guide |
+| `/reference/supported-tools/` | Index and include in sitemap | Versioned integration reference |
 | `/404.html` and unknown routes | `noindex` and omit from sitemap | Error surfaces are not content destinations |
 | `/robots.txt`, `/sitemap.xml`, `/llms.txt`, favicon, and `/.well-known/*` | Crawlable machine surfaces, omit from the HTML sitemap | Discovery or machine consumption, not canonical HTML |
 | GitHub, Homebrew, and other external copies | Omit from sitemap | Distribution surfaces are not site canonical pages |
@@ -49,7 +53,7 @@ For a creator-profile or external-platform property, replace the website validat
 6. Run the production search contract.
 7. Confirm the deployed sitemap URL set matches the repository sitemap.
 8. Refresh a materially changed stale sitemap at most once, using its full canonical URL for a domain property.
-9. Inspect or request indexing for canonical HTML pages.
+9. Inspect or request indexing for canonical HTML pages only with separate approval.
 10. Start issue-group validation only when matching production behavior is live.
 11. Record console state under `ops/search/<provider>/YYYY-MM-DD/`.
 
@@ -61,9 +65,11 @@ For a creator-profile or external-platform property, replace the website validat
 
 ## Current baseline
 
-- 2026-08-20 repository contract: one sitemap HTML page, zero offline defects.
-- 2026-08-20 production contract before this publication tranche: one sitemap HTML page, zero production defects, exact repository-to-production parity.
-- Console property identity and dated provider evidence remain unverified. Do not infer zero activity or perform console actions from this absence.
+- 2026-09-01 pre-change repository contract: one sitemap HTML page, zero offline defects.
+- 2026-09-01 pre-change production contract: one sitemap HTML page, zero production defects, exact repository-to-production parity.
+- 2026-09-01 GSC Page indexing report, last updated 2026-08-27: one indexed canonical page and four excluded URLs. Three are expected HTTP or `www` redirects. One is the crawlable `/.well-known/assistant-guide.txt` machine surface and is intentionally omitted from the HTML sitemap.
+- 2026-09-01 GSC sitemap observation: `https://agentlink.run/sitemap.xml` was successful, submitted 2026-04-20, last read 2026-05-26, and reported one discovered page before this publication tranche.
+- The post-deployment repository and production results, plus any sitemap refresh confirmation, belong in the dated provider evidence and action ledger. An accepted refresh is pending recrawl until a later report proves discovery.
 
 ## Console action ledger
 
@@ -71,5 +77,6 @@ Read this table before opening the console. Add only observed actions and confir
 
 | Provider and property | Action and target | Accepted at | Confirmation | Result class | Repeat policy | Next review |
 |---|---|---|---|---|---|---|
+| Google Search Console `sc-domain:agentlink.run` | Existing sitemap submission for `https://agentlink.run/sitemap.xml` | 2026-04-20 (observed 2026-09-01) | Status Success; last read 2026-05-26; one discovered page | pending recrawl | Do not remove or re-add. Refresh once only after the five-page production sitemap is live. | After material deployment and separately approved refresh |
 
 Keep rejected attempts and unknown outcomes distinct from accepted actions. Do not repeat an accepted action merely because the provider report remains stale.

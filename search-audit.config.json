@@ -13,13 +13,26 @@
   ],
   "requireJsonLd": false,
   "jsonLdRequiredPaths": [
-    "/"
+    "/",
+    "/guides/agents-md-symlinks/",
+    "/guides/claude-md-and-agents-md/",
+    "/guides/monorepo-instruction-files/",
+    "/reference/supported-tools/"
   ],
   "lastmodAgreementPaths": [
-    "/"
+    "/",
+    "/guides/agents-md-symlinks/",
+    "/guides/claude-md-and-agents-md/",
+    "/guides/monorepo-instruction-files/",
+    "/reference/supported-tools/"
   ],
   "compareRepositorySitemaps": true,
-  "internalSourceRules": [],
+  "internalSourceRules": [
+    {
+      "pathPattern": "^/(guides|reference)/",
+      "minimum": 2
+    }
+  ],
   "requiredFiles": [
     {
       "path": "robots.txt",
@@ -46,6 +59,54 @@
       "contentTypes": [
         "image/svg+xml",
         "svg"
+      ],
+      "contains": []
+    },
+    {
+      "path": "assets/docs.css",
+      "contentTypes": [
+        "text/css"
+      ],
+      "contains": []
+    },
+    {
+      "path": "imgs/og.png",
+      "contentTypes": [
+        "image/png"
+      ],
+      "contains": []
+    },
+    {
+      "path": "imgs/instruction-file-map.svg",
+      "contentTypes": [
+        "image/svg+xml",
+        "svg"
+      ],
+      "contains": []
+    },
+    {
+      "path": "llms.txt",
+      "contentTypes": [
+        "text/plain"
+      ],
+      "contains": [
+        "https://agentlink.run/guides/agents-md-symlinks/",
+        "https://agentlink.run/reference/supported-tools/"
+      ]
+    },
+    {
+      "path": "site.webmanifest",
+      "contentTypes": [
+        "application/manifest+json",
+        "application/json"
+      ],
+      "contains": []
+    },
+    {
+      "path": ".well-known/aiposture",
+      "contentTypes": [
+        "text/plain",
+        "application/octet-stream"
       ],
       "contains": []
     },

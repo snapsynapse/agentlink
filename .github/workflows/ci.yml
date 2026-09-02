@@ -78,6 +78,10 @@ jobs:
       if: matrix.quality
       run: sh scripts/check-release-contract.sh
 
+    - name: Check deployed search artifact contract
+      if: matrix.quality
+      run: node scripts/check-search.mjs
+
     - name: Check reachable vulnerabilities
       if: matrix.quality
       run: go install golang.org/x/vuln/cmd/govulncheck@v1.7.0 && govulncheck ./...

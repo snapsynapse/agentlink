@@ -6,7 +6,6 @@
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <title>Agentlink &mdash; Sync one AGENTS.md to every AI coding tool</title>
   <meta name="description" content="A symlink-based CLI that keeps AGENTS.md, CLAUDE.md, GEMINI.md and friends in sync. One real file, many aliases. Zero codegen. macOS and Linux.">
-  <meta name="keywords" content="agentlink, AGENTS.md, CLAUDE.md, GEMINI.md, AI tool config, symlinks, ai coding instructions, cursorrules, copilot-instructions, opencode, codex">
   <meta name="author" content="Sam Rogers">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
   <meta name="theme-color" content="#f97316">
@@ -21,7 +20,7 @@
   <link rel="assistant-guide" href="https://agentlink.run/.well-known/assistant-guide.txt">
 
   <!-- Open Graph -->
-  <meta property="og:type" content="article">
+  <meta property="og:type" content="website">
   <meta property="og:site_name" content="Agentlink">
   <meta property="og:title" content="Agentlink">
   <meta property="og:description" content="Sync one AGENTS.md to every AI coding tool on your machine. With zero magic, just symlinks.">
@@ -54,6 +53,43 @@
   <!-- Identity verification (IndieWeb rel=me) -->
   <link rel="me" href="https://github.com/snapsynapse">
   <link rel="me" href="https://linkedin.com/in/samrogers">
+
+  <!-- JSON-LD: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Agentlink",
+    "description": "A free, open-source command-line tool that keeps AI coding assistant instruction files synchronized through symlinks.",
+    "url": "https://agentlink.run/",
+    "downloadUrl": "https://github.com/snapsynapse/agentlink/releases/tag/v0.5.0",
+    "codeRepository": "https://github.com/snapsynapse/agentlink",
+    "applicationCategory": "DeveloperApplication",
+    "applicationSubCategory": "Command-line tool",
+    "operatingSystem": "macOS, Linux",
+    "softwareVersion": "0.5.0",
+    "datePublished": "2026-04-14",
+    "dateModified": "2026-09-01",
+    "license": "https://opensource.org/licenses/MIT",
+    "image": "https://agentlink.run/imgs/og.png",
+    "author": {
+      "@type": "Person",
+      "name": "Sam Rogers",
+      "url": "https://snapsynapse.com/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Snap Synapse",
+      "url": "https://snapsynapse.com/"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    }
+  }
+  </script>
 
   <!-- JSON-LD: TechArticle -->
   <script type="application/ld+json">
@@ -324,6 +360,18 @@
     .pillar h3 { color: var(--accent); font-size: 1rem; }
     .pillar p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0; }
 
+    .guide-card {
+      display: block;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      background: var(--bg-alt);
+    }
+    .guide-card:hover { border-color: var(--accent); text-decoration: none; }
+    .guide-card h3 { color: var(--accent); font-size: 1rem; }
+    .guide-card p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0; }
+
     /* Buttons */
     .cta-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
     .btn {
@@ -446,6 +494,7 @@
     </a>
     <div class="links mobile-compact">
       <a href="#why">Why</a>
+      <a href="#guides">Guides</a>
       <a href="#install">Install</a>
       <a href="#usage">Usage</a>
       <a href="https://github.com/snapsynapse/agentlink" class="gh-star" target="_blank" rel="noopener" aria-label="Star snapsynapse/agentlink on GitHub">
@@ -558,6 +607,31 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
     </table>
     <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: -0.5rem;">Full registry in <code>internal/registry/tools.go</code>. It distinguishes native, configurable, import, symlink, and unsupported AGENTS.md integrations. Claude Code can import <code>@AGENTS.md</code> from a real <code>CLAUDE.md</code>; Gemini CLI can be configured to load <code>AGENTS.md</code> directly.</p>
     <p>Scope is deliberately narrow: <strong>instruction files only.</strong> No MCP config, no chain configs. Simple on purpose.</p>
+  </div>
+</section>
+
+<section id="guides">
+  <div class="container">
+    <h2>Practical instruction-file guides</h2>
+    <p>Choose a topology before creating links. These guides explain when one shared file is enough, when a real wrapper is safer, and how Agentlink treats nested repositories and tool-specific integrations.</p>
+    <div class="pillars">
+      <a class="guide-card" href="/guides/agents-md-symlinks/">
+        <h3>AGENTS.md symlinks</h3>
+        <p>Build one-source, many-alias instruction files without code generation or duplicate content drift.</p>
+      </a>
+      <a class="guide-card" href="/guides/claude-md-and-agents-md/">
+        <h3>CLAUDE.md and AGENTS.md</h3>
+        <p>Decide between a byte-identical symlink and a real Claude-specific wrapper that imports shared guidance.</p>
+      </a>
+      <a class="guide-card" href="/guides/monorepo-instruction-files/">
+        <h3>Monorepo instruction files</h3>
+        <p>Use root defaults, intentional nested scopes, and documented discovery behavior without accidental propagation.</p>
+      </a>
+      <a class="guide-card" href="/reference/supported-tools/">
+        <h3>Supported tools reference</h3>
+        <p>Compare the native, configurable, import, symlink, and unsupported integrations in Agentlink v0.5.0.</p>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -741,6 +815,8 @@ agentlink sync --force</pre>
         <a href="https://github.com/snapsynapse/agentlink/security/policy" target="_blank" rel="noopener">Security policy</a>
         <a href="https://github.com/snapsynapse/agentlink/commits/main" target="_blank" rel="noopener">Revisions</a>
         <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">Upstream</a>
+        <a href="/guides/agents-md-symlinks/">Guides</a>
+        <a href="/reference/supported-tools/">Supported tools</a>
         <a href="/.well-known/assistant-guide.txt">Assistant guide</a>
         <a href="/llms.txt">llms.txt</a>
       </div>

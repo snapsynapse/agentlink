@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>AI coding tools and instruction-file paths | Agentlink</title>
+  <meta name="description" content="Agentlink v0.5.0 reference for AGENTS.md, CLAUDE.md, GEMINI.md, Copilot instructions, global paths, and preferred integration modes across 23 tools.">
+  <meta name="author" content="Sam Rogers">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="theme-color" content="#f97316">
+  <link rel="canonical" href="https://agentlink.run/reference/supported-tools/">
+  <link rel="stylesheet" href="/assets/docs.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable summary">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Agentlink">
+  <meta property="og:title" content="AI coding tools and instruction-file paths">
+  <meta property="og:description" content="Compare Agentlink&rsquo;s native, configurable, import, symlink, and unsupported integrations.">
+  <meta property="og:url" content="https://agentlink.run/reference/supported-tools/">
+  <meta property="og:image" content="https://agentlink.run/imgs/og.png">
+  <meta property="og:image:alt" content="Agentlink source and alias map for AI coding instruction files">
+  <meta property="article:published_time" content="2026-09-01T00:00:00Z">
+  <meta property="article:modified_time" content="2026-09-01T00:00:00Z">
+  <meta property="article:author" content="Sam Rogers">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI coding tools and instruction-file paths">
+  <meta name="twitter:description" content="Compare native, configurable, import, symlink, and unsupported integrations.">
+  <meta name="twitter:image" content="https://agentlink.run/imgs/og.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "AI coding tools and instruction-file paths",
+    "description": "Agentlink v0.5.0 reference for project files, global paths, and preferred integration modes across 23 AI coding tools.",
+    "url": "https://agentlink.run/reference/supported-tools/",
+    "mainEntityOfPage": "https://agentlink.run/reference/supported-tools/",
+    "datePublished": "2026-09-01",
+    "dateModified": "2026-09-01",
+    "inLanguage": "en",
+    "image": "https://agentlink.run/imgs/og.png",
+    "author": { "@type": "Person", "name": "Sam Rogers", "url": "https://snapsynapse.com/" },
+    "publisher": { "@type": "Organization", "name": "Snap Synapse", "url": "https://snapsynapse.com/" },
+    "about": { "@type": "SoftwareApplication", "name": "Agentlink", "url": "https://agentlink.run/", "softwareVersion": "0.5.0" }
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<nav class="site-nav" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a class="brand" href="/">Agentlink</a>
+    <div class="nav-links">
+      <a href="/guides/agents-md-symlinks/">Guides</a>
+      <a href="/reference/supported-tools/" aria-current="page">Supported tools</a>
+      <a href="https://github.com/snapsynapse/agentlink">GitHub</a>
+    </div>
+  </div>
+</nav>
+<main class="page" id="main-content">
+  <article>
+    <p class="eyebrow">Agentlink reference</p>
+    <h1>AI coding tools and instruction-file paths</h1>
+    <p class="lede">Agentlink v0.5.0 knows 23 tools. The registry distinguishes tools that read AGENTS.md natively from integrations better handled through configuration, imports, or explicit symlinks.</p>
+    <p class="meta"><span>By Sam Rogers</span><span>Published September 1, 2026</span><span>Checked against Agentlink v0.5.0</span></p>
+
+    <h2>Integration modes</h2>
+    <ul>
+      <li><strong>Native:</strong> the tool reads AGENTS.md at the stated scope.</li>
+      <li><strong>Configurable:</strong> configure the tool to read the shared source rather than creating another alias.</li>
+      <li><strong>Import:</strong> keep a real tool file and import the shared source.</li>
+      <li><strong>Symlink:</strong> use a filesystem alias when the tool expects a distinct filename.</li>
+      <li><strong>Unsupported:</strong> Agentlink detects the tool but does not claim a safe AGENTS.md integration.</li>
+    </ul>
+    <aside class="note"><strong>Preference, not automation:</strong> <code>agentlink detect --generate --prefer-native</code> reports the least invasive known option. Agentlink itself creates symlinks only; it does not rewrite another tool&rsquo;s settings or import files.</aside>
+
+    <h2>Supported tools in v0.5.0</h2>
+    <table>
+      <thead><tr><th>Tool</th><th>Global path</th><th>Project path</th><th>Preferred integration</th></tr></thead>
+      <tbody>
+        <tr><td>Aider</td><td>None</td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>Amp</td><td><code>~/.config/AGENTS.md</code></td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>Antigravity</td><td>None</td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>Autohand</td><td>None</td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>Claude Code</td><td><code>~/.claude/CLAUDE.md</code></td><td><code>CLAUDE.md</code></td><td>Import from a real wrapper</td></tr>
+        <tr><td>Cline</td><td>None</td><td>None</td><td>Unsupported</td></tr>
+        <tr><td>Continue</td><td><code>~/.continue/config.yaml</code></td><td>None</td><td>Unsupported</td></tr>
+        <tr><td>Crush</td><td>None</td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>Cursor</td><td>None</td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>Factory (Droid)</td><td><code>~/.factory/AGENTS.md</code></td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>Gemini CLI</td><td><code>~/.gemini/GEMINI.md</code></td><td><code>GEMINI.md</code></td><td>Configurable</td></tr>
+        <tr><td>GitHub Copilot</td><td>None</td><td><code>.github/copilot-instructions.md</code></td><td>Symlink</td></tr>
+        <tr><td>Goose</td><td><code>~/.config/goose/.goosehints</code></td><td><code>.goosehints</code></td><td>Symlink</td></tr>
+        <tr><td>Junie</td><td>None</td><td><code>.junie/AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>Kilo Code</td><td>None</td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>Kiro</td><td>None</td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>Codex CLI</td><td><code>~/.codex/AGENTS.md</code></td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>OpenClaw</td><td><code>~/.openclaw/workspace/AGENTS.md</code></td><td>None</td><td>Native global file</td></tr>
+        <tr><td>OpenCode</td><td><code>~/.config/opencode/AGENTS.md</code></td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>Qwen Code</td><td><code>~/.qwen/QWEN.md</code></td><td><code>QWEN.md</code></td><td>Symlink</td></tr>
+        <tr><td>RooCode</td><td>None</td><td><code>.roo/rules/rules.md</code></td><td>Symlink</td></tr>
+        <tr><td>Windsurf</td><td>None</td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+        <tr><td>Zed</td><td>None</td><td><code>AGENTS.md</code></td><td>Native</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Nested discovery is a separate capability</h2>
+    <p>A tool reading a root instruction file does not prove it discovers the same filename in nested directories. Agentlink enables nested scan aliases only when the registry includes a public behavior reference. In v0.5.0, Claude Code and Gemini CLI have documented nested discovery metadata. Other and unknown integrations remain root-only during <code>scan --nested</code>.</p>
+
+    <h2>Keep the reference honest</h2>
+    <p>The Go registry in <a href="https://github.com/snapsynapse/agentlink/blob/main/internal/registry/tools.go"><code>internal/registry/tools.go</code></a> is the source for detection paths and integration metadata. A documentation contract checks that the repository README stays aligned with it. Tool behavior can change independently, so confirm the current vendor documentation before relying on a non-native integration in a sensitive workflow.</p>
+
+    <nav class="related" aria-label="Related Agentlink guides">
+      <a href="/guides/agents-md-symlinks/"><strong>AGENTS.md symlinks</strong><span>Set up one source and several aliases.</span></a>
+      <a href="/guides/claude-md-and-agents-md/"><strong>CLAUDE.md and AGENTS.md</strong><span>Choose an identical alias or layered wrapper.</span></a>
+      <a href="/guides/monorepo-instruction-files/"><strong>Monorepo instruction files</strong><span>Control root and nested scopes safely.</span></a>
+      <a href="/"><strong>Agentlink overview</strong><span>Install the CLI and review its safety model.</span></a>
+    </nav>
+  </article>
+</main>
+<footer class="site-footer"><div class="footer-inner">Agentlink is free, open-source software from <a href="https://snapsynapse.com/">Snap Synapse</a>. <a href="https://github.com/snapsynapse/agentlink/blob/main/LICENSE">MIT license</a>.</div></footer>
+</body>
+</html>

@@ -31,6 +31,13 @@ The AI posture is likewise tracked as byte-identical root and served copies. It
 states the local-only data and execution boundaries of the CLI; it is not an
 API or a claim about the behavior of tools Agentlink configures.
 
+## Website guides
+
+- [How to sync AGENTS.md with symlinks](https://agentlink.run/guides/agents-md-symlinks/)
+- [CLAUDE.md and AGENTS.md: symlink or wrapper?](https://agentlink.run/guides/claude-md-and-agents-md/)
+- [AI instruction files in monorepos](https://agentlink.run/guides/monorepo-instruction-files/)
+- [Supported tools and instruction-file paths](https://agentlink.run/reference/supported-tools/)
+
 ---
 
 ## Why Agentlink?

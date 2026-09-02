@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">One source file linked to four AI tool instruction aliases</title>
+  <desc id="desc">AGENTS.md is the real source file. CLAUDE.md, GEMINI.md, .cursorrules, and GitHub Copilot instructions are aliases pointing back to it.</desc>
+  <rect width="1200" height="675" rx="28" fill="#0f1117"/>
+  <text x="600" y="74" fill="#e7e9ef" font-family="system-ui, sans-serif" font-size="38" font-weight="700" text-anchor="middle">One source, many tool-specific paths</text>
+  <rect x="90" y="245" width="310" height="165" rx="18" fill="#242836" stroke="#f97316" stroke-width="4"/>
+  <text x="245" y="315" fill="#fb923c" font-family="ui-monospace, monospace" font-size="34" font-weight="700" text-anchor="middle">AGENTS.md</text>
+  <text x="245" y="358" fill="#e7e9ef" font-family="system-ui, sans-serif" font-size="24" text-anchor="middle">real file you edit</text>
+  <g stroke="#fb923c" stroke-width="4" fill="none">
+    <path d="M420 327 H535"/>
+    <path d="M515 309 L535 327 L515 345"/>
+  </g>
+  <g font-family="ui-monospace, monospace" font-size="25">
+    <rect x="580" y="125" width="510" height="82" rx="14" fill="#1a1d27" stroke="#34394d" stroke-width="3"/>
+    <text x="835" y="176" fill="#e7e9ef" text-anchor="middle">CLAUDE.md</text>
+    <rect x="580" y="235" width="510" height="82" rx="14" fill="#1a1d27" stroke="#34394d" stroke-width="3"/>
+    <text x="835" y="286" fill="#e7e9ef" text-anchor="middle">GEMINI.md</text>
+    <rect x="580" y="345" width="510" height="82" rx="14" fill="#1a1d27" stroke="#34394d" stroke-width="3"/>
+    <text x="835" y="396" fill="#e7e9ef" text-anchor="middle">.cursorrules</text>
+    <rect x="580" y="455" width="510" height="82" rx="14" fill="#1a1d27" stroke="#34394d" stroke-width="3"/>
+    <text x="835" y="506" fill="#e7e9ef" text-anchor="middle">.github/copilot-instructions.md</text>
+  </g>
+  <g fill="#a4a9b7" font-family="system-ui, sans-serif" font-size="22" text-anchor="middle">
+    <text x="600" y="594">Use a real wrapper when one tool needs additional instructions.</text>
+  </g>
+</svg>
