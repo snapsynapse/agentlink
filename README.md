@@ -126,6 +126,10 @@ Binaries: `darwin-arm64`, `darwin-amd64`, `linux-amd64`, `linux-arm64`.
 go install github.com/snapsynapse/agentlink/cmd/agentlink@latest
 ```
 
+Source builds require Go 1.23 or newer. CI verifies the minimum contract with
+Go 1.23.12 and current Go 1.26.8 and 1.27.1 releases, including Go 1.27.1 on
+macOS.
+
 This puts the binary in your Go bin directory (usually `~/go/bin/`). Make sure it's in your PATH:
 
 ```bash

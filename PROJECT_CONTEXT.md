@@ -50,10 +50,12 @@ Snap Synapse project. Upstream attribution is preserved in `NOTICE`.
 - Actively maintained; v0.4.2 packages the 2026-08-20 repository lifecycle,
   deterministic release, accessibility, search-contract, trust-anchor, and
   GitHub configuration work
-- CI (GitHub Actions, `.github/workflows/ci.yml`) enforces build, unit tests,
-  integration tests, the race detector, module consistency, `gofmt`, `go vet`,
-  `staticcheck`, spelling, workflow semantics, reachable-vulnerability checks,
-  and release-script syntax on every push/PR
+- CI (GitHub Actions, `.github/workflows/ci.yml`) verifies the Go 1.23.12
+  minimum contract, current Go 1.26.8 and 1.27.1 releases, and Go 1.27.1 on
+  macOS. It enforces build, unit tests, integration tests, the race detector,
+  module consistency, `gofmt`, `go vet`, Staticcheck 2026.2.1, spelling,
+  workflow semantics, reachable-vulnerability checks, and release-script
+  syntax on every push/PR
 - Distribution: Homebrew tap, pre-built binaries (darwin/linux, amd64/arm64),
   direct `go install`; AUR package listed as planned/not yet shipped
 - Tool registry covers ~23 AI coding tools; new tools are added via PR to

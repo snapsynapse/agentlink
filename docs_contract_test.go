@@ -37,6 +37,20 @@ func TestPublishedGoInstallUsesCanonicalModule(t *testing.T) {
 	}
 }
 
+func TestPublishedGoCompatibilityContract(t *testing.T) {
+	for _, path := range []string{"README.md", "docs/index.html", "docs/llms.txt"} {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, want := range []string{"Go 1.23", "1.26.8", "1.27.1"} {
+			if !strings.Contains(string(data), want) {
+				t.Errorf("%s missing Go compatibility marker %q", path, want)
+			}
+		}
+	}
+}
+
 func TestPublishedLayeringAndNestedScanContract(t *testing.T) {
 	const jonathanGuide = "https://limitededitionjonathan.substack.com/p/i-wrote-this-agentsmd-guide-for-the"
 	wants := map[string][]string{

@@ -6,7 +6,7 @@ Sync one AGENTS.md to every AI coding tool on your machine, with zero magic, jus
 
 Agentlink is a small Go CLI that keeps AI coding assistant instruction files in sync across every tool on a machine by declaring one real source file and symlinking tool-specific aliases to it. Tools expect different filenames (AGENTS.md for Codex, Cursor, OpenCode, Crush, and Kiro; CLAUDE.md for Claude Code; GEMINI.md for Gemini CLI; QWEN.md for Qwen Code; .github/copilot-instructions.md for GitHub Copilot) and different global paths (~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.openclaw/workspace/AGENTS.md). Agentlink fixes identical-file drift without code generation. When a tool needs additional guidance, its real wrapper can import the shared source and remain intentionally unmanaged while Agentlink manages the other aliases. The registry covers 23 tools and records each tool's preferred native, configurable, import, symlink, or unsupported integration.
 
-Install: brew install snapsynapse/tap/agentlink, or go install github.com/snapsynapse/agentlink/cmd/agentlink@latest. Pre-built binaries are linked from README.md.
+Install: brew install snapsynapse/tap/agentlink, or go install github.com/snapsynapse/agentlink/cmd/agentlink@latest. Source builds require Go 1.23 or newer; CI verifies Go 1.23.12, 1.26.8, and 1.27.1, with Go 1.27.1 also covered on macOS. Pre-built binaries are linked from README.md.
 Current release: v0.4.2.
 
 Scope is deliberately narrow: instruction files only. No MCP servers, no chain configs, no templating.

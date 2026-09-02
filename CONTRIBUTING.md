@@ -27,9 +27,11 @@ sending a pull request.
 ## Code style
 
 - `gofmt -s` clean. `go vet ./...` clean. `staticcheck ./...` clean.
-- CI pins Go 1.23 and `staticcheck` 2025.1.1. Use that pair for exact local
-  parity; a `staticcheck` binary built for an older export format may reject
-  packages compiled by a newer Go toolchain before analysis begins.
+- The Go directive remains the minimum consumer contract: 1.23. CI tests
+  exact Go 1.23.12, 1.26.8, and 1.27.1, with the current stable release also
+  exercised on macOS. Staticcheck 2026.2.1 runs on the Go 1.27.1 quality lane
+  because it supports Go 1.27 and itself requires Go 1.26 or newer. Do not run
+  an older Staticcheck binary against packages compiled by a newer Go release.
 - No new runtime dependencies unless discussed in an issue first. The
   compiled binary has zero runtime dependencies today — keeping it that
   way is a feature.

@@ -30,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation now links Jonathan Whitaker's nested symlink workaround and
   frames the supported pattern as symlinks by default with real wrappers at
   exception points.
+- CI now verifies the Go 1.23.12 minimum contract and current Go 1.26.8 and
+  1.27.1 releases, with Go 1.27.1 also covered on macOS. Staticcheck 2026.2.1
+  runs on the stable quality lane instead of pairing an older analyzer with a
+  newer compiler's export data.
 
 ### Fixed
 
