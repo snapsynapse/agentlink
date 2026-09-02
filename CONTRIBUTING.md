@@ -85,14 +85,14 @@ Read `RELEASE_CHECKLIST.md` first. Release preparation and publication are
 separate. Prepare and verify deterministic assets without external writes:
 
 ```bash
-scripts/prepare-release.sh 0.4.2
+scripts/prepare-release.sh 0.5.0
 ```
 
 After the reviewed release commit is merged and exact-head CI passes, run the
 publication command from clean, synchronized `main`:
 
 ```bash
-scripts/release.sh 0.4.2
+scripts/release.sh 0.5.0
 ```
 
 It tags the existing commit, publishes the declared assets, updates the

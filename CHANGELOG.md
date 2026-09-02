@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-01
+
 ### Added
 
+- A byte-identical root and served AI Posture declaration describing the
+  CLI's local-only data and execution boundaries.
 - Integration metadata that distinguishes native, configurable, import,
   symlink, and unsupported AGENTS.md consumption paths.
 - `detect --generate --prefer-native` recommendations for Claude imports and
@@ -22,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- OpenGraph image assets now use the portfolio-standard 1200×630 dimensions.
 - `scan` now treats a repository's `.agentlink.yaml` as authoritative and
   preserves undeclared real wrapper files during automatic scanning.
 - Documentation now distinguishes identical symlink aliases from layered
@@ -34,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   1.27.1 releases, with Go 1.27.1 also covered on macOS. Staticcheck 2026.2.1
   runs on the stable quality lane instead of pairing an older analyzer with a
   newer compiler's export data.
+- CI now uses Govulncheck 1.7.0, which is compatible with the Go 1.27 stable
+  quality lane.
 
 ### Fixed
 
@@ -271,7 +278,8 @@ by Martin Mose Facondini (MIT). Fork additions offered back upstream in
 [martinmose/agentlink#2](https://github.com/martinmose/agentlink/pull/2).
 See [NOTICE](NOTICE) for the full fork provenance.
 
-[Unreleased]: https://github.com/snapsynapse/agentlink/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/snapsynapse/agentlink/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/snapsynapse/agentlink/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/snapsynapse/agentlink/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/snapsynapse/agentlink/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/snapsynapse/agentlink/compare/v0.3.0...v0.4.0

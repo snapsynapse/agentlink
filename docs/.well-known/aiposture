@@ -1,0 +1,27 @@
+AI Posture: Agentlink
+Status: active
+Last updated: 2026-09-01
+Canonical URL: https://agentlink.run/.well-known/aiposture
+
+Product boundary
+Agentlink is a local command-line utility for managing user-selected AI coding
+instruction-file aliases. It is not an AI model, hosted AI service, API, agent
+runtime, or remote-execution service.
+
+Data residency: local filesystem only
+Agentlink reads and writes only paths selected through local configuration or
+command arguments. It sends no instruction-file content, configuration, or
+usage data over the network. It includes no telemetry, analytics, credential
+collection, or remote content generation.
+
+User control
+Users choose the source and alias paths. Dry-run previews planned filesystem
+changes. Replacing regular files requires an explicit backup or force choice;
+directories and special files are refused.
+
+AI scope
+Agentlink preserves instruction-file bytes. It does not interpret, transform,
+generate, or determine the precedence of those instructions. The configured AI
+tools retain their own behavior, policies, and data handling.
+
+Security contact: https://github.com/snapsynapse/agentlink/security/advisories/new

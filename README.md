@@ -21,10 +21,15 @@ Agentlink publishes a GuideCheck Human-Verifiable Assistant Guide for bounded lo
 
 - Assistant guide: https://agentlink.run/.well-known/assistant-guide.txt
 - Manifest: https://agentlink.run/.well-known/assistant-guide-manifest.txt
+- AI posture: https://agentlink.run/.well-known/aiposture
 - Target conformance: GuideCheck Level 4, the highest guide-file level. Level 5 requires a conformant assistant runtime and is not claimed by this repository.
 
 The guide and manifest are tracked twice: review copies at repository root and byte-identical served copies under `docs/.well-known/`. The independent copies are the Level 4 trust anchor; CI rejects drift.
 Before asking an assistant to perform local Agentlink setup or verification work, verify the guide, read it in full, and approve proceeding under the reported level.
+
+The AI posture is likewise tracked as byte-identical root and served copies. It
+states the local-only data and execution boundaries of the CLI; it is not an
+API or a claim about the behavior of tools Agentlink configures.
 
 ---
 
@@ -145,7 +150,7 @@ export PATH="$HOME/go/bin:$PATH"
 
 - **AUR**: `yay -S agentlink-bin`
 
-Current release: **v0.4.2**.
+Current release: **v0.5.0**.
 
 ---
 

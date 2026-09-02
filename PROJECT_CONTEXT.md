@@ -47,9 +47,8 @@ Snap Synapse project. Upstream attribution is preserved in `NOTICE`.
 
 ## Current status
 
-- Actively maintained; v0.4.2 packages the 2026-08-20 repository lifecycle,
-  deterministic release, accessibility, search-contract, trust-anchor, and
-  GitHub configuration work
+- Actively maintained; v0.5.0 adds layered-instruction workflows, deterministic
+  scan contracts, and current Go compatibility coverage
 - CI (GitHub Actions, `.github/workflows/ci.yml`) verifies the Go 1.23.12
   minimum contract, current Go 1.26.8 and 1.27.1 releases, and Go 1.27.1 on
   macOS. It enforces build, unit tests, integration tests, the race detector,

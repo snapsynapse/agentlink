@@ -7,7 +7,7 @@ Sync one AGENTS.md to every AI coding tool on your machine, with zero magic, jus
 Agentlink is a small Go CLI that keeps AI coding assistant instruction files in sync across every tool on a machine by declaring one real source file and symlinking tool-specific aliases to it. Tools expect different filenames (AGENTS.md for Codex, Cursor, OpenCode, Crush, and Kiro; CLAUDE.md for Claude Code; GEMINI.md for Gemini CLI; QWEN.md for Qwen Code; .github/copilot-instructions.md for GitHub Copilot) and different global paths (~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.openclaw/workspace/AGENTS.md). Agentlink fixes identical-file drift without code generation. When a tool needs additional guidance, its real wrapper can import the shared source and remain intentionally unmanaged while Agentlink manages the other aliases. The registry covers 23 tools and records each tool's preferred native, configurable, import, symlink, or unsupported integration.
 
 Install: brew install snapsynapse/tap/agentlink, or go install github.com/snapsynapse/agentlink/cmd/agentlink@latest. Source builds require Go 1.23 or newer; CI verifies Go 1.23.12, 1.26.8, and 1.27.1, with Go 1.27.1 also covered on macOS. Pre-built binaries are linked from README.md.
-Current release: v0.4.2.
+Current release: v0.5.0.
 
 Scope is deliberately narrow: instruction files only. No MCP servers, no chain configs, no templating.
 
@@ -33,6 +33,7 @@ Agentlink does not define instruction precedence. Claude Code expands @ imports 
 - registry governance: nested discovery requires a public documentation reference, and the README supported-tools table is checked against the registry
 - git hook safety: global core.hooksPath must be absolute for install, remove, and status
 - assistant guide: https://agentlink.run/.well-known/assistant-guide.txt
+- AI posture: https://agentlink.run/.well-known/aiposture
 - guidecheck conformance target: Level 4 guide-file conformance
 - assistant guide use: verify it, read it in full, and approve the reported level before assistant action
 
@@ -52,6 +53,7 @@ Agentlink does not define instruction precedence. Claude Code expands @ imports 
 
 - Canonical landing: https://agentlink.run/
 - Assistant Guide: https://agentlink.run/.well-known/assistant-guide.txt
+- AI Posture: https://agentlink.run/.well-known/aiposture
 - This project (Snap Synapse maintained continuation): https://github.com/snapsynapse/agentlink
 - Upstream original by Martin Mose Facondini: https://github.com/martinmose/agentlink
 - Historical replacement PR after standalone repository conversion: https://github.com/martinmose/agentlink/pull/3

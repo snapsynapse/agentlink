@@ -1,6 +1,8 @@
 package main
 
 import (
+	"image"
+	_ "image/png"
 	"os"
 	"strings"
 	"testing"
@@ -8,6 +10,58 @@ import (
 	"github.com/snapsynapse/agentlink/internal/config"
 	"github.com/snapsynapse/agentlink/internal/registry"
 )
+
+func TestOpenGraphImagesFollowPortfolioDimensions(t *testing.T) {
+	const wantWidth, wantHeight = 1200, 630
+	var first []byte
+	for _, path := range []string{"imgs/og.png", "docs/imgs/og.png"} {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		config, _, err := image.DecodeConfig(strings.NewReader(string(data)))
+		if err != nil {
+			t.Fatalf("decode %s: %v", path, err)
+		}
+		if config.Width != wantWidth || config.Height != wantHeight {
+			t.Errorf("%s dimensions = %dx%d, want %dx%d", path, config.Width, config.Height, wantWidth, wantHeight)
+		}
+		if first == nil {
+			first = data
+		} else if string(data) != string(first) {
+			t.Errorf("%s does not match imgs/og.png", path)
+		}
+	}
+}
+
+func TestAIPostureTrustAnchorsMatch(t *testing.T) {
+	const postureURL = "https://agentlink.run/.well-known/aiposture"
+	root, err := os.ReadFile("aiposture")
+	if err != nil {
+		t.Fatal(err)
+	}
+	served, err := os.ReadFile("docs/.well-known/aiposture")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(root) != string(served) {
+		t.Fatal("AI Posture trust-anchor copies differ")
+	}
+	for _, want := range []string{"AI Posture: Agentlink", "Data residency: local filesystem only", postureURL} {
+		if !strings.Contains(string(root), want) {
+			t.Errorf("aiposture missing %q", want)
+		}
+	}
+	for _, path := range []string{"README.md", "docs/index.html", "docs/llms.txt"} {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !strings.Contains(string(data), postureURL) {
+			t.Errorf("%s does not link to AI Posture", path)
+		}
+	}
+}
 
 func TestPublishedHookExamplesIncludeRequiredSelector(t *testing.T) {
 	for _, path := range []string{"README.md", "docs/index.html"} {
@@ -164,32 +218,32 @@ func TestReadmeSupportedToolsTableMatchesRegistry(t *testing.T) {
 }
 
 func TestReleaseSurfacesUseCurrentVersion(t *testing.T) {
-	const version = "v0.4.2"
+	const version = "v0.5.0"
 	wants := map[string][]string{
-		"CHANGELOG.md": {"## [0.4.2] - 2026-08-20"},
-		"SECURITY.md":  {"| 0.4.x   | Yes"},
+		"CHANGELOG.md": {"## [0.5.0] - 2026-09-01"},
+		"SECURITY.md":  {"| 0.5.x   | Yes"},
 		"docs/index.html": {
-			"Agentlink v0.4.2",
-			"/releases/tag/v0.4.2",
-			"/releases/download/v0.4.2/agentlink-darwin-arm64",
+			"Agentlink v0.5.0",
+			"/releases/tag/v0.5.0",
+			"/releases/download/v0.5.0/agentlink-darwin-arm64",
 		},
-		"docs/llms.txt": {"Current release: v0.4.2."},
+		"docs/llms.txt": {"Current release: v0.5.0."},
 		"docs/.well-known/assistant-guide.txt": {
-			"guide-version: 1.2.2",
-			"go install github.com/snapsynapse/agentlink/cmd/agentlink@v0.4.2",
-			"/releases/download/v0.4.2/agentlink-darwin-arm64",
+			"guide-version: 1.2.3",
+			"go install github.com/snapsynapse/agentlink/cmd/agentlink@v0.5.0",
+			"/releases/download/v0.5.0/agentlink-darwin-arm64",
 		},
 		"docs/.well-known/assistant-guide-manifest.txt": {
-			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.4.2/",
+			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.5.0/",
 		},
 		"assistant-guide.txt": {
-			"guide-version: 1.2.2",
-			"applies-to: agentlink >=0.4.2",
+			"guide-version: 1.2.3",
+			"applies-to: agentlink >=0.5.0",
 		},
 		"assistant-guide-manifest.txt": {
-			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.4.2/",
+			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.5.0/",
 		},
-		"RELEASE_NOTES-0.4.2.md": {"# Agentlink v0.4.2"},
+		"RELEASE_NOTES-0.5.0.md": {"# Agentlink v0.5.0"},
 	}
 
 	for path, required := range wants {

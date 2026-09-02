@@ -80,7 +80,7 @@ jobs:
 
     - name: Check reachable vulnerabilities
       if: matrix.quality
-      run: go install golang.org/x/vuln/cmd/govulncheck@v1.1.4 && govulncheck ./...
+      run: go install golang.org/x/vuln/cmd/govulncheck@v1.7.0 && govulncheck ./...
 
     - name: Check workflow semantics
       if: matrix.quality

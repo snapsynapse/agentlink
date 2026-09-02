@@ -10,15 +10,15 @@ Before acting:
 identifier: assistant-guide
 profile: human-verifiable-assistant-guide
 profile-version: 0.7.1
-guide-version: 1.2.2
-applies-to: agentlink >=0.4.2
+guide-version: 1.2.3
+applies-to: agentlink >=0.5.0
 canonical-url: https://agentlink.run/.well-known/assistant-guide.txt
 repository-url: https://github.com/snapsynapse/agentlink
 source-path: docs/.well-known/assistant-guide.txt
-last-reviewed: 2026-08-20
+last-reviewed: 2026-09-01
 reviewed-by: Snap Synapse
 status: active
-valid-until: 2026-11-20
+valid-until: 2026-12-01
 recommended-verifier: https://guidecheck.org/verify
 verifier-conformance: human-verifiable-assistant-guide-verifier >=0.7.1, <0.8.0
 manifest-url: https://agentlink.run/.well-known/assistant-guide-manifest.txt
@@ -70,7 +70,7 @@ notes: Taps snapsynapse/homebrew-tap and installs agentlink from GitHub release 
 id: install-via-go
 class: networked, persistence-changing, code-executing
 approval: required
-command: go install github.com/snapsynapse/agentlink/cmd/agentlink@v0.4.2
+command: go install github.com/snapsynapse/agentlink/cmd/agentlink@v0.5.0
 runner: argv
 cwd: .
 egress: github.com, proxy.golang.org, sum.golang.org
@@ -81,7 +81,7 @@ notes: Requires Go 1.23+ and installs the pinned release into the configured Go 
 id: download-binary
 class: networked, persistence-changing
 approval: required
-command: curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.4.2/agentlink-darwin-arm64
+command: curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.5.0/agentlink-darwin-arm64
 runner: argv
 cwd: .
 egress: github.com, objects.githubusercontent.com
@@ -92,7 +92,7 @@ notes: Fallback path. Substitute darwin-amd64, linux-amd64, or linux-arm64 in th
 id: verify-checksum
 class: networked
 approval: required
-command: curl -L -o SHA256SUMS.txt https://github.com/snapsynapse/agentlink/releases/download/v0.4.2/SHA256SUMS.txt
+command: curl -L -o SHA256SUMS.txt https://github.com/snapsynapse/agentlink/releases/download/v0.5.0/SHA256SUMS.txt
 runner: argv
 cwd: .
 egress: github.com, objects.githubusercontent.com
