@@ -105,8 +105,20 @@ func TestPublishedGoCompatibilityContract(t *testing.T) {
 	}
 }
 
+func TestLandingPageBylineIncludesLastUpdatedDate(t *testing.T) {
+	data, err := os.ReadFile("docs/index.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	const want = "Last updated <time datetime=\"2026-09-01\">September 1, 2026</time>"
+	if !strings.Contains(string(data), want) {
+		t.Errorf("landing page byline missing %q", want)
+	}
+}
+
 func TestPublishedLayeringAndNestedScanContract(t *testing.T) {
 	const jonathanGuide = "https://limitededitionjonathan.substack.com/p/i-wrote-this-agentsmd-guide-for-the"
+	const attribution = "Limited Edition Jonathan"
 	wants := map[string][]string{
 		"README.md": {
 			"Identical aliases vs. layered wrappers",
@@ -136,6 +148,12 @@ func TestPublishedLayeringAndNestedScanContract(t *testing.T) {
 			if !strings.Contains(string(data), want) {
 				t.Errorf("%s missing layering contract %q", path, want)
 			}
+		}
+		if !strings.Contains(string(data), attribution) {
+			t.Errorf("%s missing attribution %q", path, attribution)
+		}
+		if strings.Contains(string(data), "Jonathan"+" Whitaker") {
+			t.Errorf("%s has superseded attribution", path)
 		}
 	}
 }

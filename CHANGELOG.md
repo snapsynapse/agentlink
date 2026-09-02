@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Documentation credits Limited Edition Jonathan's nested symlink workaround.
+
 ## [0.5.0] - 2026-09-01
 
 ### Added
@@ -32,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation now distinguishes identical symlink aliases from layered
   tool-specific wrappers and leaves import and directory precedence to the
   consuming harness.
-- Documentation now links Jonathan Whitaker's nested symlink workaround and
+- Documentation now links Limited Edition Jonathan's nested symlink workaround and
   frames the supported pattern as symlinks by default with real wrappers at
   exception points.
 - CI now verifies the Go 1.23.12 minimum contract and current Go 1.26.8 and
