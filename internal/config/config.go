@@ -112,16 +112,15 @@ func expandPath(path, baseDir string) (string, error) {
 
 // FindConfigPath finds the appropriate config file path
 // Returns project config (.agentlink.yaml) if exists, otherwise global config path
-func FindConfigPath() (string, bool) {
-	// Check for project config first
+func FindConfigPath() (string, bool, error) {
 	projectConfig := ".agentlink.yaml"
-	if _, err := os.Stat(projectConfig); err == nil {
-		abs, _ := filepath.Abs(projectConfig)
-		return abs, true
+	if _, err := os.Lstat(projectConfig); err == nil {
+		abs, err := filepath.Abs(projectConfig)
+		return abs, true, err
+	} else if !os.IsNotExist(err) {
+		return "", false, fmt.Errorf("cannot inspect project config: %w", err)
 	}
-
-	// Return global config path (may not exist yet)
-	return GlobalConfigPath(), false
+	return GlobalConfigPath(), false, nil
 }
 
 // GlobalConfigPath returns the user-level agentlink config path.

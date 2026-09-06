@@ -7,9 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-05
+
+### Fixed
+
+- Hook removal honors dry-run, including launchd. Unsupported Git-hook interpreters are preserved; shell hook installation runs before an existing early exit.
+- Shared link preflight protects the source before backups, resolves symlinked parent directories correctly, and preserves unknown broken links unless forced. Backup mode only authorizes regular-file replacement.
+- Dangling project configuration fails explicitly instead of selecting global scope or automatic scan defaults.
+- Assistant-guide checksum verification is an executable action, tested against tampering. The revised guide is anchored to this release.
+- Website configuration examples separate YAML from shell commands; mobile navigation remains available. Accessibility CI covers all sitemap routes.
+
 ### Changed
 
 - Documentation credits Limited Edition Jonathan's nested symlink workaround.
+- Refresh tool integration paths, detection commands, vendor references, and caveats. Consolidate the complete generated support listing on the homepage, including supported OS and CPU combinations.
+- Add explicit `--global` selection to sync, check, and clean.
+- Clarify scope selection, independent monorepo sources, registry maintenance, and partial-release recovery.
 
 ## [0.5.0] - 2026-09-01
 
@@ -282,7 +295,8 @@ by Martin Mose Facondini (MIT). Fork additions offered back upstream in
 [martinmose/agentlink#2](https://github.com/martinmose/agentlink/pull/2).
 See [NOTICE](NOTICE) for the full fork provenance.
 
-[Unreleased]: https://github.com/snapsynapse/agentlink/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/snapsynapse/agentlink/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/snapsynapse/agentlink/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/snapsynapse/agentlink/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/snapsynapse/agentlink/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/snapsynapse/agentlink/compare/v0.4.0...v0.4.1

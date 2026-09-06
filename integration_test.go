@@ -272,7 +272,14 @@ func TestIntegrationDetectGenerate(t *testing.T) {
 	}
 
 	binaryPath := integrationBinaryPath
+	// Detection is an environment probe: provide a known tool instead of
+	// depending on tools installed on the developer or CI host.
+	home := t.TempDir()
+	if err := os.Mkdir(filepath.Join(home, ".claude"), 0755); err != nil {
+		t.Fatal(err)
+	}
 	cmd := exec.Command(binaryPath, "detect", "--generate")
+	cmd.Env = append(os.Environ(), "HOME="+home, "PATH="+t.TempDir())
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("detect --generate failed: %v\n%s", err, output)
@@ -282,7 +289,7 @@ func TestIntegrationDetectGenerate(t *testing.T) {
 	if err != nil {
 		t.Fatalf(".agentlink.yaml not created: %v", err)
 	}
-	if !strings.Contains(string(data), "source: AGENTS.md") {
+	if !strings.Contains(string(data), "source: AGENTS.md") || !strings.Contains(string(data), "CLAUDE.md") {
 		t.Errorf("generated config missing source line:\n%s", data)
 	}
 }
@@ -408,8 +415,6 @@ func TestIntegrationScanNestedTopologyAndIdempotence(t *testing.T) {
 
 	for path, target := range map[string]string{
 		filepath.Join(unconfiguredRepo, "GEMINI.md"):    "AGENTS.md",
-		filepath.Join(unconfiguredRepo, ".goosehints"):  "AGENTS.md",
-		filepath.Join(unconfiguredRepo, "QWEN.md"):      "AGENTS.md",
 		filepath.Join(unconfiguredPackage, "CLAUDE.md"): "AGENTS.md",
 		filepath.Join(unconfiguredPackage, "GEMINI.md"): "AGENTS.md",
 		filepath.Join(configuredRepo, "GEMINI.md"):      "GUIDE.md",
@@ -492,8 +497,6 @@ func TestIntegrationScanNestedDryRunIsBytePreservingAndComplete(t *testing.T) {
 	expectedCreates := []string{
 		"[create] repo/CLAUDE.md -> AGENTS.md",
 		"[create] repo/GEMINI.md -> AGENTS.md",
-		"[create] repo/.goosehints -> AGENTS.md",
-		"[create] repo/QWEN.md -> AGENTS.md",
 		"[create] repo/packages/api/CLAUDE.md -> AGENTS.md",
 		"[create] repo/packages/api/GEMINI.md -> AGENTS.md",
 	}

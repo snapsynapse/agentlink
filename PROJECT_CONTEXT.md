@@ -47,7 +47,10 @@ Snap Synapse project. Upstream attribution is preserved in `NOTICE`.
 
 ## Current status
 
-- Actively maintained; v0.5.0 adds layered-instruction workflows, deterministic
+- v0.6.0: review mitigations, refreshed registry with vendor evidence,
+  generated homepage support listing, and explicit --global selection.
+  Assistant guide 1.2.4 targets the v0.6.0 immutable release anchor.
+- Actively maintained; v0.5.0 added layered-instruction workflows, deterministic
   scan contracts, and current Go compatibility coverage
 - CI (GitHub Actions, `.github/workflows/ci.yml`) verifies the Go 1.23.12
   minimum contract, current Go 1.26.8 and 1.27.1 releases, and Go 1.27.1 on

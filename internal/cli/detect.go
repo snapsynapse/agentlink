@@ -104,7 +104,7 @@ func generateConfig(detected []registry.Detected) error {
 		if integration == registry.IntegrationUnsupported {
 			unsupportedCount++
 		}
-		if detectPreferNative && (integration == registry.IntegrationNative || integration == registry.IntegrationConfigurable || integration == registry.IntegrationImport) {
+		if (detectPreferNative || d.Tool.RepoFileName == "AGENTS.md") && (integration == registry.IntegrationNative || integration == registry.IntegrationConfigurable || integration == registry.IntegrationImport) {
 			if integration != registry.IntegrationNative {
 				recommendations = append(recommendations, d.Tool)
 			}
@@ -172,7 +172,11 @@ func printIntegrationRecommendations(tools []registry.Tool) {
 		case registry.IntegrationImport:
 			printInfo("%s: keep %s as a real file and import @AGENTS.md", tool.Name, tool.RepoFileName)
 		case registry.IntegrationConfigurable:
-			printInfo("%s: configure the tool to load AGENTS.md directly", tool.Name)
+			if tool.IntegrationNotes != "" {
+				printInfo("%s: %s", tool.Name, tool.IntegrationNotes)
+			} else {
+				printInfo("%s: configure the tool to load AGENTS.md directly", tool.Name)
+			}
 		}
 	}
 }

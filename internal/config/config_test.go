@@ -208,7 +208,10 @@ func TestFindConfigPath(t *testing.T) {
 	tmpDir := t.TempDir()
 	os.Chdir(tmpDir)
 
-	path, isProject := FindConfigPath()
+	path, isProject, err := FindConfigPath()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if isProject {
 		t.Error("Expected global config, got project config")
 	}
@@ -223,7 +226,10 @@ func TestFindConfigPath(t *testing.T) {
 	projectConfig := ".agentlink.yaml"
 	os.WriteFile(projectConfig, []byte("source: test.md\nlinks: [test.md]"), 0644)
 
-	path, isProject = FindConfigPath()
+	path, isProject, err = FindConfigPath()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !isProject {
 		t.Error("Expected project config, got global config")
 	}

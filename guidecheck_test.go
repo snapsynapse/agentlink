@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -86,6 +88,9 @@ func TestGuideCheckManifestMatchesGuide(t *testing.T) {
 			t.Fatalf("manifest missing %s", key)
 		}
 	}
+	if manifest["immutable-release-url"] == "pending-publication" && !strings.Contains(string(guide), "\nstatus: draft\n") {
+		t.Fatal("a guide without an immutable anchor must remain draft")
+	}
 }
 
 func TestGuideCheckTrustAnchorsMatch(t *testing.T) {
@@ -105,6 +110,58 @@ func TestGuideCheckTrustAnchorsMatch(t *testing.T) {
 		if string(reviewCopy) != string(servedCopy) {
 			t.Fatalf("trust-anchor drift between %s and %s", pair[0], pair[1])
 		}
+	}
+}
+
+func TestGuideChecksumActionRejectsTamperingAndMissingEntries(t *testing.T) {
+	guide, err := os.ReadFile("assistant-guide.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	commands := []string{}
+	for _, id := range []string{"verify-checksum-entry", "verify-checksum"} {
+		_, block, ok := strings.Cut(string(guide), "id: "+id+"\n")
+		if !ok {
+			t.Fatal("missing verification action", id)
+		}
+		block, _, _ = strings.Cut(block, "[/action]")
+		_, command, ok := strings.Cut(block, "command: ")
+		if !ok {
+			t.Fatal("missing command", id)
+		}
+		command, _, _ = strings.Cut(command, "\n")
+		commands = append(commands, command)
+	}
+	sum := sha256.Sum256([]byte("original binary"))
+	for _, tc := range []struct {
+		name, binary, checksums string
+		wantSuccess             bool
+	}{
+		{"valid", "original binary", fmt.Sprintf("%x  agentlink-darwin-arm64\n", sum), true},
+		{"tampered", "modified binary", fmt.Sprintf("%x  agentlink-darwin-arm64\n", sum), false},
+		{"missing-entry", "original binary", fmt.Sprintf("%x  other-binary\n", sum), false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			for path, text := range map[string]string{"agentlink-darwin-arm64": tc.binary, "SHA256SUMS.txt": tc.checksums} {
+				if err := os.WriteFile(filepath.Join(dir, path), []byte(text), 0644); err != nil {
+					t.Fatal(err)
+				}
+			}
+			var checkErr error
+			var output []byte
+			for _, command := range commands {
+				cmd := exec.Command("sh", "-c", command)
+				cmd.Dir = dir
+				output, checkErr = cmd.CombinedOutput()
+				if checkErr != nil {
+					break
+				}
+			}
+			if (checkErr == nil) != tc.wantSuccess {
+				t.Fatalf("checksum result: %v, output: %s", checkErr, output)
+			}
+		})
 	}
 }
 

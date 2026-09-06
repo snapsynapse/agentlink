@@ -17,6 +17,9 @@ test -z "$(git status --porcelain)" || { echo "working tree not clean" >&2; exit
 grep -Fq "[$version]" CHANGELOG.md || { echo "CHANGELOG.md has no [$version] section" >&2; exit 1; }
 test -f "$notes_file" || { echo "missing $notes_file" >&2; exit 1; }
 sh scripts/check-release-contract.sh
+# A draft guide must acquire the prospective release tag anchor before publication.
+grep -Fxq "status: active" docs/.well-known/assistant-guide.txt || { echo "assistant guide is still draft" >&2; exit 1; }
+grep -Fxq "immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v$version/docs/.well-known/assistant-guide.txt" docs/.well-known/assistant-guide-manifest.txt || { echo "assistant guide anchor must match release tag" >&2; exit 1; }
 
 go mod tidy -diff
 go vet ./...

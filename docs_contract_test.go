@@ -1,14 +1,18 @@
 package main
 
 import (
+	"html"
 	"image"
 	_ "image/png"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/snapsynapse/agentlink/internal/config"
 	"github.com/snapsynapse/agentlink/internal/registry"
+	"gopkg.in/yaml.v3"
 )
 
 func TestOpenGraphImagesFollowPortfolioDimensions(t *testing.T) {
@@ -110,7 +114,7 @@ func TestLandingPageBylineIncludesLastUpdatedDate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	const want = "Last updated <time datetime=\"2026-09-01\">September 1, 2026</time>"
+	const want = "Last updated <time datetime=\"2026-09-05\">September 5, 2026</time>"
 	if !strings.Contains(string(data), want) {
 		t.Errorf("landing page byline missing %q", want)
 	}
@@ -158,110 +162,95 @@ func TestPublishedLayeringAndNestedScanContract(t *testing.T) {
 	}
 }
 
-func TestReadmeSupportedToolsTableMatchesRegistry(t *testing.T) {
-	data, err := os.ReadFile("README.md")
+func TestHomepageSupportListingMatchesRegistry(t *testing.T) {
+	data, err := os.ReadFile("docs/index.html")
 	if err != nil {
 		t.Fatal(err)
 	}
-	text := string(data)
-	start := strings.Index(text, "### Supported tools")
-	end := strings.Index(text, "## Repo Scanning")
-	if start == -1 || end == -1 || end <= start {
-		t.Fatal("README supported-tools table boundaries not found")
+	_, rest, ok := strings.Cut(string(data), "<!-- BEGIN GENERATED TOOLS -->\n")
+	if !ok {
+		t.Fatal("missing generated listing")
 	}
+	listing, _, ok := strings.Cut(rest, "<!-- END GENERATED TOOLS -->")
+	if !ok || listing != registry.Documentation() {
+		t.Fatal("homepage registry drift: run go run ./cmd/update-docs")
+	}
+	for _, path := range []string{"README.md", "docs/reference/supported-tools/index.html"} {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !strings.Contains(string(data), "#supported-tools") {
+			t.Errorf("%s must link to canonical support listing", path)
+		}
+	}
+}
 
-	type documentedTool struct {
-		global      string
-		repo        string
-		integration string
+func TestWebsiteConfigurationExamplesAreValidYAML(t *testing.T) {
+	paths, err := filepath.Glob("docs/guides/*/index.html")
+	if err != nil {
+		t.Fatal(err)
 	}
-	documented := make(map[string]documentedTool)
-	for _, line := range strings.Split(text[start:end], "\n") {
-		if !strings.HasPrefix(line, "|") {
-			continue
+	paths = append(paths, "docs/index.html")
+	blocks := regexp.MustCompile(`(?s)<pre>(?:<code>)?(.*?)(?:</code>)?</pre>`)
+	count := 0
+	for _, path := range paths {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
 		}
-		cells := strings.Split(strings.Trim(line, "|"), "|")
-		if len(cells) != 4 {
-			continue
-		}
-		for i := range cells {
-			cells[i] = strings.TrimSpace(cells[i])
-		}
-		if cells[0] == "Tool" || strings.HasPrefix(cells[0], "---") {
-			continue
-		}
-		documented[cells[0]] = documentedTool{
-			global:      cells[1],
-			repo:        cells[2],
-			integration: cells[3],
+		for _, match := range blocks.FindAllStringSubmatch(string(data), -1) {
+			text := html.UnescapeString(match[1])
+			if !strings.Contains(text, "\nsource:") {
+				continue
+			}
+			count++
+			var example struct {
+				Source string   `yaml:"source"`
+				Links  []string `yaml:"links"`
+			}
+			decoder := yaml.NewDecoder(strings.NewReader(text))
+			decoder.KnownFields(true)
+			if err := decoder.Decode(&example); err != nil {
+				t.Errorf("%s has invalid config example: %v", path, err)
+			}
+			if example.Source == "" || len(example.Links) == 0 {
+				t.Errorf("%s has incomplete config example", path)
+			}
 		}
 	}
-
-	tools := registry.All()
-	if len(documented) != len(tools) {
-		t.Errorf("README documents %d tools, registry contains %d", len(documented), len(tools))
-	}
-	for _, tool := range tools {
-		got, ok := documented[tool.Name]
-		if !ok {
-			t.Errorf("README supported-tools table is missing registry tool %q", tool.Name)
-			continue
-		}
-		wantGlobal := tool.GlobalConfigPath
-		if wantGlobal == "" {
-			wantGlobal = "--"
-		}
-		wantRepo := tool.RepoFileName
-		if wantRepo == "" {
-			wantRepo = "--"
-		}
-		wantIntegration := map[registry.AgentsMDIntegration]string{
-			registry.IntegrationNative:       "Native",
-			registry.IntegrationConfigurable: "Configurable",
-			registry.IntegrationImport:       "Import from real " + tool.RepoFileName,
-			registry.IntegrationSymlink:      "Symlink",
-			registry.IntegrationUnsupported:  "Unsupported",
-		}[tool.AgentsMDIntegration()]
-		if tool.AgentsMDIntegration() == registry.IntegrationNative && tool.RepoFileName == "" && tool.GlobalConfigPath != "" {
-			wantIntegration = "Native (global)"
-		}
-		if got.global != wantGlobal || got.repo != wantRepo || got.integration != wantIntegration {
-			t.Errorf("README row for %q = {%q, %q, %q}, want {%q, %q, %q}", tool.Name, got.global, got.repo, got.integration, wantGlobal, wantRepo, wantIntegration)
-		}
-		delete(documented, tool.Name)
-	}
-	for name := range documented {
-		t.Errorf("README supported-tools table contains unknown tool %q", name)
+	if count < 5 {
+		t.Fatalf("expected at least five configuration examples, found %d", count)
 	}
 }
 
 func TestReleaseSurfacesUseCurrentVersion(t *testing.T) {
-	const version = "v0.5.0"
+	const version = "v0.6.0"
 	wants := map[string][]string{
-		"CHANGELOG.md": {"## [0.5.0] - 2026-09-01"},
-		"SECURITY.md":  {"| 0.5.x   | Yes"},
+		"CHANGELOG.md": {"## [0.6.0] - 2026-09-05"},
+		"SECURITY.md":  {"| 0.6.x   | Yes"},
 		"docs/index.html": {
-			"Agentlink v0.5.0",
-			"/releases/tag/v0.5.0",
-			"/releases/download/v0.5.0/agentlink-darwin-arm64",
+			"Agentlink v0.6.0",
+			"/releases/tag/v0.6.0",
+			"/releases/download/v0.6.0/agentlink-darwin-arm64",
 		},
-		"docs/llms.txt": {"Current release: v0.5.0."},
+		"docs/llms.txt": {"Current release: v0.6.0."},
 		"docs/.well-known/assistant-guide.txt": {
-			"guide-version: 1.2.3",
-			"go install github.com/snapsynapse/agentlink/cmd/agentlink@v0.5.0",
-			"/releases/download/v0.5.0/agentlink-darwin-arm64",
+			"guide-version: 1.2.4",
+			"go install github.com/snapsynapse/agentlink/cmd/agentlink@v0.6.0",
+			"/releases/download/v0.6.0/agentlink-darwin-arm64",
 		},
 		"docs/.well-known/assistant-guide-manifest.txt": {
-			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.5.0/",
+			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.6.0/docs/.well-known/assistant-guide.txt",
 		},
 		"assistant-guide.txt": {
-			"guide-version: 1.2.3",
-			"applies-to: agentlink >=0.5.0",
+			"guide-version: 1.2.4",
+			"applies-to: agentlink >=0.6.0",
 		},
 		"assistant-guide-manifest.txt": {
-			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.5.0/",
+			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.6.0/docs/.well-known/assistant-guide.txt",
 		},
-		"RELEASE_NOTES-0.5.0.md": {"# Agentlink v0.5.0"},
+		"RELEASE_NOTES-0.6.0.md": {"# Agentlink v0.6.0"},
 	}
 
 	for path, required := range wants {

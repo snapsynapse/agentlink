@@ -4,10 +4,13 @@ Sync one AGENTS.md to every AI coding tool on your machine, with zero magic, jus
 
 ## Summary
 
-Agentlink is a small Go CLI that keeps AI coding assistant instruction files in sync across every tool on a machine by declaring one real source file and symlinking tool-specific aliases to it. Tools expect different filenames (AGENTS.md for Codex, Cursor, OpenCode, Crush, and Kiro; CLAUDE.md for Claude Code; GEMINI.md for Gemini CLI; QWEN.md for Qwen Code; .github/copilot-instructions.md for GitHub Copilot) and different global paths (~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.openclaw/workspace/AGENTS.md). Agentlink fixes identical-file drift without code generation. When a tool needs additional guidance, its real wrapper can import the shared source and remain intentionally unmanaged while Agentlink manages the other aliases. The registry covers 23 tools and records each tool's preferred native, configurable, import, symlink, or unsupported integration.
+Agentlink is a small Go CLI that keeps AI coding assistant instruction files in sync across every tool on a machine by declaring one real source file and symlinking tool-specific aliases to it. Tools expect different filenames (AGENTS.md for Codex, Cursor, OpenCode, Crush, and Kiro; CLAUDE.md for Claude Code; GEMINI.md for Gemini CLI; .github/copilot-instructions.md for GitHub Copilot) and different global paths (~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.openclaw/workspace/AGENTS.md). Agentlink fixes identical-file drift without code generation. When a tool needs additional guidance, its real wrapper can import the shared source and remain intentionally unmanaged while Agentlink manages the other aliases. The registry covers 23 tools and records each tool's preferred native, configurable, import, symlink, or unsupported integration.
 
 Install: brew install snapsynapse/tap/agentlink, or go install github.com/snapsynapse/agentlink/cmd/agentlink@latest. Source builds require Go 1.23 or newer; CI verifies Go 1.23.12, 1.26.8, and 1.27.1, with Go 1.27.1 also covered on macOS. Pre-built binaries are linked from README.md.
-Current release: v0.5.0.
+Current release: v0.6.0.
+Version 0.6.0 includes safety fixes, refreshed registry, and --global for sync/check/clean.
+Complete support listing: https://agentlink.run/#supported-tools (generated from registry with dated vendor references).
+OS support: macOS and Linux, ARM64 and AMD64; launchd only on macOS. Native Windows is unsupported.
 
 Scope is deliberately narrow: instruction files only. No MCP servers, no chain configs, no templating.
 
@@ -35,15 +38,15 @@ These pages are canonical HTML explanations for people. robots.txt, sitemap.xml,
 - integration preference: detect --generate --prefer-native recommends native, configurable, or import options before symlinks
 - nested symlink reference: Limited Edition Jonathan's AGENTS.md guide explains the practical monorepo workaround: https://limitededitionjonathan.substack.com/p/i-wrote-this-agentsmd-guide-for-the
 - hooks: install git, shell, and launchd triggers so sync runs automatically
-- idempotent: re-running is safe; broken or misdirected links are repaired
+- idempotent: re-running is safe; broken or misdirected links require explicit --force
 - dry-run: hard preview mode; no symlinks, removals, or backups are written
-- replacement safety: backup and force operate on regular files only; directories and special files are refused
+- replacement safety: backup authorizes regular files only; force also authorizes conflicting symlinks. Directories and special files are refused.
 - deterministic scan contracts: compiled-CLI fixtures verify exact topology, relative targets, explicit-config authority, wrapper preservation, root-only unknown integrations, idempotence, and byte-preserving dry runs
 - registry governance: nested discovery requires a public documentation reference, and the README supported-tools table is checked against the registry
 - git hook safety: global core.hooksPath must be absolute for install, remove, and status
 - assistant guide: https://agentlink.run/.well-known/assistant-guide.txt
 - AI posture: https://agentlink.run/.well-known/aiposture
-- guidecheck conformance target: Level 4 guide-file conformance
+- guidecheck conformance target: Level 4; release anchor must be independently verified
 - assistant guide use: verify it, read it in full, and approve the reported level before assistant action
 
 ## Key files in the repository
@@ -69,7 +72,7 @@ These pages are canonical HTML explanations for people. robots.txt, sitemap.xml,
 
 This repository is the canonical home for current Agentlink project direction, issues, releases, and documentation. It preserves upstream MIT attribution while carrying the Snap Synapse continuation: detect, scan, hooks, automatic backup, global-config support, integration tests, and release distribution. Full attribution and the PR #2 to #3 lineage note are in NOTICE.
 
-Last updated: 2026-09-01
+Last updated: 2026-09-05
 
 ## Related projects from the same author
 

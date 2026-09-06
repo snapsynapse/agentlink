@@ -52,9 +52,13 @@ func (m *Manager) ValidateSource(sourcePath string) error {
 		if !m.force {
 			return fmt.Errorf("source file %s is a symlink (use --force to override)", sourcePath)
 		}
+		info, err = os.Stat(sourcePath)
+		if err != nil {
+			return fmt.Errorf("resolve source %s: %w", sourcePath, err)
+		}
 	}
 
-	if !info.Mode().IsRegular() && info.Mode()&os.ModeSymlink == 0 {
+	if !info.Mode().IsRegular() {
 		return fmt.Errorf("source file %s is not a regular file", sourcePath)
 	}
 
@@ -93,24 +97,35 @@ func (m *Manager) CheckLink(linkPath, expectedTarget string) *LinkInfo {
 
 	info.Target = target
 
-	// Make target path absolute for comparison
-	if !filepath.IsAbs(target) {
-		target = filepath.Join(filepath.Dir(linkPath), target)
-	}
-	target = filepath.Clean(target)
-	expectedClean := filepath.Clean(expectedTarget)
-
-	if _, err := os.Stat(target); err != nil {
-		if os.IsNotExist(err) {
-			info.Status = StatusBroken
-			return info
-		}
-		info.Error = err
+	// Resolve the link itself through the filesystem. Cleaning a lexical path
+	// first changes the meaning of ".." beneath a symlinked directory.
+	actual, err := filepath.EvalSymlinks(linkPath)
+	if err != nil {
 		info.Status = StatusBroken
+		if !os.IsNotExist(err) {
+			info.Error = err
+		}
 		return info
 	}
-
-	if target == expectedClean {
+	expected, err := filepath.EvalSymlinks(expectedTarget)
+	if err != nil {
+		info.Status = StatusBroken
+		info.Error = err
+		return info
+	}
+	actual, err = filepath.Abs(actual)
+	if err != nil {
+		info.Status = StatusBroken
+		info.Error = err
+		return info
+	}
+	expected, err = filepath.Abs(expected)
+	if err != nil {
+		info.Status = StatusBroken
+		info.Error = err
+		return info
+	}
+	if actual == expected {
 		info.Status = StatusOK
 	} else {
 		info.Status = StatusWrongTarget
@@ -131,7 +146,15 @@ func (m *Manager) CreateLink(linkPath, targetPath string) error {
 	}
 
 	// Calculate relative path from link to target
-	relTarget, err := filepath.Rel(filepath.Dir(linkPath), targetPath)
+	link, err := resolveParentSymlinks(linkPath)
+	if err != nil {
+		return fmt.Errorf("resolve link parent: %w", err)
+	}
+	target, err := resolveParentSymlinks(targetPath)
+	if err != nil {
+		return fmt.Errorf("resolve source parent: %w", err)
+	}
+	relTarget, err := filepath.Rel(filepath.Dir(link), target)
 	if err != nil {
 		return fmt.Errorf("failed to calculate relative path: %w", err)
 	}
@@ -160,11 +183,9 @@ func (m *Manager) RemoveLink(linkPath, expectedTarget string) error {
 	return nil
 }
 
-// FixLink creates or fixes a symlink based on its current status
-func (m *Manager) FixLink(linkPath, targetPath string) (string, error) {
-	// Resolve directory symlinks immediately before inspecting or mutating the
-	// destination. Do not resolve the destination leaf: a correctly managed
-	// symlink is expected to resolve to targetPath and must remain valid.
+// PlanLink validates a destination without mutating it. Sync uses the same
+// preflight before any backup, so backup cannot bypass source protection.
+func (m *Manager) PlanLink(linkPath, targetPath string) (string, error) {
 	samePath, err := sameEffectivePath(linkPath, targetPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to validate link path %s: %w", linkPath, err)
@@ -172,75 +193,61 @@ func (m *Manager) FixLink(linkPath, targetPath string) (string, error) {
 	if samePath {
 		return "", fmt.Errorf("link path %s resolves to source %s; refusing to replace source", linkPath, targetPath)
 	}
-
 	info := m.CheckLink(linkPath, targetPath)
-
+	if info.Error != nil {
+		return "", fmt.Errorf("cannot inspect %s: %w", linkPath, info.Error)
+	}
 	switch info.Status {
 	case StatusOK:
 		return "skip", nil
-
 	case StatusMissing:
-		if err := m.CreateLink(linkPath, targetPath); err != nil {
-			return "", err
-		}
 		return "create", nil
-
 	case StatusWrongTarget:
 		if !m.force {
 			return "", fmt.Errorf("symlink %s points to wrong target %s (expected %s), use --force to fix", linkPath, info.Target, targetPath)
 		}
-		if m.dryRun {
-			return "fix", nil
-		}
-		if err := os.Remove(linkPath); err != nil {
-			return "", fmt.Errorf("failed to remove wrong symlink %s: %w", linkPath, err)
-		}
-		if err := m.CreateLink(linkPath, targetPath); err != nil {
-			return "", err
-		}
 		return "fix", nil
-
 	case StatusNotSymlink:
-		if !m.force {
-			return "", fmt.Errorf("file %s exists and is not a symlink, use --force to replace", linkPath)
-		}
-
-		linkInfo, err := os.Lstat(linkPath)
+		entry, err := os.Lstat(linkPath)
 		if err != nil {
-			return "", fmt.Errorf("failed to stat existing path %s: %w", linkPath, err)
+			return "", fmt.Errorf("cannot inspect %s: %w", linkPath, err)
 		}
-		if linkInfo.IsDir() {
-			return "", fmt.Errorf("%s is a directory; refusing to replace recursively", linkPath)
+		if !entry.Mode().IsRegular() {
+			return "", fmt.Errorf("%s is not a regular file; refusing to replace directories or special files", linkPath)
 		}
-		if !linkInfo.Mode().IsRegular() {
-			return "", fmt.Errorf("%s is not a regular file; refusing to replace", linkPath)
-		}
-		if m.dryRun {
-			return "replace", nil
-		}
-		if err := os.Remove(linkPath); err != nil {
-			return "", fmt.Errorf("failed to remove existing file %s: %w", linkPath, err)
-		}
-		if err := m.CreateLink(linkPath, targetPath); err != nil {
-			return "", err
+		if !m.force {
+			return "", fmt.Errorf("file %s exists and is not a symlink; inspect it, then use --backup or --force to replace", linkPath)
 		}
 		return "replace", nil
-
 	case StatusBroken:
-		if m.dryRun {
-			return "fix broken", nil
-		}
-		if err := os.Remove(linkPath); err != nil {
-			return "", fmt.Errorf("failed to remove broken symlink %s: %w", linkPath, err)
-		}
-		if err := m.CreateLink(linkPath, targetPath); err != nil {
-			return "", err
+		if !m.force {
+			return "", fmt.Errorf("broken symlink %s points to %s; ownership cannot be verified, use --force to replace", linkPath, info.Target)
 		}
 		return "fix broken", nil
-
 	default:
 		return "", fmt.Errorf("unknown link status for %s", linkPath)
 	}
+}
+
+// FixLink applies the validated operation. Revalidate immediately before each
+// mutation, including after a caller has backed up an existing regular file.
+func (m *Manager) FixLink(linkPath, targetPath string) (string, error) {
+	action, err := m.PlanLink(linkPath, targetPath)
+	if err != nil {
+		return "", err
+	}
+	if m.dryRun || action == "skip" {
+		return action, nil
+	}
+	if action != "create" {
+		if err := os.Remove(linkPath); err != nil {
+			return "", fmt.Errorf("failed to remove %s: %w", linkPath, err)
+		}
+	}
+	if err := m.CreateLink(linkPath, targetPath); err != nil {
+		return "", err
+	}
+	return action, nil
 }
 
 // sameEffectivePath compares paths after resolving symlinks in their parent
@@ -255,7 +262,16 @@ func sameEffectivePath(linkPath, targetPath string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return link == target, nil
+	if link == target {
+		return true, nil
+	}
+	// A forced source symlink must not allow replacing its real backing file.
+	resolved, err := filepath.EvalSymlinks(targetPath)
+	if err != nil {
+		return false, err
+	}
+	resolved, err = filepath.Abs(resolved)
+	return link == resolved, err
 }
 
 // resolveParentSymlinks also supports nonexistent parent directories by
