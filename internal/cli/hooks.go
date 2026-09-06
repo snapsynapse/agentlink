@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -76,9 +77,12 @@ func runHooksInstall(cmd *cobra.Command, args []string) error {
 	if hookAll {
 		hookGit = true
 		hookZsh = true
-		hookLaunchd = true
+		hookLaunchd = runtime.GOOS == "darwin"
 	}
 
+	if hookLaunchd && runtime.GOOS != "darwin" {
+		return fmt.Errorf("launchd is supported only on macOS; use --git or --zsh on this platform")
+	}
 	if !hookGit && !hookZsh && !hookLaunchd {
 		return fmt.Errorf("specify at least one trigger: --git, --zsh, --launchd, or --all")
 	}
@@ -121,9 +125,12 @@ func runHooksRemove(cmd *cobra.Command, args []string) error {
 	if hookAll {
 		hookGit = true
 		hookZsh = true
-		hookLaunchd = true
+		hookLaunchd = runtime.GOOS == "darwin"
 	}
 
+	if hookLaunchd && runtime.GOOS != "darwin" {
+		return fmt.Errorf("launchd is supported only on macOS; use --git or --zsh on this platform")
+	}
 	if !hookGit && !hookZsh && !hookLaunchd {
 		return fmt.Errorf("specify at least one trigger: --git, --zsh, --launchd, or --all")
 	}
@@ -229,6 +236,12 @@ func installGitHooksWithDir(hooksDir, binaryPath string) error {
 		hooksDir = filepath.Join(homeDir, ".config", "git", "hooks")
 	}
 
+	// Inspect both hooks before changing global configuration or either file.
+	for _, name := range []string{"post-checkout", "post-merge"} {
+		if err := validateGitHook(filepath.Join(hooksDir, name)); err != nil {
+			return err
+		}
+	}
 	if dryRun {
 		printInfo("Would install git hooks in %s", hooksDir)
 		return nil
@@ -444,6 +457,10 @@ func removeLaunchdAgent() error {
 		return fmt.Errorf("cannot inspect LaunchAgent plist: %w", err)
 	}
 
+	if dryRun {
+		printInfo("Would unload LaunchAgent and remove %s", plistPath)
+		return nil
+	}
 	if err := exec.Command("launchctl", "unload", plistPath).Run(); err != nil {
 		printWarning("launchctl unload failed: %v", err)
 	}
@@ -491,6 +508,9 @@ func fileContainsAgentlink(path string) bool {
 }
 
 func appendOrCreateHook(path, content string) error {
+	if err := validateGitHook(path); err != nil {
+		return err
+	}
 	// If the hook already has our marker, update the managed section in place.
 	if fileContainsAgentlink(path) {
 		updated, err := rewriteMarkedSection(path, content)
@@ -512,19 +532,21 @@ func appendOrCreateHook(path, content string) error {
 		return ensureUserExecutable(path)
 	}
 
-	// Append to existing hook
-	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0755)
+	// Put the block immediately after the shebang so an existing exit/exec
+	// cannot make our trigger unreachable. Preserve all original hook bytes.
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
+	info, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+	first, rest, _ := strings.Cut(string(data), "\n")
+	if err := os.WriteFile(path, []byte(first+"\n"+content+rest), info.Mode().Perm()); err != nil {
+		return err
+	}
 
-	if _, err = f.WriteString("\n" + content); err != nil {
-		_ = f.Close()
-		return err
-	}
-	if err := f.Close(); err != nil {
-		return err
-	}
 	return ensureUserExecutable(path)
 }
 
@@ -573,13 +595,39 @@ func rewriteMarkedSection(path, replacement string) (bool, error) {
 	replacement = strings.TrimPrefix(replacement, "\n")
 	newContent := content[:startIdx] + replacement + content[endIdx:]
 
-	// Clean up double blank lines left behind
-	for strings.Contains(newContent, "\n\n\n") {
-		newContent = strings.ReplaceAll(newContent, "\n\n\n", "\n\n")
+	if dryRun {
+		printInfo("Would update managed section in %s", path)
+		return true, nil
 	}
 
 	if err := os.WriteFile(path, []byte(newContent), info.Mode().Perm()); err != nil {
 		return false, err
 	}
 	return true, nil
+}
+
+// Only compose with known shell interpreters. A Python/Ruby/binary hook must
+// remain intact rather than receiving invalid shell source.
+func validateGitHook(path string) error {
+	info, err := os.Lstat(path)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if !info.Mode().IsRegular() {
+		return fmt.Errorf("refusing to modify non-regular Git hook %s", path)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	line, _, _ := strings.Cut(string(data), "\n")
+	for _, shell := range []string{"#!/bin/sh", "#!/bin/bash", "#!/bin/zsh", "#!/usr/bin/env sh", "#!/usr/bin/env bash", "#!/usr/bin/env zsh"} {
+		if line == shell {
+			return nil
+		}
+	}
+	return fmt.Errorf("unsupported interpreter in Git hook %s; keep the existing hook and integrate agentlink manually", path)
 }

@@ -20,15 +20,22 @@ Never removes the source file itself or regular files.`,
 }
 
 func init() {
+	cleanCmd.Flags().BoolVar(&useGlobalConfig, "global", false, "use global configuration even inside a configured project")
 	rootCmd.AddCommand(cleanCmd)
 }
 
 func runClean(cmd *cobra.Command, args []string) error {
 	// Find config file
-	configPath, isProject := config.FindConfigPath()
+	configPath, isProject, err := selectConfigPath()
+	if err != nil {
+		return err
+	}
 
 	// Load config (don't create if missing)
-	if _, err := os.Stat(configPath); err != nil {
+	if _, err := os.Lstat(configPath); err != nil {
+		if !os.IsNotExist(err) {
+			return fmt.Errorf("inspect config %s: %w", configPath, err)
+		}
 		if isProject {
 			printError("No .agentlink.yaml found in current directory")
 			printInfo("Run 'agentlink init' to create one")

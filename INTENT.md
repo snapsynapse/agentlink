@@ -41,7 +41,7 @@ Agentlink publishes a GuideCheck assistant guide for bounded installation and re
 
 ## Exceptions to Repo Standards
 
-- `docs/llms-full.txt` is omitted because `docs/llms.txt` is a comprehensive standalone description of the single-page product, its concepts, files, lineage, install paths, and related projects. Review this exception if the site gains additional substantive pages.
+- `docs/llms-full.txt` is omitted because `docs/llms.txt` is a concise index of the product and its five public HTML pages. The homepage holds the generated support listing and links to three task guides and the integration reference. These linked HTML pages provide full detail; a second concatenated copy is omitted to avoid content drift. Reassess if machine consumers cannot follow these links.
 - Agentlink is a standalone maintained continuation rather than a GitHub-native fork. Fork-tier lineage rules still apply through the upstream remote, NOTICE, README credit, and canonical module path.
 - GitHub custom properties and repository-level action SHA-pinning enforcement are unavailable for this user-owned repository. Workflow source pins third-party actions instead.
 

@@ -97,7 +97,7 @@ func runScan(cmd *cobra.Command, args []string) error {
 
 	for _, repo := range repos {
 		configPath := filepath.Join(repo, ".agentlink.yaml")
-		if _, err := os.Stat(configPath); err == nil {
+		if _, err := os.Lstat(configPath); err == nil {
 			cfg, loadErr := config.LoadConfig(configPath)
 			if loadErr != nil {
 				printError("%s/.agentlink.yaml: %v", relativeTo(repo, dir), loadErr)

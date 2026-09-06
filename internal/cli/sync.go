@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/snapsynapse/agentlink/internal/config"
@@ -23,15 +22,17 @@ var syncCmd = &cobra.Command{
 
 Reads .agentlink.yaml in current directory, or falls back to global config
 at ~/.config/agentlink/config.yaml. Creates or fixes symlinks so they point
-to the configured source file.
+to the configured source file. Use --global to select global scope explicitly.
+An existing but unreadable project config is an error, never a fallback.
 
 When a target path already contains a real file (not a symlink), sync will
 refuse to overwrite it. You have three options:
 
   --backup    Back up existing regular files to <name>.bak before replacing
-  --force     Replace conflicting regular files without backup
+  --force     Replace conflicting regular files or symlinks without backup
   --dry-run   Preview what would happen without creating, removing, or backing up files
 
+Broken or misdirected symlinks require --force; --backup does not authorize them.
 Directories and special files are never replaced recursively. Without any of
 these flags, sync reports the conflict and moves on.`,
 	RunE: runSync,
@@ -39,12 +40,16 @@ these flags, sync reports the conflict and moves on.`,
 
 func init() {
 	syncCmd.Flags().BoolVar(&syncBackup, "backup", false, "back up existing regular files before replacing")
+	syncCmd.Flags().BoolVar(&useGlobalConfig, "global", false, "use global configuration even inside a configured project")
 	rootCmd.AddCommand(syncCmd)
 }
 
 func runSync(cmd *cobra.Command, args []string) error {
 	// Find config file
-	configPath, isProject := config.FindConfigPath()
+	configPath, isProject, err := selectConfigPath()
+	if err != nil {
+		return err
+	}
 
 	// Load or create config
 	cfg, err := loadOrCreateConfig(configPath, isProject)
@@ -60,9 +65,8 @@ func runSync(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// If --backup is set, enable force (backup happens before replacement)
-	effectiveForce := force || syncBackup
-	manager := symlink.NewManager(dryRun, effectiveForce)
+	// Backup permits regular-file replacement only, never unknown symlink ownership.
+	manager := symlink.NewManager(dryRun, force)
 
 	// Validate source file
 	if err := manager.ValidateSource(cfg.Source); err != nil {
@@ -94,8 +98,10 @@ func runSync(cmd *cobra.Command, args []string) error {
 
 func loadOrCreateConfig(configPath string, isProject bool) (*config.Config, error) {
 	// Try to load existing config
-	if _, err := os.Stat(configPath); err == nil {
+	if _, err := os.Lstat(configPath); err == nil {
 		return config.LoadConfig(configPath)
+	} else if !os.IsNotExist(err) {
+		return nil, fmt.Errorf("inspect config %s: %w", configPath, err)
 	}
 
 	// If it's a project config and doesn't exist, error
@@ -119,46 +125,46 @@ func loadOrCreateConfig(configPath string, isProject bool) (*config.Config, erro
 }
 
 func processLink(manager *symlink.Manager, linkPath, sourcePath string) error {
+	if info, err := os.Lstat(linkPath); syncBackup && err == nil && info.Mode().IsRegular() {
+		manager = symlink.NewManager(dryRun, true)
+	}
 	if verbose {
 		printInfo("Processing link: %s", linkPath)
 	}
 
-	// If backup mode, handle existing non-symlink files before FixLink
-	if syncBackup && !dryRun {
-		if info, err := os.Lstat(linkPath); err == nil {
-			if info.Mode()&os.ModeSymlink == 0 && info.Mode().IsRegular() {
+	// Validate before backing up, removing empty files, or suggesting a force
+	// override. Preserve the safety error instead of masking its cause.
+	if _, err := manager.PlanLink(linkPath, sourcePath); err != nil {
+		return err
+	}
+	if syncBackup {
+		info, err := os.Lstat(linkPath)
+		if err != nil && !os.IsNotExist(err) {
+			return err
+		}
+		if err == nil && info.Mode().IsRegular() {
+			if dryRun {
 				if info.Size() == 0 {
-					printWarning("%s exists but is empty, skipping backup", linkPath)
-					// Still need to remove it so FixLink can create the symlink
-					os.Remove(linkPath)
+					printInfo("Would remove empty file %s (no backup)", linkPath)
 				} else {
-					if err := backupFile(linkPath); err != nil {
-						return fmt.Errorf("backup failed: %w", err)
+					path, err := nextBackupPath(linkPath)
+					if err != nil {
+						return err
 					}
+					printInfo("Would back up %s -> %s before linking", linkPath, path)
 				}
+			} else if info.Size() == 0 {
+				printWarning("%s exists but is empty, skipping backup", linkPath)
+				if err := os.Remove(linkPath); err != nil {
+					return err
+				}
+			} else if err := backupFile(linkPath); err != nil {
+				return fmt.Errorf("backup failed: %w", err)
 			}
 		}
 	}
-
 	action, err := manager.FixLink(linkPath, sourcePath)
 	if err != nil {
-		// Enhance error messages with actionable guidance
-		if info, statErr := os.Lstat(linkPath); statErr == nil {
-			if info.Mode()&os.ModeSymlink == 0 && info.Mode().IsRegular() {
-				size := info.Size()
-				if size == 0 {
-					return fmt.Errorf("%s exists but is empty (safe to --force)", linkPath)
-				}
-				return fmt.Errorf(
-					"%s exists (%d bytes, modified %s). Options:\n"+
-						"         cat %s          # inspect the file\n"+
-						"         agentlink sync --backup   # back up to %s.bak then replace\n"+
-						"         agentlink sync --force    # replace without backup",
-					linkPath, size, info.ModTime().Format("2006-01-02"),
-					linkPath, filepath.Base(linkPath),
-				)
-			}
-		}
 		return err
 	}
 
@@ -180,29 +186,39 @@ func processLink(manager *symlink.Manager, linkPath, sourcePath string) error {
 	return nil
 }
 
-func backupFile(path string) error {
-	bakPath := path + ".bak"
+func nextBackupPath(path string) (string, error) {
 	timestamped := fmt.Sprintf("%s.%s.bak", path, backupNow().Format("20060102-150405"))
-	for suffix := -1; ; suffix++ {
-		if suffix == 0 {
-			bakPath = timestamped
-		} else if suffix > 0 {
-			bakPath = fmt.Sprintf("%s.%d", timestamped, suffix)
+	candidate := path + ".bak"
+	for suffix := 0; ; suffix++ {
+		if _, err := os.Lstat(candidate); os.IsNotExist(err) {
+			return candidate, nil
+		} else if err != nil {
+			return "", err
 		}
+		candidate = timestamped
+		if suffix > 0 {
+			candidate = fmt.Sprintf("%s.%d", timestamped, suffix)
+		}
+	}
+}
 
-		// Link creates the destination exclusively. Unlike a check followed by
-		// Rename, this cannot overwrite a backup created concurrently.
+func backupFile(path string) error {
+	for {
+		bakPath, err := nextBackupPath(path)
+		if err != nil {
+			return err
+		}
+		// Exclusive hard-link creation cannot clobber a concurrent backup.
 		if err := os.Link(path, bakPath); err != nil {
 			if os.IsExist(err) {
 				continue
 			}
-			return fmt.Errorf("failed to create no-clobber backup %s from %s (the filesystem may not support hard links; original left unchanged): %w", bakPath, path, err)
+			return fmt.Errorf("failed to create no-clobber backup %s (original left unchanged): %w", bakPath, err)
 		}
 		if err := os.Remove(path); err != nil {
 			_ = os.Remove(bakPath)
 			return fmt.Errorf("failed to remove %s after backing up to %s: %w", path, bakPath, err)
 		}
-
 		printInfo("Backed up %s -> %s", path, bakPath)
 		return nil
 	}

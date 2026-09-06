@@ -20,7 +20,9 @@ jobs:
       with:
         serve-path: docs
         port: '8088'
-        urls: http://127.0.0.1:8088/
+        sitemap: http://127.0.0.1:8088/sitemap.xml
+        sitemap-find: https://agentlink.run
+        sitemap-replace: http://127.0.0.1:8088
         fail-on: errors
         output: artifacts/a11y-scan.json
         artifact-name: agentlink-a11y-scan

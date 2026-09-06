@@ -67,16 +67,17 @@ docs: clarify backup behavior for empty files
 New tools go in `internal/registry/tools.go`. Each entry needs:
 
 - `Name` — canonical display name
-- `Command` — the binary name to look for in `PATH` (or empty)
-- `GlobalConfig` — the global config path using `~` for home
-- `RepoFile` — the file the tool reads from a repo root
+- `DetectCommands` — the binary name to look for in `PATH` (or empty)
+- `GlobalConfigPath` — the global config path using `~` for home
+- `RepoFileName` — the file the tool reads from a repo root
 - `ReadsAgentsMD` — true if the tool already reads `AGENTS.md` natively
 - `PreferredIntegration` — native, configurable, import, symlink, or unsupported
 - `SupportsNestedRepoFile` — true only for documented nested discovery
 - `NestedSupportReference` — public HTTPS documentation required when nested discovery is enabled
 
-Registry invariants and the README supported-tools table are tested. Update
-the table with the registry entry and add a focused behavior assertion when
+Add `IntegrationReference`, `ReviewedOn`, and `IntegrationNotes` with current vendor evidence.
+Registry invariants and the generated homepage listing are tested. Run `go run ./cmd/update-docs`
+after editing entries and add a focused behavior assertion when
 the tool introduces a new integration mode or nested-discovery claim.
 
 ## Releasing (maintainers)

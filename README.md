@@ -24,7 +24,7 @@ Agentlink publishes a GuideCheck Human-Verifiable Assistant Guide for bounded lo
 - AI posture: https://agentlink.run/.well-known/aiposture
 - Target conformance: GuideCheck Level 4, the highest guide-file level. Level 5 requires a conformant assistant runtime and is not claimed by this repository.
 
-The guide and manifest are tracked twice: review copies at repository root and byte-identical served copies under `docs/.well-known/`. The independent copies are the Level 4 trust anchor; CI rejects drift.
+The guide and manifest are tracked twice: review copies at repository root and byte-identical served copies under `docs/.well-known/`. CI rejects drift. The guide is anchored to the v0.6.0 release; independent verification is required. Matching local copies alone do not establish Level 4.
 Before asking an assistant to perform local Agentlink setup or verification work, verify the guide, read it in full, and approve proceeding under the reported level.
 
 The AI posture is likewise tracked as byte-identical root and served copies. It
@@ -49,7 +49,7 @@ API or a claim about the behavior of tools Agentlink configures.
 - **Auto-detect**: scans your system for installed AI tools and reports what it finds.
 - **Repo scanning**: walks a directory tree and wires up symlinks in every git repo that has an AGENTS.md.
 - **Automatic triggers**: git hooks, shell hooks, and launchd keep things synced without manual runs.
-- **Idempotent**: re-run safely; it fixes broken/misdirected links.
+- **Idempotent**: re-run safely; replacing broken or misdirected links requires `--force`.
 - **Portable**: works on macOS and Linux.
 - **Future-ready**: handles any directory structure, automatically creates paths. Tomorrow's AI tool? Just add its path.
 
@@ -157,7 +157,7 @@ export PATH="$HOME/go/bin:$PATH"
 
 - **AUR**: `yay -S agentlink-bin`
 
-Current release: **v0.5.0**.
+Current release: **v0.6.0**.
 
 ---
 
@@ -216,7 +216,7 @@ agentlink sync --dry-run       # preview only, with no filesystem changes
 agentlink hooks install --all
 ```
 
-This installs git hooks, a zsh directory-change hook, and a 60-minute launchd heartbeat so syncs happen automatically. Generated hook scripts safely quote the installed binary path, so installs under directories with spaces still work. If your global Git `core.hooksPath` is relative, agentlink refuses to guess where to install hooks; unset it or change it to an absolute path first.
+The updated source installs git hooks and a zsh directory-change hook on macOS/Linux, plus a 60-minute launchd heartbeat on macOS so syncs happen automatically. Existing hooks must be regular sh, bash, or zsh scripts; other interpreters require manual integration. Generated hook scripts safely quote the installed binary path, so installs under directories with spaces still work. If your global Git `core.hooksPath` is relative, agentlink refuses to guess where to install hooks; unset it or change it to an absolute path first.
 
 **6. Scan your repos** (optional):
 
@@ -261,7 +261,7 @@ agentlink hooks status       # show installed trigger status
 ```bash
 agentlink sync --dry-run     # show what would change without filesystem changes
 agentlink sync --backup      # back up existing regular files to .bak before replacing
-agentlink sync --force       # replace existing regular files without backup (or -f)
+agentlink sync --force       # replace conflicting files or symlinks without backup (or -f)
 agentlink sync --quiet       # suppress non-error output (or -q)
 agentlink --verbose          # detailed output for any command (or -v)
 ```
@@ -271,7 +271,7 @@ agentlink --verbose          # detailed output for any command (or -v)
 When a target path already contains a real file (not a symlink), agentlink stops and reports the conflict with the file size and last-modified date. It never silently overwrites your files. Options:
 
 - `--backup` backs up the existing file to `<name>.bak` (or `<name>.<timestamp>.bak`, with a numeric suffix for further collisions), then creates the symlink. Backups use an exclusive hard link so an existing backup is never overwritten. On filesystems without hard-link support, sync stops and leaves the original unchanged.
-- `--force` replaces a regular file without backup. Use when you've already inspected or don't care about the existing content.
+- `--force` replaces a regular file or conflicting symlink without backup. Use when you've already inspected or don't care about the existing content.
 - `--dry-run` is a hard preview mode. It does not create symlinks, remove files, fix broken links, or write backups, even when combined with `--backup` or `--force`.
 - Neither flag: agentlink reports the conflict and skips the file.
 
@@ -292,35 +292,13 @@ agentlink detect -v          # show global config paths and AGENTS.md support
 
 ### Supported tools
 
-| Tool | Global Config | Repo File | Preferred AGENTS.md integration |
-|------|--------------|-----------|---------------------------------|
-| Aider | -- | AGENTS.md | Native |
-| Amp | ~/.config/AGENTS.md | AGENTS.md | Native |
-| Antigravity | -- | AGENTS.md | Native |
-| Autohand | -- | AGENTS.md | Native |
-| Claude Code | ~/.claude/CLAUDE.md | CLAUDE.md | Import from real CLAUDE.md |
-| Cline | -- | -- | Unsupported |
-| Continue | ~/.continue/config.yaml | -- | Unsupported |
-| Crush | -- | AGENTS.md | Native |
-| Cursor | -- | AGENTS.md | Native |
-| Factory (Droid) | ~/.factory/AGENTS.md | AGENTS.md | Native |
-| Gemini CLI | ~/.gemini/GEMINI.md | GEMINI.md | Configurable |
-| GitHub Copilot | -- | .github/copilot-instructions.md | Symlink |
-| Goose | ~/.config/goose/.goosehints | .goosehints | Symlink |
-| Junie | -- | .junie/AGENTS.md | Native |
-| Kilo Code | -- | AGENTS.md | Native |
-| Kiro | -- | AGENTS.md | Native |
-| Codex CLI | ~/.codex/AGENTS.md | AGENTS.md | Native |
-| OpenClaw | ~/.openclaw/workspace/AGENTS.md | -- | Native (global) |
-| OpenCode | ~/.config/opencode/AGENTS.md | AGENTS.md | Native |
-| Qwen Code | ~/.qwen/QWEN.md | QWEN.md | Symlink |
-| RooCode | -- | .roo/rules/rules.md | Symlink |
-| Windsurf | -- | AGENTS.md | Native |
-| Zed | -- | AGENTS.md | Native |
+The [homepage support listing](https://agentlink.run/#supported-tools) is the complete registry reference, including operating systems, project and global paths, integration modes, vendor sources, and caveats. It is generated from `internal/registry/tools.go`; run `go run ./cmd/update-docs` after changing the registry.
 
-To add a new tool, edit `internal/registry/tools.go` and add an entry to the `All()` function.
+Version 0.6.0 includes safety fixes, registry updates, and explicit `--global` selection for `sync`, `check`, and `clean`.
 
----
+Native readers need no alias. `detect --generate --prefer-native` reports configuration or import steps instead of writing vendor settings. Detection alone does not prove instruction loading.
+
+Existing configurations remain authoritative. After upgrading tools, review old aliases: current Qwen and Goose can read AGENTS.md directly, so a second loaded alias can duplicate instructions. Remove any Continue `config.yaml` path from Agentlink’s `links` list; keep that settings file real and use `.continue/rules/AGENTS.md` for a Markdown alias. Registry updates do not migrate existing configuration files.
 
 ## Repo Scanning
 
@@ -338,7 +316,7 @@ The scanner recognizes standard repos, git worktrees, and submodule-style checko
 
 `--nested` is opt-in and applies only to unconfigured repositories. It finds nested `AGENTS.md` files and creates sibling aliases only for registry entries with documented nested discovery, currently Claude Code and Gemini CLI. Unknown tools fail closed at the repository root rather than being assumed equivalent. The walk skips hidden directories, nested repositories, `node_modules`, `vendor`, `dist`, `build`, `handoffs`, and `working`. Tool-specific precedence is unchanged and remains the consuming harness's responsibility. The [AGENTS.md convention](https://agents.md/) gives the nearest file precedence; other tools may concatenate or order nested files differently.
 
-The integration suite verifies the exact root and nested topology, relative targets, explicit-config authority, wrapper preservation, root-only behavior for unknown integrations, repeat-run idempotence, and byte-preserving dry runs. Registry invariants require a public documentation reference before nested discovery can be enabled, and a documentation contract keeps this README's supported-tools table aligned with the registry.
+The integration suite verifies the exact root and nested topology, relative targets, explicit-config authority, wrapper preservation, root-only behavior for unknown integrations, repeat-run idempotence, and byte-preserving dry runs. Registry invariants require a public documentation reference before nested discovery can be enabled, and a documentation contract keeps the generated homepage support listing aligned with the registry.
 
 The default scan directory is `~/Git`. Override it per-invocation with the `--dir` flag or positional argument. To change the compiled default, build with:
 
@@ -365,7 +343,7 @@ agentlink hooks remove --all       # clean up all triggers
 
 **Zsh hook** fires on every `cd` into a directory that contains both a git checkout and `.agentlink.yaml`. Runs in the background so it never slows your shell.
 
-**LaunchAgent** runs `agentlink sync` every 60 minutes and at login. Logs to `/tmp/agentlink-sync.log`.
+**LaunchAgent** is macOS-only and runs `agentlink sync` every 60 minutes and at login. Logs to `/tmp/agentlink-sync.log`.
 
 All injected content is wrapped in markers (`# >>> agentlink >>>` / `# <<< agentlink <<<`) for clean removal. Removing those sections preserves the hook file's existing permissions. Generated hook commands shell-quote the binary path so installs under paths with spaces remain valid.
 

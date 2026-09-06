@@ -23,7 +23,7 @@
   <meta property="og:image" content="https://agentlink.run/imgs/og.png">
   <meta property="og:image:alt" content="Agentlink source and alias map for AI coding instruction files">
   <meta property="article:published_time" content="2026-09-01T00:00:00Z">
-  <meta property="article:modified_time" content="2026-09-01T00:00:00Z">
+  <meta property="article:modified_time" content="2026-09-05T00:00:00Z">
   <meta property="article:author" content="Sam Rogers">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AI instruction files in monorepos">
@@ -38,7 +38,7 @@
     "url": "https://agentlink.run/guides/monorepo-instruction-files/",
     "mainEntityOfPage": "https://agentlink.run/guides/monorepo-instruction-files/",
     "datePublished": "2026-09-01",
-    "dateModified": "2026-09-01",
+    "dateModified": "2026-09-05",
     "inLanguage": "en",
     "image": "https://agentlink.run/imgs/og.png",
     "author": { "@type": "Person", "name": "Sam Rogers", "url": "https://snapsynapse.com/" },
@@ -54,7 +54,7 @@
     <a class="brand" href="/">Agentlink</a>
     <div class="nav-links">
       <a href="/guides/monorepo-instruction-files/" aria-current="page">Guides</a>
-      <a href="/reference/supported-tools/">Supported tools</a>
+      <a href="/#supported-tools">Supported tools</a>
       <a href="https://github.com/snapsynapse/agentlink">GitHub</a>
     </div>
   </div>
@@ -64,7 +64,7 @@
     <p class="eyebrow">Agentlink guide</p>
     <h1>AI instruction files in monorepos</h1>
     <p class="lede">Start with one root policy, add nested files only for real local differences, and never assume that AGENTS.md, CLAUDE.md, and GEMINI.md share a precedence model.</p>
-    <p class="meta"><span>By Sam Rogers</span><span>Published September 1, 2026</span><span>Agentlink v0.5.0</span></p>
+    <p class="meta"><span>By Sam Rogers</span><span>Published September 1, 2026</span><span>Agentlink v0.6.0</span></p>
 
     <h2>Separate content scope from file synchronization</h2>
     <p>Two questions are easy to conflate. First, which instructions should apply to work in a package? Second, which tool-specific paths should contain identical content? The repository&rsquo;s instruction hierarchy answers the first question. Agentlink&rsquo;s symlinks answer only the second.</p>
@@ -80,8 +80,12 @@ links:
   - .github/copilot-instructions.md</code></pre>
     <p>Keep a tool-specific file out of <code>links</code> when it is a real wrapper or has independent content. For example, a real <code>CLAUDE.md</code> can import <code>@AGENTS.md</code> and add Claude-only guidance.</p>
 
+    <h2>Multiple sources need separate configurations</h2>
+    <p>One configuration has one source. A root configuration does not recursively discover package configurations, even with <code>scan --nested</code>. For independently scoped instructions, put a separate <code>.agentlink.yaml</code> beside each package&rsquo;s real <code>AGENTS.md</code>, declaring only that package&rsquo;s aliases. Run <code>agentlink sync --dry-run</code> and then <code>agentlink sync</code> from each configured package directory. Do not list package aliases under the root config unless they should read the root source.</p>
+    <p>Alternatively, leave the repository unconfigured and use nested scanning for the documented alias set. These are distinct workflows; explicit root configuration always wins over automatic discovery.</p>
+
     <h2>Use nested scan intentionally</h2>
-    <p>For repositories without explicit configuration, <code>agentlink scan</code> manages root aliases by default. The optional <code>--nested</code> flag also looks for nested <code>AGENTS.md</code> files, but creates adjacent aliases only for integrations with documented nested discovery. In v0.5.0, that gate covers Claude Code and Gemini CLI. Unknown tools remain root-only.</p>
+    <p>For repositories without explicit configuration, <code>agentlink scan</code> manages root aliases by default. The optional <code>--nested</code> flag also looks for nested <code>AGENTS.md</code> files, but creates adjacent aliases only for integrations with documented nested discovery. In v0.6.0, that gate covers Claude Code and Gemini CLI. Unknown tools remain root-only.</p>
     <pre><code># Preview every repository first
 agentlink scan ~/Git --nested --dry-run
 

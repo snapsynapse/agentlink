@@ -23,7 +23,7 @@
   <meta property="og:image" content="https://agentlink.run/imgs/og.png">
   <meta property="og:image:alt" content="Agentlink source and alias map for AI coding instruction files">
   <meta property="article:published_time" content="2026-09-01T00:00:00Z">
-  <meta property="article:modified_time" content="2026-09-01T00:00:00Z">
+  <meta property="article:modified_time" content="2026-09-05T00:00:00Z">
   <meta property="article:author" content="Sam Rogers">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="How to sync AGENTS.md with symlinks">
@@ -38,7 +38,7 @@
     "url": "https://agentlink.run/guides/agents-md-symlinks/",
     "mainEntityOfPage": "https://agentlink.run/guides/agents-md-symlinks/",
     "datePublished": "2026-09-01",
-    "dateModified": "2026-09-01",
+    "dateModified": "2026-09-05",
     "inLanguage": "en",
     "image": "https://agentlink.run/imgs/og.png",
     "author": { "@type": "Person", "name": "Sam Rogers", "url": "https://snapsynapse.com/" },
@@ -54,7 +54,7 @@
     <a class="brand" href="/">Agentlink</a>
     <div class="nav-links">
       <a href="/guides/agents-md-symlinks/" aria-current="page">Guides</a>
-      <a href="/reference/supported-tools/">Supported tools</a>
+      <a href="/#supported-tools">Supported tools</a>
       <a href="https://github.com/snapsynapse/agentlink">GitHub</a>
     </div>
   </div>
@@ -64,7 +64,7 @@
     <p class="eyebrow">Agentlink guide</p>
     <h1>How to sync AGENTS.md with symlinks</h1>
     <p class="lede">Use one real instruction file and expose it at the paths your AI coding tools expect. This removes duplicate-file drift while keeping the filesystem relationship visible and reversible.</p>
-    <p class="meta"><span>By Sam Rogers</span><span>Published September 1, 2026</span><span>Agentlink v0.5.0</span></p>
+    <p class="meta"><span>By Sam Rogers</span><span>Published September 1, 2026</span><span>Agentlink v0.6.0</span></p>
 
     <img class="diagram" src="/imgs/instruction-file-map.svg" width="1200" height="675" alt="Diagram showing AGENTS.md as the real source file with CLAUDE.md, GEMINI.md, .cursorrules, and GitHub Copilot instructions as aliases.">
 
@@ -79,11 +79,11 @@ source: AGENTS.md
 links:
   - CLAUDE.md
   - GEMINI.md
-  - .github/copilot-instructions.md
-
-agentlink sync --dry-run
+  - .github/copilot-instructions.md</code></pre>
+    <p>Run from the project directory:</p>
+    <pre><code>agentlink sync --dry-run
 agentlink sync</code></pre>
-    <p>Agentlink creates missing parent directories and uses relative link targets inside a project. Re-running <code>sync</code> repairs broken or misdirected links. A regular file is not silently replaced: use <code>--backup</code> after inspection, or <code>--force</code> only when replacement is intentional. Directories and special files are refused.</p>
+    <p>Agentlink creates missing parent directories and uses relative link targets inside a project. The updated source requires <code>--force</code> to replace broken or misdirected links; <code>--backup</code> permits regular-file replacement only. A regular file is not silently replaced: use <code>--backup</code> after inspection, or <code>--force</code> only when replacement is intentional. Directories and special files are refused.</p>
 
     <h2>Verify the result</h2>
     <ol>

@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -234,4 +235,48 @@ func parseLaunchdProgramArguments(content string) ([]string, error) {
 		}
 	}
 	return args, nil
+}
+
+func TestGitHookRejectsOtherInterpretersWithoutMutation(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "post-checkout")
+	original := "#!/usr/bin/env python3\nprint('existing hook')\n"
+	if err := os.WriteFile(path, []byte(original), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := appendOrCreateHook(path, gitHookContent("/tmp/agentlink")); err == nil {
+		t.Fatal("accepted Python hook")
+	}
+	got, err := os.ReadFile(path)
+	if err != nil || string(got) != original {
+		t.Fatalf("modified hook: %q %v", got, err)
+	}
+}
+
+func TestGitHookRunsBeforeExistingExit(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "post-checkout")
+	binary := filepath.Join(dir, "agentlink")
+	marker := filepath.Join(dir, "invoked")
+	if err := os.WriteFile(binary, []byte("#!/bin/sh\nprintf invoked > "+shellQuote(marker)+"\n"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	original := "#!/bin/sh\nexit 0\n"
+	if err := os.WriteFile(path, []byte(original), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := appendOrCreateHook(path, gitHookContent(binary)); err != nil {
+		t.Fatal(err)
+	}
+	if out, err := exec.Command(path).CombinedOutput(); err != nil {
+		t.Fatalf("hook failed: %v %s", err, out)
+	}
+	if _, err := os.Stat(marker); err != nil {
+		t.Fatal("agentlink was unreachable")
+	}
+	if _, err := removeMarkedSection(path); err != nil {
+		t.Fatal(err)
+	}
+	if got, err := os.ReadFile(path); err != nil || string(got) != original {
+		t.Fatalf("original hook not restored: %q %v", got, err)
+	}
 }

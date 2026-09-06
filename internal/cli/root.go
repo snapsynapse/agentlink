@@ -6,6 +6,7 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"github.com/snapsynapse/agentlink/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -41,7 +42,7 @@ func init() {
 
 	// Global flags
 	rootCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", false, "show what would be done without making filesystem changes")
-	rootCmd.PersistentFlags().BoolVarP(&force, "force", "f", false, "replace conflicting regular files without backup")
+	rootCmd.PersistentFlags().BoolVarP(&force, "force", "f", false, "replace conflicting regular files or symlinks without backup")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "suppress non-error output")
 }
@@ -100,4 +101,13 @@ func printError(format string, args ...interface{}) {
 // printWarning prints a warning message
 func printWarning(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, "[warning] "+format+"\n", args...)
+}
+
+var useGlobalConfig bool
+
+func selectConfigPath() (string, bool, error) {
+	if useGlobalConfig {
+		return config.GlobalConfigPath(), false, nil
+	}
+	return config.FindConfigPath()
 }

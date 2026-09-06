@@ -7,8 +7,8 @@ small standalone project maintained by Snap Synapse. There is no LTS branch.
 
 | Version | Supported |
 |---------|-----------|
-| 0.5.x   | Yes       |
-| < 0.5   | No        |
+| 0.6.x   | Yes       |
+| < 0.6   | No        |
 
 ## Reporting a vulnerability
 

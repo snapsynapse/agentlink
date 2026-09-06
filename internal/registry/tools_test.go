@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestAllReturnsNonEmpty(t *testing.T) {
@@ -21,7 +22,7 @@ func TestRegistryIncludes2026Tools(t *testing.T) {
 		"Crush":     "AGENTS.md",
 		"Kiro":      "AGENTS.md",
 		"OpenClaw":  "",
-		"Qwen Code": "QWEN.md",
+		"Qwen Code": "AGENTS.md",
 	}
 	byName := make(map[string]Tool)
 	for _, tool := range All() {
@@ -50,6 +51,13 @@ func TestAllToolsHaveName(t *testing.T) {
 		if tool.Description == "" {
 			t.Errorf("tool %q has empty Description", tool.Name)
 		}
+		ref, err := url.Parse(tool.IntegrationReference)
+		if err != nil || ref.Scheme != "https" || ref.Host == "" || tool.IntegrationNotes == "" {
+			t.Errorf("tool %q needs HTTPS vendor evidence and integration caveats", tool.Name)
+		}
+		if _, err := time.Parse("2006-01-02", tool.ReviewedOn); err != nil {
+			t.Errorf("tool %q needs a valid review date", tool.Name)
+		}
 	}
 }
 
@@ -71,8 +79,8 @@ func TestPreferredAgentsMDIntegrations(t *testing.T) {
 	if got := byName["Codex CLI"].AgentsMDIntegration(); got != IntegrationNative {
 		t.Errorf("Codex CLI integration = %q, want %q", got, IntegrationNative)
 	}
-	if got := byName["Qwen Code"].AgentsMDIntegration(); got != IntegrationSymlink {
-		t.Errorf("Qwen Code integration = %q, want %q", got, IntegrationSymlink)
+	if got := byName["Qwen Code"].AgentsMDIntegration(); got != IntegrationNative {
+		t.Errorf("Qwen Code integration = %q, want %q", got, IntegrationNative)
 	}
 }
 

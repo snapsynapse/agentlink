@@ -31,7 +31,7 @@
   <meta property="og:url" content="https://agentlink.run/">
   <meta property="og:locale" content="en_US">
   <meta property="article:published_time" content="2026-04-14T00:00:00Z">
-  <meta property="article:modified_time" content="2026-09-01T00:00:00Z">
+  <meta property="article:modified_time" content="2026-09-05T00:00:00Z">
   <meta property="article:author" content="Sam Rogers">
   <meta property="article:publisher" content="https://snapsynapse.com/">
   <meta property="article:section" content="Developer Tools">
@@ -62,14 +62,14 @@
     "name": "Agentlink",
     "description": "A free, open-source command-line tool that keeps AI coding assistant instruction files synchronized through symlinks.",
     "url": "https://agentlink.run/",
-    "downloadUrl": "https://github.com/snapsynapse/agentlink/releases/tag/v0.5.0",
+    "downloadUrl": "https://github.com/snapsynapse/agentlink/releases/tag/v0.6.0",
     "codeRepository": "https://github.com/snapsynapse/agentlink",
     "applicationCategory": "DeveloperApplication",
     "applicationSubCategory": "Command-line tool",
     "operatingSystem": "macOS, Linux",
-    "softwareVersion": "0.5.0",
+    "softwareVersion": "0.6.0",
     "datePublished": "2026-04-14",
-    "dateModified": "2026-09-01",
+    "dateModified": "2026-09-05",
     "license": "https://opensource.org/licenses/MIT",
     "image": "https://agentlink.run/imgs/og.png",
     "author": {
@@ -103,7 +103,7 @@
     "url": "https://agentlink.run/",
     "mainEntityOfPage": { "@type": "WebPage", "@id": "https://agentlink.run/" },
     "datePublished": "2026-04-14",
-    "dateModified": "2026-09-01",
+    "dateModified": "2026-09-05",
     "author": {
       "@type": "Person",
       "name": "Sam Rogers",
@@ -435,6 +435,12 @@
     th { font-weight: 600; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
     td.tool { font-family: var(--mono); color: var(--accent); white-space: nowrap; }
 
+    .support-table { overflow-x: auto; }
+    .support-table td { vertical-align: top; overflow-wrap: anywhere; }
+    .support-table code { white-space: normal; }
+    .support-table th[scope="row"] { text-transform: none; letter-spacing: normal; font-size: 0.9rem; }
+    .support-table:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
     /* Footer */
     footer {
       border-top: 1px solid var(--border);
@@ -467,7 +473,9 @@
       pre, .linkmap { font-size: 0.72rem; padding: 1rem; }
     }
     @media (max-width: 520px) {
-      nav .links.mobile-compact a:not(.gh-star) { display: none; }
+      nav .links.mobile-compact { flex-wrap: wrap; justify-content: center; }
+      nav .links.mobile-compact a { padding: 0.4rem 0; }
+      nav .container { flex-wrap: wrap; justify-content: center; }
       nav .container { gap: 0.5rem; }
     }
   </style>
@@ -493,7 +501,7 @@
       <span>Agentlink</span>
     </a>
     <div class="links mobile-compact">
-      <a href="#why">Why</a>
+      <a href="#supported-tools">Support</a>
       <a href="#guides">Guides</a>
       <a href="#install">Install</a>
       <a href="#usage">Usage</a>
@@ -517,9 +525,9 @@
       <span class="sep" aria-hidden="true">&middot;</span>
       Published <time datetime="2026-04-14">April 14, 2026</time>
       <span class="sep" aria-hidden="true">&middot;</span>
-      Last updated <time datetime="2026-09-01">September 1, 2026</time>
+      Last updated <time datetime="2026-09-05">September 5, 2026</time>
       <span class="sep" aria-hidden="true">&middot;</span>
-      <span class="version">v0.5.0</span>
+      <span class="version">v0.6.0</span>
       <span class="sep" aria-hidden="true">&middot;</span>
       <a href="https://opensource.org/licenses/MIT" rel="license" target="_blank">MIT</a>
     </p>
@@ -564,11 +572,11 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
       </div>
       <div class="pillar">
         <h3>Project and global</h3>
-        <p>Works in repos <em>and</em> under <code>~/.config/</code>. One <code>agentlink sync</code> keeps both scopes in shape.</p>
+        <p>Works in repos <em>and</em> under <code>~/.config/</code>. Each <code>agentlink sync</code> selects one scope: the current project config when present, otherwise the global config. Use <code>sync --global</code> to explicitly select global scope.</p>
       </div>
       <div class="pillar">
         <h3>Idempotent</h3>
-        <p>Re-run safely. Broken or misdirected links get repaired. Real files are never silently overwritten; preview with dry-run, back up, or force only after inspection.</p>
+        <p>Re-run safely. Missing aliases are created; replacement of broken or misdirected links requires explicit <code>--force</code>. Real files are never silently overwritten; preview with dry-run, back up, or force only after inspection.</p>
       </div>
       <div class="pillar">
         <h3>Automatic triggers</h3>
@@ -576,37 +584,50 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
       </div>
     </div>
 
-    <h3 style="margin-top: 2rem;">Tools covered out of the box</h3>
-    <table>
-      <thead>
-        <tr><th>Tool</th><th>File it expects</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Aider</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>Amp</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>Antigravity</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>Autohand</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>Claude Code</td><td class="tool">CLAUDE.md</td></tr>
-        <tr><td>Crush</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>Codex CLI</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>Cursor</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>Factory (Droid)</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>Gemini CLI</td><td class="tool">GEMINI.md</td></tr>
-        <tr><td>GitHub Copilot</td><td class="tool">.github/copilot-instructions.md</td></tr>
-        <tr><td>Goose</td><td class="tool">.goosehints</td></tr>
-        <tr><td>Junie</td><td class="tool">.junie/AGENTS.md</td></tr>
-        <tr><td>Kilo Code</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>Kiro</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>OpenCode</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>Qwen Code</td><td class="tool">QWEN.md</td></tr>
-        <tr><td>RooCode</td><td class="tool">.roo/rules/rules.md</td></tr>
-        <tr><td>Windsurf</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>Zed</td><td class="tool">AGENTS.md</td></tr>
-        <tr><td>Anything else</td><td class="tool">(add to config)</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: -0.5rem;">Full registry in <code>internal/registry/tools.go</code>. It distinguishes native, configurable, import, symlink, and unsupported AGENTS.md integrations. Claude Code can import <code>@AGENTS.md</code> from a real <code>CLAUDE.md</code>; Gemini CLI can be configured to load <code>AGENTS.md</code> directly.</p>
     <p>Scope is deliberately narrow: <strong>instruction files only.</strong> No MCP config, no chain configs. Simple on purpose.</p>
+  </div>
+</section>
+
+<section id="supported-tools">
+  <div class="container">
+    <h2>Supported platforms and AI tools</h2>
+    <p>Release binaries support macOS and Linux, each on ARM64 and x86-64 (AMD64). Git and zsh hooks work on both systems; launchd is macOS-only. Native Windows is not a supported release target. WSL uses the Linux binary, but is not a separate tested platform.</p>
+    <p><strong>Agentlink v0.6.0, September 5, 2026.</strong> This listing describes the released registry, including vendor references and client caveats.</p>
+    <p>Native means the client reads AGENTS.md at the stated scope. Configurable and import modes require setup in that tool. Symlink means Agentlink creates an alias at the listed project path. Global paths are separate instruction scopes, not settings files. Detection is a heuristic, not proof that a tool loaded the instructions.</p>
+    <p>The complete listing is generated from the registry, with vendor references and version caveats. Native readers need no project alias. <a href="/reference/supported-tools/">Read integration and nested-scan guidance</a>.</p>
+<!-- BEGIN GENERATED TOOLS -->
+<div class="support-table" role="region" aria-label="AI tool support" tabindex="0">
+<table>
+<caption>Instruction integrations and vendor references</caption>
+<thead><tr><th scope="col">Tool / mode</th><th scope="col">Instruction paths</th><th scope="col">Requirements and evidence</th></tr></thead>
+<tbody>
+<tr><th scope="row">Aider<br><small>configurable</small></th><td>Project: <code>AGENTS.md</code><br>Global: Not listed</td><td>Use aider --read AGENTS.md or set read: AGENTS.md in .aider.conf.yml; no automatic loading claim. <a href="https://aider.chat/docs/usage/conventions.html">Vendor reference for Aider</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Amp<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: <code>~/.config/AGENTS.md</code></td><td>Also loads ~/.config/amp/AGENTS.md; avoid duplicating the same instructions in both global paths. <a href="https://ampcode.com/docs/customize/agents-md">Vendor reference for Amp</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Antigravity<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: <code>~/.gemini/GEMINI.md</code></td><td>Current CLI reads root AGENTS.md or GEMINI.md; older IDE installations use rules settings. <a href="https://antigravity.google/docs/cli/best-practices/">Vendor reference for Antigravity</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Autohand<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: Not listed</td><td>Project instructions load at conversation start. <a href="https://docs.autohand.ai/working-with-autohand-code/agents-md">Vendor reference for Autohand</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Claude Code<br><small>import</small></th><td>Project: <code>CLAUDE.md</code><br>Global: <code>~/.claude/CLAUDE.md</code></td><td>Keep a real CLAUDE.md with @AGENTS.md when adding Claude-only instructions. <a href="https://code.claude.com/docs/en/memory">Vendor reference for Claude Code</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Cline<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: <code>~/.agents/AGENTS.md</code></td><td>Root and shared global AGENTS.md are supported; rules can be toggled in Cline. <a href="https://docs.cline.bot/customization/cline-rules">Vendor reference for Cline</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Codex CLI<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: <code>~/.codex/AGENTS.md</code></td><td>CODEX_HOME can override the global directory; AGENTS.override.md takes precedence. <a href="https://developers.openai.com/codex/guides/agents-md">Vendor reference for Codex CLI</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Continue<br><small>symlink</small></th><td>Project: <code>.continue/rules/AGENTS.md</code><br>Global: Not listed</td><td>Create a local Markdown rule in .continue/rules; model/provider config.yaml is not an instruction alias. <a href="https://docs.continue.dev/customize/deep-dives/rules">Vendor reference for Continue</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Crush<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: <code>~/.config/AGENTS.md</code></td><td>Shared global context is ~/.config/AGENTS.md; Crush-specific context can use ~/.config/crush/CRUSH.md. <a href="https://github.com/charmbracelet/crush">Vendor reference for Crush</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Cursor<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: Not listed</td><td>Root and nested AGENTS.md apply to Agent; global User Rules are configured in the editor. <a href="https://cursor.com/docs/rules">Vendor reference for Cursor</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Factory (Droid)<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: <code>~/.factory/AGENTS.md</code></td><td>Droid reads repository guidance; detection uses the droid command. <a href="https://docs.factory.ai/harness/agents-md">Vendor reference for Factory (Droid)</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Gemini CLI<br><small>configurable</small></th><td>Project: <code>GEMINI.md</code><br>Global: <code>~/.gemini/GEMINI.md</code></td><td>Set context.fileName to AGENTS.md in Gemini settings to avoid an alias. <a href="https://geminicli.com/docs/cli/gemini-md/">Vendor reference for Gemini CLI</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">GitHub Copilot<br><small>native</small></th><td>Project: <code>.github/copilot-instructions.md</code><br>Global: <code>~/.copilot/copilot-instructions.md</code></td><td>Native AGENTS.md in CLI and supported agent clients; .github/copilot-instructions.md remains the cross-feature alias. IDE support varies. <a href="https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions">Vendor reference for GitHub Copilot</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Goose<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: <code>~/.config/goose/.goosehints</code></td><td>Developer extension required. Defaults load AGENTS.md and .goosehints; avoid duplicate instructions. CONTEXT_FILE_NAMES overrides discovery. <a href="https://goose-docs.ai/docs/guides/context-engineering/using-goosehints/">Vendor reference for Goose</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Junie<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: Not listed</td><td>Root AGENTS.md is read unless .junie/AGENTS.md or an explicit Guidelines path overrides it. <a href="https://junie.jetbrains.com/docs/junie-plugin-project-settings.html">Vendor reference for Junie</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Kilo Code<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: Not listed</td><td>Root and per-directory AGENTS.md supported; uppercase filename required. <a href="https://kilo.ai/docs/customize/agents-md">Vendor reference for Kilo Code</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Kiro<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: <code>~/.kiro/steering/AGENTS.md</code></td><td>Default agents load AGENTS.md; custom agents must explicitly include steering resources. <a href="https://kiro.dev/docs/steering/">Vendor reference for Kiro</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">OpenClaw<br><small>native</small></th><td>Project: Not listed<br>Global: <code>~/.openclaw/workspace/AGENTS.md</code></td><td>Workspace instructions, not arbitrary repository discovery. Sandbox seeding rejects aliases outside the workspace. <a href="https://docs.openclaw.ai/concepts/agent-workspace">Vendor reference for OpenClaw</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">OpenCode<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: <code>~/.config/opencode/AGENTS.md</code></td><td>Global path honors XDG_CONFIG_HOME. V2 reads AGENTS.md; older fallback rules differ. <a href="https://opencode.ai/v2/docs/instructions">Vendor reference for OpenCode</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Qwen Code<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: <code>~/.qwen/QWEN.md</code></td><td>Current Qwen also reads AGENTS.md; QWEN.md remains supported. Avoid loading duplicate copies. <a href="https://qwenlm.github.io/qwen-code-docs/en/users/features/memory/">Vendor reference for Qwen Code</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">RooCode<br><small>symlink</small></th><td>Project: <code>.roo/rules/rules.md</code><br>Global: <code>~/.roo/rules/AGENTS.md</code></td><td>An explicit .md file in .roo/rules supplies shared rules; no root AGENTS.md autodiscovery claim. <a href="https://roocodeinc.github.io/Roo-Code/features/custom-instructions/">Vendor reference for RooCode</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Windsurf<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: Not listed</td><td>Cascade supports root and nested AGENTS.md; documentation now lives under Devin Desktop. <a href="https://docs.devin.ai/desktop/cascade/agents-md">Vendor reference for Windsurf</a> (reviewed 2026-09-05).</td></tr>
+<tr><th scope="row">Zed<br><small>native</small></th><td>Project: <code>AGENTS.md</code><br>Global: <code>~/.config/zed/AGENTS.md</code></td><td>Zed Agent uses the first matching project instruction file; external agents use their own loaders. <a href="https://zed.dev/docs/ai/instructions">Vendor reference for Zed</a> (reviewed 2026-09-05).</td></tr>
+</tbody>
+</table>
+</div>
+<!-- END GENERATED TOOLS -->
   </div>
 </section>
 
@@ -629,7 +650,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
       </a>
       <a class="guide-card" href="/reference/supported-tools/">
         <h3>Supported tools reference</h3>
-        <p>Compare the native, configurable, import, symlink, and unsupported integrations in Agentlink v0.5.0.</p>
+        <p>Understand integration modes, source versions, and nested discovery.</p>
       </a>
     </div>
   </div>
@@ -638,7 +659,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
 <section id="install">
   <div class="container">
     <h2>Install</h2>
-    <p>Pre-built binaries for macOS and Linux are on the <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.5.0" target="_blank" rel="noopener">v0.5.0 release page</a>. Or install directly with Go 1.23+.</p>
+    <p>Pre-built binaries for macOS and Linux are on the <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.6.0" target="_blank" rel="noopener">v0.6.0 release page</a>. Or install directly with Go 1.23+.</p>
 
     <div class="code-grid single">
       <div class="code-block">
@@ -661,14 +682,14 @@ agentlink --help</pre>
       <div class="code-block">
         <h3>Pre-built binary</h3>
 <pre># macOS (Apple Silicon)
-curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.5.0/agentlink-darwin-arm64
-curl -L -o SHA256SUMS.txt https://github.com/snapsynapse/agentlink/releases/download/v0.5.0/SHA256SUMS.txt
+curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.6.0/agentlink-darwin-arm64
+curl -L -o SHA256SUMS.txt https://github.com/snapsynapse/agentlink/releases/download/v0.6.0/SHA256SUMS.txt
 grep ' agentlink-darwin-arm64$' SHA256SUMS.txt | sed 's/agentlink-darwin-arm64/agentlink/' | shasum -a 256 -c -
 chmod +x agentlink && mv agentlink /usr/local/bin/
 
 # macOS (Intel) / Linux
 # Replace darwin-arm64 with darwin-amd64, linux-amd64, or linux-arm64</pre>
-        <p class="annotation">Checksums in <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.5.0" target="_blank" rel="noopener">SHA256SUMS.txt</a> on the release page.</p>
+        <p class="annotation">Checksums in <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.6.0" target="_blank" rel="noopener">SHA256SUMS.txt</a> on the release page.</p>
       </div>
 
       <div class="code-block">
@@ -697,9 +718,9 @@ links:
   - CLAUDE.md
   - GEMINI.md
   - .cursorrules
-  - .github/copilot-instructions.md
-
-# Then:
+  - .github/copilot-instructions.md</pre>
+<p>From the project directory:</p>
+<pre>agentlink sync --dry-run
 agentlink sync</pre>
       </div>
 
@@ -711,10 +732,10 @@ links:
   - ~/.claude/CLAUDE.md
   - ~/.codex/AGENTS.md
   - ~/.gemini/GEMINI.md
-  - ~/.config/opencode/AGENTS.md
-
-# Then (auto-detects global config):
-agentlink sync</pre>
+  - ~/.config/opencode/AGENTS.md</pre>
+<p>From a directory without a project config, run <code>agentlink sync</code>. Use explicit global selection from any directory:</p>
+<pre>agentlink sync --global --dry-run
+agentlink sync --global</pre>
       </div>
 
       <div class="code-block">
@@ -749,7 +770,7 @@ agentlink scan ~/Git --nested</pre>
 
       <div class="code-block">
         <h3>Automatic triggers</h3>
-<pre># Install git/shell/launchd hooks so
+<pre># Install git/zsh hooks (plus launchd on macOS) so
 # sync runs without you thinking about it.
 agentlink hooks install --all
 
@@ -768,14 +789,14 @@ agentlink sync --dry-run
 # Back up regular files before replacing.
 agentlink sync --backup
 
-# Replace regular files only.
+# Replace regular files or conflicting links.
 agentlink sync --force</pre>
         <p class="annotation">Directories and special files are never replaced recursively.</p>
       </div>
     </div>
 
     <div class="canonical-note" role="note">
-      <strong>Assistant guide.</strong> Agentlink publishes a GuideCheck Level 4 guide-file target for bounded workstation install and local review, build, and test work at
+      <strong>Assistant guide.</strong> The guide is anchored to v0.6.0; Level 4 requires independent verification. It provides actions for bounded workstation install and local review, build, and test work at
       <a href="https://agentlink.run/.well-known/assistant-guide.txt">/.well-known/assistant-guide.txt</a>.
       Verify it, read it in full, and approve the reported level before asking an assistant to act on it.
     </div>
@@ -792,7 +813,7 @@ agentlink sync --force</pre>
       Agentlink began as <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">martinmose/agentlink</a>
       by Martin Mose Facondini (MIT); Snap Synapse maintains this continuation with <code>detect</code>, <code>scan</code>, <code>hooks</code>, automatic backup,
       global-config support, integration tests, and release distribution.
-      Last substantive revision: <time datetime="2026-09-01">2026-09-01</time>.
+      Last substantive revision: <time datetime="2026-09-05">2026-09-05</time>.
       <a href="https://github.com/snapsynapse/agentlink/commits/main/README.md" target="_blank" rel="noopener">Revision history &rarr;</a>
     </aside>
   </div>
@@ -803,7 +824,7 @@ agentlink sync --force</pre>
   <div class="container">
     <div class="footer-grid">
       <div class="footer-meta">
-        <p>Agentlink v0.5.0 &middot; <a href="https://github.com/snapsynapse/agentlink/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a></p>
+        <p>Agentlink v0.6.0 &middot; <a href="https://github.com/snapsynapse/agentlink/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a></p>
         <p>A <a href="https://snapsynapse.com" target="_blank" rel="noopener">Snap Synapse</a> project by <a href="https://snapsynapse.com" target="_blank" rel="noopener author">Sam Rogers</a>, with lineage from <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">martinmose/agentlink</a>.</p>
         <p style="margin-top: 0.5rem;">See also: <a href="https://hardguard25.com/" target="_blank" rel="noopener">HardGuard25</a> &middot; <a href="https://gracefulboundaries.dev/" target="_blank" rel="noopener">Graceful Boundaries</a> &middot; <a href="https://skillprovenance.dev/" target="_blank" rel="noopener">Skill Provenance</a></p>
       </div>

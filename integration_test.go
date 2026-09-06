@@ -408,8 +408,6 @@ func TestIntegrationScanNestedTopologyAndIdempotence(t *testing.T) {
 
 	for path, target := range map[string]string{
 		filepath.Join(unconfiguredRepo, "GEMINI.md"):    "AGENTS.md",
-		filepath.Join(unconfiguredRepo, ".goosehints"):  "AGENTS.md",
-		filepath.Join(unconfiguredRepo, "QWEN.md"):      "AGENTS.md",
 		filepath.Join(unconfiguredPackage, "CLAUDE.md"): "AGENTS.md",
 		filepath.Join(unconfiguredPackage, "GEMINI.md"): "AGENTS.md",
 		filepath.Join(configuredRepo, "GEMINI.md"):      "GUIDE.md",
@@ -492,8 +490,6 @@ func TestIntegrationScanNestedDryRunIsBytePreservingAndComplete(t *testing.T) {
 	expectedCreates := []string{
 		"[create] repo/CLAUDE.md -> AGENTS.md",
 		"[create] repo/GEMINI.md -> AGENTS.md",
-		"[create] repo/.goosehints -> AGENTS.md",
-		"[create] repo/QWEN.md -> AGENTS.md",
 		"[create] repo/packages/api/CLAUDE.md -> AGENTS.md",
 		"[create] repo/packages/api/GEMINI.md -> AGENTS.md",
 	}
