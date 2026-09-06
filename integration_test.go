@@ -272,7 +272,14 @@ func TestIntegrationDetectGenerate(t *testing.T) {
 	}
 
 	binaryPath := integrationBinaryPath
+	// Detection is an environment probe: provide a known tool instead of
+	// depending on tools installed on the developer or CI host.
+	home := t.TempDir()
+	if err := os.Mkdir(filepath.Join(home, ".claude"), 0755); err != nil {
+		t.Fatal(err)
+	}
 	cmd := exec.Command(binaryPath, "detect", "--generate")
+	cmd.Env = append(os.Environ(), "HOME="+home, "PATH="+t.TempDir())
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("detect --generate failed: %v\n%s", err, output)
@@ -282,7 +289,7 @@ func TestIntegrationDetectGenerate(t *testing.T) {
 	if err != nil {
 		t.Fatalf(".agentlink.yaml not created: %v", err)
 	}
-	if !strings.Contains(string(data), "source: AGENTS.md") {
+	if !strings.Contains(string(data), "source: AGENTS.md") || !strings.Contains(string(data), "CLAUDE.md") {
 		t.Errorf("generated config missing source line:\n%s", data)
 	}
 }
