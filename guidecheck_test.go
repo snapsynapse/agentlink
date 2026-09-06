@@ -118,16 +118,20 @@ func TestGuideChecksumActionRejectsTamperingAndMissingEntries(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, block, ok := strings.Cut(string(guide), "id: verify-checksum\n")
-	if !ok {
-		t.Fatal("missing verification action")
+	commands := []string{}
+	for _, id := range []string{"verify-checksum-entry", "verify-checksum"} {
+		_, block, ok := strings.Cut(string(guide), "id: "+id+"\n")
+		if !ok {
+			t.Fatal("missing verification action", id)
+		}
+		block, _, _ = strings.Cut(block, "[/action]")
+		_, command, ok := strings.Cut(block, "command: ")
+		if !ok {
+			t.Fatal("missing command", id)
+		}
+		command, _, _ = strings.Cut(command, "\n")
+		commands = append(commands, command)
 	}
-	block, _, _ = strings.Cut(block, "[/action]")
-	_, command, ok := strings.Cut(block, "command: sh -c '")
-	if !ok {
-		t.Fatal("missing executable checksum comparison")
-	}
-	command, _, _ = strings.Cut(command, "'\n")
 	sum := sha256.Sum256([]byte("original binary"))
 	for _, tc := range []struct {
 		name, binary, checksums string
@@ -144,11 +148,18 @@ func TestGuideChecksumActionRejectsTamperingAndMissingEntries(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			cmd := exec.Command("sh", "-c", command)
-			cmd.Dir = dir
-			out, err := cmd.CombinedOutput()
-			if (err == nil) != tc.wantSuccess {
-				t.Fatalf("checksum result: %v, output: %s", err, out)
+			var checkErr error
+			var output []byte
+			for _, command := range commands {
+				cmd := exec.Command("sh", "-c", command)
+				cmd.Dir = dir
+				output, checkErr = cmd.CombinedOutput()
+				if checkErr != nil {
+					break
+				}
+			}
+			if (checkErr == nil) != tc.wantSuccess {
+				t.Fatalf("checksum result: %v, output: %s", checkErr, output)
 			}
 		})
 	}
