@@ -1,0 +1,223 @@
+# Optional repository declaration; applicability and adoption are not conformance results.
+schema_version: 1
+intent: INTENT.md
+roles:
+- application
+- hosted
+- agent-facing
+- fork
+surfaces:
+  cli:
+    kind: package
+    sources:
+    - cmd/agentlink
+    - internal
+    - go.mod
+    - scripts/prepare-release.sh
+    - scripts/release-targets.txt
+    producer: generated
+    build: sh scripts/prepare-release.sh X.Y.Z (replace X.Y.Z with the approved release version; writes
+      ignored dist/ artifacts)
+    delivery: Go module github.com/snapsynapse/agentlink; GitHub Release binaries for darwin/linux and
+      arm64/amd64; Homebrew formula maintained in a separate tap. Publication and installation require
+      separate authority.
+  website:
+    kind: website
+    sources:
+    - docs
+    - cmd/update-docs/main.go
+    - internal/registry
+    outputs:
+    - docs/index.html
+    urls:
+    - https://agentlink.run/
+    producer: mixed
+    build: go run ./cmd/update-docs refreshes only the marked support listing in docs/index.html; the
+      remaining site content is hand maintained. Use -check for read-only drift detection.
+    delivery: Configured GitHub Pages main /docs route; current deployed identity must be verified separately.
+  assistant-guide:
+    kind: guide
+    sources:
+    - assistant-guide.txt
+    - assistant-guide-manifest.txt
+    - docs/.well-known/assistant-guide.txt
+    - docs/.well-known/assistant-guide-manifest.txt
+    urls:
+    - https://agentlink.run/.well-known/assistant-guide.txt
+    - https://agentlink.run/.well-known/assistant-guide-manifest.txt
+    producer: manual
+    delivery: Manually maintained byte-identical root and served copies under docs/.well-known/. Local
+      parity is not independently administered provenance. The manifest names an immutable release anchor;
+      publication and anchor verification are separate evidence.
+  legacy-posture:
+    kind: guide
+    sources:
+    - aiposture
+    - docs/.well-known/aiposture
+    urls:
+    - https://agentlink.run/.well-known/aiposture
+    producer: manual
+    delivery: Root and served plain-text product-boundary statement. This is not the current AI Posture
+      JSON declaration format.
+checks:
+  go-tests:
+    command: go test ./...
+    cwd: .
+    expected: Exit 0 for native unit and documentation contracts, including guide byte/profile/manifest
+      consistency; does not establish GuideCheck Level 4 or hosted acceptance.
+    blocking: true
+    prerequisites: Supported Go toolchain and cached or downloadable modules; tests use temporary fixtures.
+  docs-generator:
+    command: go run ./cmd/update-docs -check
+    cwd: .
+    expected: Exit 0 and no support-listing drift; no file writes.
+    blocking: true
+    prerequisites: Supported Go toolchain and dependencies.
+  search-local:
+    command: node scripts/check-search.mjs
+    cwd: .
+    expected: Exit 0 for the repository search contract; findings and collection failures remain distinct.
+    blocking: true
+    prerequisites: Node.js; search-audit.config.json and docs/ artifacts.
+  search-production:
+    command: node scripts/check-production-search.mjs
+    cwd: .
+    expected: Exit 0 against deployed pages; exit 1 findings and exit 2 collection/infrastructure failure
+      must remain distinct.
+    blocking: true
+    prerequisites: Node.js and public network access after the intended deployment; this declaration does
+      not authorize deployment.
+  release-contract:
+    command: sh scripts/check-release-contract.sh
+    cwd: .
+    expected: Exit 0; four target entries and separation of preparation from publication.
+    blocking: true
+    prerequisites: POSIX shell and native release scripts.
+standards:
+  guidecheck:
+    applicability: applicable
+    adoption: adopted
+    reason: Publishes bounded installation and verification actions. Existing context targets Level 4;
+      Go tests establish local structure and byte consistency only. A conformant verifier must report
+      achieved Level 4, blockers and independently checked anchors for the hosted claim; no pinned verifier
+      command is declared by this repo. Current guide revision is 1.2.4; guide revision and profile version
+      have distinct identities.
+    surfaces:
+    - assistant-guide
+    checks:
+    - go-tests
+    profile: human-verifiable-assistant-guide 0.7.1
+    evidence:
+    - PROJECT_CONTEXT.md
+    - guidecheck_test.go
+    - RELEASE_CHECKLIST.md
+  search-contract:
+    applicability: applicable
+    adoption: adopted
+    reason: Hosted property has repository and production search validators; console decisions and deployment
+      acceptance are separate.
+    surfaces:
+    - website
+    checks:
+    - search-local
+    - search-production
+    profile: portfolio-search-indexing-audit/v4
+    evidence:
+    - search-audit.config.json
+    - ops/search-indexing.md
+  siteline:
+    applicability: applicable
+    adoption: unresolved
+    reason: Public site is intended for agents. A current stored-result grade, full check inventory, scanner
+      identity and deployment relationship have not been established by this declaration; do not infer
+      conformance from a grade.
+    surfaces:
+    - website
+    - assistant-guide
+    checks: []
+  ai-posture:
+    applicability: unresolved
+    adoption: unresolved
+    reason: Existing plain-text aiposture describes a local utility boundary. It does not implement the
+      current AI Posture JSON maturity assertion. Lack of an AI runtime does not itself settle adoption;
+      owner-scoped applicability and any migration remain unresolved.
+    surfaces:
+    - legacy-posture
+    checks:
+    - go-tests
+    evidence:
+    - aiposture
+    - docs_contract_test.go
+  llms-full:
+    applicability: applicable
+    adoption: excepted
+    reason: The current intent omits a second concatenated document and relies on the concise index and
+      linked HTML detail.
+    surfaces:
+    - website
+    checks:
+    - search-local
+    exception: INTENT.md#exceptions-to-repo-standards
+    evidence:
+    - docs/llms.txt
+  fork-lineage:
+    applicability: applicable
+    adoption: adopted
+    reason: Maintained standalone continuation with upstream lineage; fork-tier attribution applies without
+      claiming GitHub-native fork status.
+    surfaces:
+    - cli
+    - website
+    checks: []
+    exception: INTENT.md#exceptions-to-repo-standards
+    evidence:
+    - NOTICE
+    - README.md
+    - go.mod
+  skill-provenance:
+    applicability: not-applicable
+    adoption: not-applicable
+    reason: Agentlink distributes a CLI and website, not a canonical skill bundle. Project-local consumer
+      contexts do not make it a skill home.
+    surfaces: []
+    checks: []
+  graceful-boundaries:
+    applicability: not-applicable
+    adoption: not-applicable
+    reason: Current scope is a local filesystem CLI; it exposes no hosted API or MCP refusal/limit surface.
+    surfaces:
+    - cli
+    checks: []
+    evidence:
+    - INTENT.md
+    - aiposture
+  hardguard25:
+    applicability: unresolved
+    adoption: unresolved
+    reason: No conformance assessment of applicable identifier or token/budget metadata has been performed
+      in this declaration tranche.
+    surfaces:
+    - cli
+    - assistant-guide
+    checks: []
+  skill-a11y-audit:
+    applicability: applicable
+    adoption: adopted
+    reason: Hosted site has a native accessibility workflow against the docs sitemap and a release requirement
+      of zero automated violations. Manual coverage remains separate. The .a11y-audit context still describes
+      a single page; current workflow covers the sitemap.
+    surfaces:
+    - website
+    checks: []
+    profile: WCAG 2.1 AA; native release gate requires zero automated violations
+    evidence:
+    - .github/workflows/a11y.yml
+    - .a11y-audit/PROJECT_CONTEXT.md
+    - RELEASE_CHECKLIST.md
+reassess_when:
+- CLI gains network, AI execution, API or MCP behavior.
+- Hosted routes, generator inputs, release packaging or delivery change.
+- GuideCheck profile or required achieved level changes.
+- AI Posture applicability and current JSON-format adoption receive an owner decision.
+- An INTENT exception changes or evidence contradicts declared applicability.
+- Native CI, accessibility route coverage, test prerequisites or release acceptance contracts change.

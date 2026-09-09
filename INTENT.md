@@ -39,6 +39,8 @@ N/A as an open-spec requirement. Product changes are admitted only when they pre
 
 Agentlink publishes a GuideCheck assistant guide for bounded installation and repository-verification actions. It uses the portfolio accessibility and search-contract methods for its hosted site. These integrations do not expand Agentlink's runtime scope.
 
+The optional [repository standards declaration](repo-standards.yaml) records applicability, declared adoption, source and delivery maps, and existing verification expectations. This intent remains authoritative for purpose, boundaries, and exceptions. Declaration validation does not establish conformance or authorize command execution.
+
 ## Exceptions to Repo Standards
 
 - `docs/llms-full.txt` is omitted because `docs/llms.txt` is a concise index of the product and its five public HTML pages. The homepage holds the generated support listing and links to three task guides and the integration reference. These linked HTML pages provide full detail; a second concatenated copy is omitted to avoid content drift. Reassess if machine consumers cannot follow these links.
@@ -47,6 +49,7 @@ Agentlink publishes a GuideCheck assistant guide for bounded installation and re
 
 ## Changelog
 
+- 2026-09-08: Added an optional standards declaration and context pointer; preserved current guide targets, native gates, exceptions, and unresolved adoption decisions.
 - 2026-09-01: Added deterministic topology, dry-run, registry-invariant, explicit-config, and documentation-parity contracts; cited Limited Edition Jonathan's nested symlink workaround without expanding Agentlink into content generation.
 - 2026-09-01: Clarified that Agentlink manages identical filesystem aliases while explicit real wrappers may layer tool-specific guidance; added integration metadata, config-aware scanning, and opt-in nested alias discovery without adding content generation.
 - 2026-08-20: Added the first repo-scoped intent contract during the repository lifecycle pilot.

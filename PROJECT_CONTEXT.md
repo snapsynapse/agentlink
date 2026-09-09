@@ -65,3 +65,12 @@ Snap Synapse project. Upstream attribution is preserved in `NOTICE`.
 - Publishes a "GuideCheck" Human-Verifiable Assistant Guide targeting Level 4
   conformance for bounded, approval-gated local setup/verification work by
   AI assistants
+
+## Standards context
+
+Read [INTENT.md](INTENT.md) for purpose, boundaries, and exceptions, then
+[repo-standards.yaml](repo-standards.yaml) for declared applicability, source
+and delivery maps, and native verification expectations. The declaration
+records adoption claims, not measured conformance. Reconcile it with current
+source and dated evidence; review commands before execution under the active
+task authority.
