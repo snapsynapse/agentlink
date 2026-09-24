@@ -367,7 +367,7 @@ links:
 ```
 
 Notes:
-- **`source` must be a real file**, not a symlink (Agentlink warns if it is).
+- **`source` must be a real file**, not a symlink. By default `agentlink sync` refuses a symlinked source, exits with an error, and changes nothing. `--force` links to it anyway, creating a chain that `agentlink check` still reports as a problem; point `source` at the real file instead.
 - Paths in `links` are relative to the project root.
 - To layer tool-specific guidance, omit that tool's path from `links` and keep its wrapper as a real committed file.
 

@@ -114,7 +114,7 @@ func TestLandingPageBylineIncludesLastUpdatedDate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	const want = "Last updated <time datetime=\"2026-09-05\">September 5, 2026</time>"
+	const want = "Last updated <time datetime=\"2026-09-23\">September 23, 2026</time>"
 	if !strings.Contains(string(data), want) {
 		t.Errorf("landing page byline missing %q", want)
 	}
@@ -192,7 +192,7 @@ func TestWebsiteConfigurationExamplesAreValidYAML(t *testing.T) {
 		t.Fatal(err)
 	}
 	paths = append(paths, "docs/index.html")
-	blocks := regexp.MustCompile(`(?s)<pre>(?:<code>)?(.*?)(?:</code>)?</pre>`)
+	blocks := regexp.MustCompile(`(?s)<pre(?:\s[^>]*)?>(?:<code>)?(.*?)(?:</code>)?</pre>`)
 	count := 0
 	for _, path := range paths {
 		data, err := os.ReadFile(path)
