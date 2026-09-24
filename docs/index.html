@@ -31,7 +31,7 @@
   <meta property="og:url" content="https://agentlink.run/">
   <meta property="og:locale" content="en_US">
   <meta property="article:published_time" content="2026-04-14T00:00:00Z">
-  <meta property="article:modified_time" content="2026-09-05T00:00:00Z">
+  <meta property="article:modified_time" content="2026-09-23T00:00:00Z">
   <meta property="article:author" content="Sam Rogers">
   <meta property="article:publisher" content="https://snapsynapse.com/">
   <meta property="article:section" content="Developer Tools">
@@ -69,7 +69,7 @@
     "operatingSystem": "macOS, Linux",
     "softwareVersion": "0.6.0",
     "datePublished": "2026-04-14",
-    "dateModified": "2026-09-05",
+    "dateModified": "2026-09-23",
     "license": "https://opensource.org/licenses/MIT",
     "image": "https://agentlink.run/imgs/og.png",
     "author": {
@@ -103,7 +103,7 @@
     "url": "https://agentlink.run/",
     "mainEntityOfPage": { "@type": "WebPage", "@id": "https://agentlink.run/" },
     "datePublished": "2026-04-14",
-    "dateModified": "2026-09-05",
+    "dateModified": "2026-09-23",
     "author": {
       "@type": "Person",
       "name": "Sam Rogers",
@@ -397,12 +397,12 @@
     /* Code blocks */
     .code-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 1.5rem;
       margin-top: 1.5rem;
     }
-    .code-grid.single { grid-template-columns: 1fr; }
-    .code-block { text-align: left; }
+    .code-grid.single { grid-template-columns: minmax(0, 1fr); }
+    .code-block { text-align: left; min-width: 0; }
     .code-block h3 { font-size: 0.95rem; margin-bottom: 0.75rem; }
     .code-block .annotation {
       font-size: 0.85rem;
@@ -441,6 +441,7 @@
     .support-table code { white-space: normal; }
     .support-table th[scope="row"] { text-transform: none; letter-spacing: normal; font-size: 0.9rem; }
     .support-table:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    pre:focus-visible, .linkmap:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     /* Footer */
     footer {
@@ -466,7 +467,7 @@
     @media (max-width: 768px) {
       h1 { font-size: 2rem; }
       .hero { padding: 3rem 0 2.5rem; }
-      .code-grid { grid-template-columns: 1fr; }
+      .code-grid { grid-template-columns: minmax(0, 1fr); }
       .pillars { grid-template-columns: 1fr; }
       nav .links { display: none; }
       nav .links.mobile-compact { display: flex; gap: 0.75rem; }
@@ -526,15 +527,15 @@
       <span class="sep" aria-hidden="true">&middot;</span>
       Published <time datetime="2026-04-14">April 14, 2026</time>
       <span class="sep" aria-hidden="true">&middot;</span>
-      Last updated <time datetime="2026-09-05">September 5, 2026</time>
+      Last updated <time datetime="2026-09-23">September 23, 2026</time>
       <span class="sep" aria-hidden="true">&middot;</span>
       <span class="version">v0.6.0</span>
       <span class="sep" aria-hidden="true">&middot;</span>
       <a href="https://opensource.org/licenses/MIT" rel="license" target="_blank">MIT</a>
     </p>
-    <p class="hook">Different tools want different files at project root: <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>GEMINI.md</code>, <code>.cursorrules</code>. There&rsquo;s no standard, and waiting for one is expensive. Agentlink keeps them in sync through symlinks. Edit one, every tool sees the change.</p>
+    <p class="hook">Different tools want different files at project root: <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>GEMINI.md</code>, <code>.cursorrules</code>. There&rsquo;s no standard, and waiting for one is expensive. Agentlink keeps them in sync through symlinks. Edit one file and every linked path holds the same text; each tool still decides when it rereads it.</p>
 
-    <div class="linkmap" role="img" aria-label="Example: AGENTS.md is the source file; CLAUDE.md, GEMINI.md, .cursorrules, and .github/copilot-instructions.md are symlinks pointing to it.">
+    <div class="linkmap" role="img" tabindex="0" aria-label="Example: AGENTS.md is the source file; CLAUDE.md, GEMINI.md, .cursorrules, and .github/copilot-instructions.md are symlinks pointing to it.">
 <span class="src">AGENTS.md</span>                              <span class="comment"># real file you edit</span>
 CLAUDE.md                           <span class="arrow">-&gt;</span> AGENTS.md
 GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
@@ -565,7 +566,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
       </div>
       <div class="pillar">
         <h3>Zero codegen</h3>
-        <p>No templates, no transforms, no surprise diffs. Symlinks are a 50-year-old OS feature. Edit the source, every tool sees it instantly.</p>
+        <p>No templates, no transforms, no surprise diffs. Symlinks are a 50-year-old OS feature. Edit the source and every alias changes with it, byte for byte.</p>
       </div>
       <div class="pillar">
         <h3>Future-proof</h3>
@@ -665,7 +666,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
     <div class="code-grid single">
       <div class="code-block">
         <h3>Homebrew (macOS and Linux)</h3>
-<pre>brew install snapsynapse/tap/agentlink
+<pre tabindex="0">brew install snapsynapse/tap/agentlink
 
 # Verify
 agentlink --version</pre>
@@ -673,7 +674,7 @@ agentlink --version</pre>
 
       <div class="code-block">
         <h3>Go install</h3>
-<pre>go install github.com/snapsynapse/agentlink/cmd/agentlink@latest
+<pre tabindex="0">go install github.com/snapsynapse/agentlink/cmd/agentlink@latest
 
 # Verify
 agentlink --help</pre>
@@ -682,7 +683,7 @@ agentlink --help</pre>
 
       <div class="code-block">
         <h3>Pre-built binary</h3>
-<pre># macOS (Apple Silicon)
+<pre tabindex="0"># macOS (Apple Silicon)
 curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.6.0/agentlink-darwin-arm64
 curl -L -o SHA256SUMS.txt https://github.com/snapsynapse/agentlink/releases/download/v0.6.0/SHA256SUMS.txt
 grep ' agentlink-darwin-arm64$' SHA256SUMS.txt | sed 's/agentlink-darwin-arm64/agentlink/' | shasum -a 256 -c -
@@ -696,7 +697,7 @@ chmod +x agentlink && mv agentlink /usr/local/bin/
       <div class="code-block">
         <h3>AI-assisted (GuideCheck)</h3>
         <p>Ask Claude, ChatGPT, or another tool-using assistant to install Agentlink by following the published <a href="https://agentlink.run/.well-known/assistant-guide.txt">assistant guide</a> — a <a href="https://guidecheck.org/" target="_blank" rel="noopener">GuideCheck</a> Human-Verifiable Assistant Guide with approval-gated, checksum-verified install actions.</p>
-<pre>Verify https://agentlink.run/.well-known/assistant-guide.txt with
+<pre tabindex="0">Verify https://agentlink.run/.well-known/assistant-guide.txt with
 https://guidecheck.org/verify, then follow its install actions.
 Show me each action block before running it.</pre>
         <p class="annotation">Verify the guide, read it in full, and approve each action. Install places one binary only; it creates no symlinks until you separately direct a sync.</p>
@@ -713,7 +714,7 @@ Show me each action block before running it.</pre>
     <div class="code-grid">
       <div class="code-block">
         <h3>Project config</h3>
-<pre># .agentlink.yaml (in project root)
+<pre tabindex="0"># .agentlink.yaml (in project root)
 source: AGENTS.md
 links:
   - CLAUDE.md
@@ -721,13 +722,13 @@ links:
   - .cursorrules
   - .github/copilot-instructions.md</pre>
 <p>From the project directory:</p>
-<pre>agentlink sync --dry-run
+<pre tabindex="0">agentlink sync --dry-run
 agentlink sync</pre>
       </div>
 
       <div class="code-block">
         <h3>Global config</h3>
-<pre># ~/.config/agentlink/config.yaml
+<pre tabindex="0"># ~/.config/agentlink/config.yaml
 source: ~/AGENTS.md
 links:
   - ~/.claude/CLAUDE.md
@@ -735,13 +736,13 @@ links:
   - ~/.gemini/GEMINI.md
   - ~/.config/opencode/AGENTS.md</pre>
 <p>From a directory without a project config, run <code>agentlink sync</code>. Use explicit global selection from any directory:</p>
-<pre>agentlink sync --global --dry-run
+<pre tabindex="0">agentlink sync --global --dry-run
 agentlink sync --global</pre>
       </div>
 
       <div class="code-block">
         <h3>Layered Claude wrapper</h3>
-<pre># Keep CLAUDE.md out of .agentlink.yaml.
+<pre tabindex="0"># Keep CLAUDE.md out of .agentlink.yaml.
 # CLAUDE.md remains a real committed file.
 @AGENTS.md
 
@@ -752,7 +753,7 @@ Use plan mode under src/billing/.</pre>
 
       <div class="code-block">
         <h3>Detect installed tools</h3>
-<pre># Scan the system for AI tool installs
+<pre tabindex="0"># Scan the system for AI tool installs
 # and report what's found.
 agentlink detect
 
@@ -771,7 +772,7 @@ agentlink scan ~/Git --nested</pre>
 
       <div class="code-block">
         <h3>Automatic triggers</h3>
-<pre># Install git/zsh hooks (plus launchd on macOS) so
+<pre tabindex="0"># Install git/zsh hooks (plus launchd on macOS) so
 # sync runs without you thinking about it.
 agentlink hooks install --all
 
@@ -783,7 +784,7 @@ agentlink hooks remove --all</pre>
       </div>
       <div class="code-block">
         <h3>Safe replacement</h3>
-<pre># Preview without creating, removing,
+<pre tabindex="0"># Preview without creating, removing,
 # or backing up files.
 agentlink sync --dry-run
 
@@ -814,7 +815,7 @@ agentlink sync --force</pre>
       Agentlink began as <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">martinmose/agentlink</a>
       by Martin Mose Facondini (MIT); Snap Synapse maintains this continuation with <code>detect</code>, <code>scan</code>, <code>hooks</code>, automatic backup,
       global-config support, integration tests, and release distribution.
-      Last substantive revision: <time datetime="2026-09-05">2026-09-05</time>.
+      Last substantive revision: <time datetime="2026-09-23">2026-09-23</time>.
       <a href="https://github.com/snapsynapse/agentlink/commits/main/README.md" target="_blank" rel="noopener">Revision history &rarr;</a>
     </aside>
   </div>

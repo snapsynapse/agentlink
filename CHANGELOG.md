@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Website no longer scrolls horizontally on phones and tablets: code grids use `minmax(0, 1fr)` tracks, and wide commands and the link map scroll inside keyboard-focusable regions.
+- Website hero and feature copy distinguish shared file contents from when each tool rereads them.
+- README states that `sync` rejects a symlinked `source` by default, and what `--force` does instead.
+
 ## [0.6.0] - 2026-09-05
 
 ### Fixed
