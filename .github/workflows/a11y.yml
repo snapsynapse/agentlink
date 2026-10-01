@@ -16,7 +16,7 @@ jobs:
         persist-credentials: false
 
     - name: Scan the published page artifact
-      uses: snapsynapse/skill-a11y-audit/.github/actions/scan@88b55612e34c9a436b6d0b886ae2bdca9b3b6b17 # v2.7.0
+      uses: snapsynapse/skill-a11y-audit/.github/actions/scan@6af2c95a56ff058cddf0c6febc71512db1d6d19b # v3.1.0
       with:
         serve-path: docs
         port: '8088'
