@@ -27,6 +27,8 @@ In scope: instruction-file discovery, explicit symlink configuration, synchroniz
 
 Out of scope: MCP configuration, prompt templating, content generation, content translation, secret management, remote execution, and ownership of the AI tools whose files Agentlink links.
 
+Deferred design input (no build decision): [instruction layering and topology diagnostics](design/instruction-layering-and-topology-2026-09.md).
+
 ## Conformance philosophy
 
 N/A because Agentlink is a utility, not an open specification. Public claims are still treated as testable contracts and must have deterministic evidence or an explicit unautomated gap.
