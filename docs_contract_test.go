@@ -114,7 +114,7 @@ func TestLandingPageBylineIncludesLastUpdatedDate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	const want = "Last updated <time datetime=\"2026-09-23\">September 23, 2026</time>"
+	const want = "Last updated <time datetime=\"2026-11-21\">November 21, 2026</time>"
 	if !strings.Contains(string(data), want) {
 		t.Errorf("landing page byline missing %q", want)
 	}

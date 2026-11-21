@@ -74,3 +74,20 @@ and delivery maps, and native verification expectations. The declaration
 records adoption claims, not measured conformance. Reconcile it with current
 source and dated evidence; review commands before execution under the active
 task authority.
+
+## Retirement
+
+Recorded by the `retired-page` skill on 2026-11-21. The site at `docs/` is now the retired record page.
+
+- status_word: Retired
+- retired_date: 2026-11-21 (capture day; default, awaiting Sam's confirmation)
+- retirement_reason: from the approved legacy video script, "Why it's stopping" chapter
+- youtube_id: YbWshl7B0PA ("Agentlink, for the record (2026)", 2:13)
+- poster: docs/imgs/legacy-poster.jpg
+- final_release: v0.6.0, 2026-09-05 (CHANGELOG date; the GitHub release shows 2026-09-06 UTC)
+- secondary pages: three guides and the supported-tools reference are kept, each with a status banner
+- domain_plan: not yet stated by Sam
+- mode: retire
+- publish_root: docs/
+- pre_retirement_commit: fbaacb344ed5018acd94daad60393221c6ff296d (restore with `git checkout fbaacb3 -- docs docs_contract_test.go`)
+- Left untouched on purpose: the assistant guide and its manifest (anchored to v0.6.0), the generated support listing, README.md, "Current status" above.

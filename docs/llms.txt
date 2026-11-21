@@ -1,5 +1,7 @@
 # Agentlink
 
+Status: Retired, 2026-11-21. The problem it worked around mostly solved itself as AI coding tools converged on shared instruction files. v0.6.0 is the final release. Record video: https://youtu.be/YbWshl7B0PA. Code: https://github.com/snapsynapse/agentlink
+
 Sync one AGENTS.md to every AI coding tool on your machine, with zero magic, just symlinks.
 
 ## Summary
