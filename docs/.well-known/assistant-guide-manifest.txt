@@ -1,5 +1,5 @@
 guide-path: /.well-known/assistant-guide.txt
-guide-version: 1.2.4
-guide-sha256: 2fe381d1178938d35be9fe90334ebba02f6f8c32fe1b747655c2e506dfce092c
+guide-version: 1.2.5
+guide-sha256: 468ea2075f06196b59d00c25c53f27c265c6f371cf7cac51fa8b9b5a49b857cc
 guide-bytes: 8184
-immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.6.0/docs/.well-known/assistant-guide.txt
+immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.7.0/docs/.well-known/assistant-guide.txt

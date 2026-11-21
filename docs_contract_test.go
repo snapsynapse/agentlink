@@ -230,32 +230,32 @@ func TestWebsiteConfigurationExamplesAreValidYAML(t *testing.T) {
 }
 
 func TestReleaseSurfacesUseCurrentVersion(t *testing.T) {
-	const version = "v0.6.0"
+	const version = "v0.7.0"
 	wants := map[string][]string{
-		"CHANGELOG.md": {"## [0.6.0] - 2026-09-05"},
-		"SECURITY.md":  {"| 0.6.x   | Yes"},
+		"CHANGELOG.md": {"## [0.7.0] - 2026-11-21"},
+		"SECURITY.md":  {"| 0.7.x   | Yes"},
 		"docs/index.html": {
-			"Agentlink v0.6.0",
-			"/releases/tag/v0.6.0",
-			"/releases/download/v0.6.0/agentlink-darwin-arm64",
+			"Agentlink v0.7.0",
+			"/releases/tag/v0.7.0",
+			"/releases/download/v0.7.0/agentlink-darwin-arm64",
 		},
-		"docs/llms.txt": {"Current release: v0.6.0."},
+		"docs/llms.txt": {"Current release: v0.7.0."},
 		"docs/.well-known/assistant-guide.txt": {
-			"guide-version: 1.2.4",
-			"go install github.com/snapsynapse/agentlink/cmd/agentlink@v0.6.0",
-			"/releases/download/v0.6.0/agentlink-darwin-arm64",
+			"guide-version: 1.2.5",
+			"go install github.com/snapsynapse/agentlink/cmd/agentlink@v0.7.0",
+			"/releases/download/v0.7.0/agentlink-darwin-arm64",
 		},
 		"docs/.well-known/assistant-guide-manifest.txt": {
-			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.6.0/docs/.well-known/assistant-guide.txt",
+			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.7.0/docs/.well-known/assistant-guide.txt",
 		},
 		"assistant-guide.txt": {
-			"guide-version: 1.2.4",
-			"applies-to: agentlink >=0.6.0",
+			"guide-version: 1.2.5",
+			"applies-to: agentlink >=0.7.0",
 		},
 		"assistant-guide-manifest.txt": {
-			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.6.0/docs/.well-known/assistant-guide.txt",
+			"immutable-release-url: https://github.com/snapsynapse/agentlink/blob/v0.7.0/docs/.well-known/assistant-guide.txt",
 		},
-		"RELEASE_NOTES-0.6.0.md": {"# Agentlink v0.6.0"},
+		"RELEASE_NOTES-0.7.0.md": {"# Agentlink v0.7.0"},
 	}
 
 	for path, required := range wants {

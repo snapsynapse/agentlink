@@ -11,8 +11,8 @@ v0.7.0.
 
 | Version | Supported |
 |---------|-----------|
-| 0.6.x   | Yes, until v0.7.0 ships. 0.6.0 has a vulnerability fixed in v0.7.0; upgrade. |
-| < 0.6   | No        |
+| 0.7.x   | Yes, 0.7.0 is the final release. |
+| < 0.7   | No. 0.6.0 and earlier have a vulnerability fixed in 0.7.0; upgrade. |
 
 If you installed automatic triggers with an earlier release, remove them:
 `agentlink hooks remove --all`. See the README's Uninstall section.

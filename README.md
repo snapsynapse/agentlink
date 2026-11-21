@@ -161,7 +161,7 @@ export PATH="$HOME/go/bin:$PATH"
 
 - **AUR**: `yay -S agentlink-bin`
 
-Current release: **v0.6.0**.
+Current release: **v0.7.0** (final).
 
 ---
 
@@ -297,7 +297,7 @@ agentlink detect -v          # show global config paths and AGENTS.md support
 
 The [homepage support listing](https://agentlink.run/#supported-tools) is the complete registry reference, including operating systems, project and global paths, integration modes, vendor sources, and caveats. It is generated from `internal/registry/tools.go`; run `go run ./cmd/update-docs` after changing the registry.
 
-Version 0.6.0 includes safety fixes, registry updates, and explicit `--global` selection for `sync`, `check`, and `clean`.
+Version 0.7.0, the final release, confines project configs to their repository, retires `hooks install`, and makes `hooks remove` fully undo earlier installs. The registry is unchanged from 0.6.0.
 
 Native readers need no alias. `detect --generate --prefer-native` reports configuration or import steps instead of writing vendor settings. Detection alone does not prove instruction loading.
 

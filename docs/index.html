@@ -63,12 +63,12 @@
     "name": "Agentlink",
     "description": "A free, open-source command-line tool that keeps AI coding assistant instruction files synchronized through symlinks.",
     "url": "https://agentlink.run/",
-    "downloadUrl": "https://github.com/snapsynapse/agentlink/releases/tag/v0.6.0",
+    "downloadUrl": "https://github.com/snapsynapse/agentlink/releases/tag/v0.7.0",
     "codeRepository": "https://github.com/snapsynapse/agentlink",
     "applicationCategory": "DeveloperApplication",
     "applicationSubCategory": "Command-line tool",
     "operatingSystem": "macOS, Linux",
-    "softwareVersion": "0.6.0",
+    "softwareVersion": "0.7.0",
     "datePublished": "2026-04-14",
     "dateModified": "2026-11-21",
     "license": "https://opensource.org/licenses/MIT",
@@ -624,7 +624,7 @@
       <span class="sep" aria-hidden="true">&middot;</span>
       Last updated <time datetime="2026-11-21">November 21, 2026</time>
       <span class="sep" aria-hidden="true">&middot;</span>
-      <span class="version">v0.6.0</span>
+      <span class="version">v0.7.0</span>
       <span class="sep" aria-hidden="true">&middot;</span>
       <a href="https://opensource.org/licenses/MIT" rel="license" target="_blank">MIT</a>
     </p>
@@ -640,7 +640,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
 
     <div class="cta-row">
       <a href="#record" class="btn btn-primary">Why it stopped</a>
-      <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.6.0" class="btn btn-secondary" target="_blank" rel="noopener">Final release v0.6.0</a>
+      <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.7.0" class="btn btn-secondary" target="_blank" rel="noopener">Final release v0.6.0</a>
     </div>
   </div>
 </section>
@@ -669,7 +669,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
     <dl class="facts">
       <dt>Status</dt><dd>Retired, <time datetime="2026-11-21">November 21, 2026</time></dd>
       <dt>Origin</dt><dd><a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">martinmose/agentlink</a> by Martin Mose Facondini, August 2025, MIT. Continued by Snap Synapse from April 2026.</dd>
-      <dt>Final release</dt><dd><a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.6.0" target="_blank" rel="noopener">v0.6.0</a>, <time datetime="2026-09-05">September 5, 2026</time></dd>
+      <dt>Final release</dt><dd><a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.7.0" target="_blank" rel="noopener">v0.7.0</a>, <time datetime="2026-11-21">November 21, 2026</time></dd>
       <dt>License</dt><dd>MIT</dd>
       <dt>Code</dt><dd><a href="https://github.com/snapsynapse/agentlink" target="_blank" rel="noopener">github.com/snapsynapse/agentlink</a></dd>
     </dl>
@@ -720,7 +720,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
   <div class="container">
     <h2>Supported platforms and AI tools</h2>
     <p>Release binaries support macOS and Linux, each on ARM64 and x86-64 (AMD64). Git and zsh hooks work on both systems; launchd is macOS-only. Native Windows is not a supported release target. WSL uses the Linux binary, but is not a separate tested platform.</p>
-    <p><strong>Agentlink v0.6.0, September 5, 2026.</strong> This listing describes the released registry, including vendor references and client caveats.</p>
+    <p><strong>Agentlink v0.7.0, November 21, 2026.</strong> This listing describes the released registry, including vendor references and client caveats.</p>
     <p>Native means the client reads AGENTS.md at the stated scope. Configurable and import modes require setup in that tool. Symlink means Agentlink creates an alias at the listed project path. Global paths are separate instruction scopes, not settings files. Detection is a heuristic, not proof that a tool loaded the instructions.</p>
     <p>The complete listing is generated from the registry, with vendor references and version caveats. Native readers need no project alias. <a href="/reference/supported-tools/">Read integration and nested-scan guidance</a>.</p>
 <!-- BEGIN GENERATED TOOLS -->
@@ -787,7 +787,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
 <section id="install">
   <div class="container">
     <h2>Install the final release</h2>
-    <p>v0.6.0 is the last release; no more are planned. Pre-built binaries for macOS and Linux are on the <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.6.0" target="_blank" rel="noopener">v0.6.0 release page</a>. Or install directly with Go 1.23+.</p>
+    <p>v0.7.0 is the last release; no more are planned. Pre-built binaries for macOS and Linux are on the <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.7.0" target="_blank" rel="noopener">v0.7.0 release page</a>. Or install directly with Go 1.23+.</p>
 
     <div class="code-grid single">
       <div class="code-block">
@@ -810,14 +810,14 @@ agentlink --help</pre>
       <div class="code-block">
         <h3>Pre-built binary</h3>
 <pre tabindex="0"># macOS (Apple Silicon)
-curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.6.0/agentlink-darwin-arm64
-curl -L -o SHA256SUMS.txt https://github.com/snapsynapse/agentlink/releases/download/v0.6.0/SHA256SUMS.txt
+curl -L -o agentlink https://github.com/snapsynapse/agentlink/releases/download/v0.7.0/agentlink-darwin-arm64
+curl -L -o SHA256SUMS.txt https://github.com/snapsynapse/agentlink/releases/download/v0.7.0/SHA256SUMS.txt
 grep ' agentlink-darwin-arm64$' SHA256SUMS.txt | sed 's/agentlink-darwin-arm64/agentlink/' | shasum -a 256 -c -
 chmod +x agentlink && mv agentlink /usr/local/bin/
 
 # macOS (Intel) / Linux
 # Replace darwin-arm64 with darwin-amd64, linux-amd64, or linux-arm64</pre>
-        <p class="annotation">Checksums in <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.6.0" target="_blank" rel="noopener">SHA256SUMS.txt</a> on the release page.</p>
+        <p class="annotation">Checksums in <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.7.0" target="_blank" rel="noopener">SHA256SUMS.txt</a> on the release page.</p>
       </div>
 
       <div class="code-block">
@@ -949,7 +949,7 @@ agentlink sync --force</pre>
     </div>
 
     <div class="canonical-note" role="note">
-      <strong>Assistant guide.</strong> The guide is anchored to v0.6.0; Level 4 requires independent verification. It provides actions for bounded workstation install and local review, build, and test work at
+      <strong>Assistant guide.</strong> The guide is anchored to v0.7.0; Level 4 requires independent verification. It provides actions for bounded workstation install and local review, build, and test work at
       <a href="https://agentlink.run/.well-known/assistant-guide.txt">/.well-known/assistant-guide.txt</a>.
       Verify it, read it in full, and approve the reported level before asking an assistant to act on it.
     </div>
@@ -977,7 +977,7 @@ agentlink sync --force</pre>
   <div class="container">
     <div class="footer-grid">
       <div class="footer-meta">
-        <p>Agentlink v0.6.0 &middot; <a href="https://github.com/snapsynapse/agentlink/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a></p>
+        <p>Agentlink v0.7.0 &middot; <a href="https://github.com/snapsynapse/agentlink/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a></p>
         <p>A <a href="https://snapsynapse.com" target="_blank" rel="noopener">Snap Synapse</a> project by <a href="https://snapsynapse.com" target="_blank" rel="noopener author">Sam Rogers</a>, with lineage from <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">martinmose/agentlink</a>.</p>
         <p style="margin-top: 0.5rem;">See also: <a href="https://hardguard25.com/" target="_blank" rel="noopener">HardGuard25</a> &middot; <a href="https://gracefulboundaries.dev/" target="_blank" rel="noopener">Graceful Boundaries</a> &middot; <a href="https://skillprovenance.dev/" target="_blank" rel="noopener">Skill Provenance</a></p>
       </div>

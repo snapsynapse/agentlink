@@ -47,10 +47,12 @@ Snap Synapse project. Upstream attribution is preserved in `NOTICE`.
 
 ## Current status
 
+- v0.7.0 (final, prepared 2026-11-21): project configs confined to their
+  repository, hooks install retired, hooks remove fully undoes earlier
+  installs. Assistant guide 1.2.5 targets the v0.7.0 immutable release anchor.
 - v0.6.0: review mitigations, refreshed registry with vendor evidence,
   generated homepage support listing, and explicit --global selection.
-  Assistant guide 1.2.4 targets the v0.6.0 immutable release anchor.
-- Actively maintained; v0.5.0 added layered-instruction workflows, deterministic
+- Retired 2026-11-21; v0.5.0 added layered-instruction workflows, deterministic
   scan contracts, and current Go compatibility coverage
 - CI (GitHub Actions, `.github/workflows/ci.yml`) verifies the Go 1.23.12
   minimum contract, current Go 1.26.8 and 1.27.1 releases, and Go 1.27.1 on
@@ -84,10 +86,10 @@ Recorded by the `retired-page` skill on 2026-11-21. The site at `docs/` is now t
 - retirement_reason: from the approved legacy video script, "Why it's stopping" chapter
 - youtube_id: YbWshl7B0PA ("Agentlink, for the record (2026)", 2:13)
 - poster: docs/imgs/legacy-poster.jpg
-- final_release: v0.6.0, 2026-09-05 (CHANGELOG date; the GitHub release shows 2026-09-06 UTC)
+- final_release: v0.7.0, 2026-11-21 (security release; supersedes v0.6.0, 2026-09-05)
 - secondary pages: three guides and the supported-tools reference are kept, each with a status banner
 - domain_plan: not yet stated by Sam
 - mode: retire
 - publish_root: docs/
 - pre_retirement_commit: fbaacb344ed5018acd94daad60393221c6ff296d (restore with `git checkout fbaacb3 -- docs docs_contract_test.go`)
-- Left untouched on purpose: the assistant guide and its manifest (anchored to v0.6.0), the generated support listing, README.md, "Current status" above.
+- Updated for the v0.7.0 final release (2026-11-21): assistant guide 1.2.5 and manifest re-anchored to v0.7.0, README, and "Current status" above. The generated support listing is unchanged; the registry did not change.
