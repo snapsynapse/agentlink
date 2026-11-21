@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/snapsynapse/agentlink/internal/fsutil"
 	"github.com/snapsynapse/agentlink/internal/registry"
 	"github.com/spf13/cobra"
 )
@@ -132,7 +133,7 @@ func generateConfig(detected []registry.Detected) error {
 		return nil
 	}
 
-	if _, err := os.Stat(configPath); err == nil {
+	if _, err := os.Lstat(configPath); err == nil {
 		if !force {
 			printError(".agentlink.yaml already exists (use --force to overwrite)")
 			return fmt.Errorf("config file already exists")
@@ -156,7 +157,7 @@ func generateConfig(detected []registry.Detected) error {
 		b.WriteString(fmt.Sprintf("  - %s\n", link))
 	}
 
-	if err := os.WriteFile(configPath, []byte(b.String()), 0644); err != nil {
+	if err := fsutil.WriteNewFile(configPath, []byte(b.String()), 0644, force); err != nil {
 		return fmt.Errorf("failed to write config: %w", err)
 	}
 

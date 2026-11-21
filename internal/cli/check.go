@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/snapsynapse/agentlink/internal/config"
 	"github.com/snapsynapse/agentlink/internal/symlink"
 	"github.com/spf13/cobra"
 )
@@ -46,7 +45,7 @@ func runCheck(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("no config found")
 	}
 
-	cfg, err := config.LoadConfig(configPath)
+	cfg, err := loadScopedConfig(configPath, isProject)
 	if err != nil {
 		printError("Failed to load config: %v", err)
 		return err
@@ -61,7 +60,7 @@ func runCheck(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create symlink manager
-	manager := symlink.NewManager(false, false)
+	manager := scopedManager(symlink.NewManager(false, false), configPath, isProject)
 
 	// Check each link
 	hasProblems := false

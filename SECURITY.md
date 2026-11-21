@@ -1,14 +1,21 @@
 # Security Policy
 
-## Supported versions
+## Status
 
-Only the latest tagged release on `main` receives security fixes. This is a
-small standalone project maintained by Snap Synapse. There is no LTS branch.
+Agentlink is retired as of November 21, 2026. v0.6.1 is the final release.
+No further releases are planned, and fixes are not guaranteed. Earlier
+releases are retracted in `go.mod`, so `go install ...@latest` resolves to
+v0.6.1.
+
+## Supported versions
 
 | Version | Supported |
 |---------|-----------|
-| 0.6.x   | Yes       |
+| 0.6.x   | Yes, 0.6.1 only. 0.6.0 has a fixed vulnerability; upgrade. |
 | < 0.6   | No        |
+
+If you installed automatic triggers with an earlier release, remove them:
+`agentlink hooks remove --all`. See the README's Uninstall section.
 
 ## Reporting a vulnerability
 
@@ -30,9 +37,10 @@ Include:
 
 ## What to expect
 
-- Acknowledgement within 72 hours
-- Initial assessment within 7 days
-- Fix or mitigation plan within 30 days for confirmed vulnerabilities
+Reports are still read. Because the project is retired, a confirmed
+vulnerability gets a published advisory with mitigation guidance; a new
+release is made only at the maintainer's discretion. Expect an
+acknowledgement within 7 days.
 
 Credit in the release notes if you'd like it. Anonymous reports are fine.
 
@@ -61,3 +69,8 @@ config. It does not make network calls, does not execute remote code, and
 does not embed a runtime. The main attack surface is the filesystem
 operations in `internal/symlink/` and the hook installers in
 `internal/cli/hooks.go`.
+
+Project configs and scanned repositories are untrusted input. Their source and
+links must resolve inside the repository (`symlink.CheckContained`), checked at
+load time and again immediately before each link is created. Only the global
+config at `~/.config/agentlink/config.yaml` may point elsewhere.

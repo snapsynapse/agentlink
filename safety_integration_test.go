@@ -61,13 +61,15 @@ func TestIntegrationBackupRejectsSourceParentAliasBeforeMutation(t *testing.T) {
 func TestIntegrationPhysicalLinkTargetAndIndependentCheck(t *testing.T) {
 	dir := t.TempDir()
 	repo := filepath.Join(dir, "repo")
-	physical := filepath.Join(dir, "elsewhere", "deep")
+	// The aliases directory is a symlink that stays inside the repository, so
+	// link resolution must follow it physically rather than lexically.
+	physical := filepath.Join(repo, "elsewhere", "deep")
 	safetyWrite(t, filepath.Join(repo, "AGENTS.md"), "correct source")
 	safetyWrite(t, filepath.Join(repo, ".agentlink.yaml"), "source: AGENTS.md\nlinks: [aliases/CLAUDE.md]\n")
 	if err := os.MkdirAll(physical, 0755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Symlink(physical, filepath.Join(repo, "aliases")); err != nil {
+	if err := os.Symlink(filepath.Join("elsewhere", "deep"), filepath.Join(repo, "aliases")); err != nil {
 		t.Fatal(err)
 	}
 	link := filepath.Join(repo, "aliases", "CLAUDE.md")

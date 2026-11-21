@@ -48,6 +48,9 @@ class Agentlink < Formula
   homepage "https://agentlink.run/"
   license "MIT"
 
+  # Agentlink is retired; this formula pins the final release.
+  deprecate! date: "2026-11-21", because: "is retired and receives no further releases"
+
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/$repo/releases/download/$tag/agentlink-darwin-arm64"
@@ -70,6 +73,14 @@ class Agentlink < Formula
 
   def install
     bin.install Dir["agentlink-*"].first => "agentlink"
+  end
+
+  def caveats
+    <<~EOS
+      Agentlink is retired. If you installed automatic triggers with an
+      earlier release, remove them:
+        agentlink hooks remove --all
+    EOS
   end
 
   test do

@@ -92,13 +92,16 @@ func runScan(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("Found %d git repositories\n\n", len(repos))
 
-	manager := symlink.NewManager(dryRun, force)
+	baseManager := symlink.NewManager(dryRun, force)
 	stats := scanStats{}
 
 	for _, repo := range repos {
+		// Every scanned repository is untrusted input: confine its source and
+		// links to the repository, whether or not it carries a config.
+		manager := baseManager.WithRoot(repo)
 		configPath := filepath.Join(repo, ".agentlink.yaml")
 		if _, err := os.Lstat(configPath); err == nil {
-			cfg, loadErr := config.LoadConfig(configPath)
+			cfg, loadErr := config.LoadProjectConfig(configPath)
 			if loadErr != nil {
 				printError("%s/.agentlink.yaml: %v", relativeTo(repo, dir), loadErr)
 				stats.errors++

@@ -66,7 +66,7 @@ func runSync(cmd *cobra.Command, args []string) error {
 	}
 
 	// Backup permits regular-file replacement only, never unknown symlink ownership.
-	manager := symlink.NewManager(dryRun, force)
+	manager := scopedManager(symlink.NewManager(dryRun, force), configPath, isProject)
 
 	// Validate source file
 	if err := manager.ValidateSource(cfg.Source); err != nil {
@@ -99,7 +99,7 @@ func runSync(cmd *cobra.Command, args []string) error {
 func loadOrCreateConfig(configPath string, isProject bool) (*config.Config, error) {
 	// Try to load existing config
 	if _, err := os.Lstat(configPath); err == nil {
-		return config.LoadConfig(configPath)
+		return loadScopedConfig(configPath, isProject)
 	} else if !os.IsNotExist(err) {
 		return nil, fmt.Errorf("inspect config %s: %w", configPath, err)
 	}
@@ -126,7 +126,7 @@ func loadOrCreateConfig(configPath string, isProject bool) (*config.Config, erro
 
 func processLink(manager *symlink.Manager, linkPath, sourcePath string) error {
 	if info, err := os.Lstat(linkPath); syncBackup && err == nil && info.Mode().IsRegular() {
-		manager = symlink.NewManager(dryRun, true)
+		manager = manager.WithForce(true)
 	}
 	if verbose {
 		printInfo("Processing link: %s", linkPath)

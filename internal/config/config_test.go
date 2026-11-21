@@ -280,7 +280,7 @@ func TestCreateDefaultGlobalConfigUsesAgentsSource(t *testing.T) {
 
 func TestCreateProjectConfigUsesAgentsSource(t *testing.T) {
 	configPath := filepath.Join(t.TempDir(), ".agentlink.yaml")
-	if err := CreateProjectConfig(configPath); err != nil {
+	if err := CreateProjectConfig(configPath, false); err != nil {
 		t.Fatalf("CreateProjectConfig() failed: %v", err)
 	}
 
@@ -297,5 +297,56 @@ func TestCreateProjectConfigUsesAgentsSource(t *testing.T) {
 	}
 	if _, err := LoadConfig(configPath); err != nil {
 		t.Fatalf("generated project config is not loadable: %v", err)
+	}
+}
+
+func TestLoadProjectConfigContainment(t *testing.T) {
+	base := t.TempDir()
+	home := filepath.Join(base, "home")
+	repo := filepath.Join(base, "repo")
+	for _, dir := range []string{home, repo} {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	t.Setenv("HOME", home)
+	if err := os.WriteFile(filepath.Join(home, "secret"), []byte("secret"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(home, filepath.Join(repo, "homedir")); err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name    string
+		yaml    string
+		wantErr bool
+	}{
+		{"relative links", "source: AGENTS.md\nlinks: [CLAUDE.md, .github/copilot-instructions.md]\n", false},
+		{"absolute path inside repo", "source: AGENTS.md\nlinks: [" + filepath.Join(repo, "CLAUDE.md") + "]\n", false},
+		{"dot-dot that stays inside", "source: AGENTS.md\nlinks: [sub/../CLAUDE.md]\n", false},
+		{"home link", "source: AGENTS.md\nlinks: [~/.zshenv]\n", true},
+		{"dot-dot escape", "source: AGENTS.md\nlinks: [../escaped.md]\n", true},
+		{"absolute escape", "source: AGENTS.md\nlinks: [" + filepath.Join(home, ".zshenv") + "]\n", true},
+		{"directory symlink escape", "source: AGENTS.md\nlinks: [homedir/.zshenv]\n", true},
+		{"home source", "source: ~/secret\nlinks: [CLAUDE.md]\n", true},
+		{"dot-dot source", "source: ../home/secret\nlinks: [CLAUDE.md]\n", true},
+		{"source through directory symlink", "source: homedir/secret\nlinks: [CLAUDE.md]\n", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			path := filepath.Join(repo, ".agentlink.yaml")
+			if err := os.WriteFile(path, []byte(tt.yaml), 0644); err != nil {
+				t.Fatal(err)
+			}
+			_, err := LoadProjectConfig(path)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("LoadProjectConfig() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			// The global loader stays unrestricted: the user owns that file.
+			if _, err := LoadConfig(path); err != nil {
+				t.Fatalf("LoadConfig() error = %v", err)
+			}
+		})
 	}
 }

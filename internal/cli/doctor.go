@@ -102,7 +102,7 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 		fmt.Printf("✓ Project config found: .agentlink.yaml\n")
 
 		// Try to load and validate it
-		if cfg, err := config.LoadConfig(".agentlink.yaml"); err != nil {
+		if cfg, err := config.LoadProjectConfig(".agentlink.yaml"); err != nil {
 			fmt.Printf("✗ Project config is invalid: %v\n", err)
 			hasIssues = true
 		} else {
@@ -137,6 +137,20 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 	} else {
 		fmt.Printf("⚠️  No global config found: %s\n", globalConfig)
 		fmt.Printf("    (This is normal - will be created when needed)\n")
+	}
+	fmt.Printf("\n")
+
+	// Automatic triggers from earlier releases keep running a retired tool.
+	fmt.Printf("Automatic Triggers:\n")
+	if installedTriggerCount() == 0 && gitGlobalHooksDir() == "" {
+		fmt.Printf("✓ No agentlink triggers installed\n")
+	} else {
+		for _, line := range triggerStatusLines() {
+			fmt.Printf("  %s\n", line)
+		}
+		if installedTriggerCount() > 0 {
+			fmt.Printf("⚠️  Agentlink is retired. Remove its triggers with 'agentlink hooks remove --all'.\n")
+		}
 	}
 	fmt.Printf("\n")
 

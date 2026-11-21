@@ -832,6 +832,36 @@ Show me each action block before running it.</pre>
   </div>
 </section>
 
+<section class="alt" id="uninstall">
+  <div class="container">
+    <h2>Uninstall</h2>
+    <p>Existing symlinks keep working without Agentlink. Automatic triggers installed by earlier releases (git hooks, the zsh hook, the macOS LaunchAgent) keep running until removed, so remove those first.</p>
+
+    <div class="code-grid single">
+      <div class="code-block">
+        <h3>1. Remove automatic triggers</h3>
+<pre tabindex="0">agentlink hooks remove --all</pre>
+        <p class="annotation">Deletes hook files that held only Agentlink&rsquo;s block. When the global <code>core.hooksPath</code> is Agentlink&rsquo;s default directory and nothing else is left there, it is unset, so each repository&rsquo;s own <code>.git/hooks</code> run again.</p>
+      </div>
+
+      <div class="code-block">
+        <h3>2. Check for stray links</h3>
+<pre tabindex="0">find "$HOME" -maxdepth 3 -type l \( -lname '*AGENTS.md' -o -lname '*CLAUDE.md' \) -exec ls -l {} + 2&gt;/dev/null</pre>
+        <p class="annotation">Releases up to v0.6.0 did not confine a cloned repository&rsquo;s <code>.agentlink.yaml</code> to that repository. This lists links under your home directory whose target is an instruction file; your configured global links appear too.</p>
+      </div>
+
+      <div class="code-block">
+        <h3>3. Optionally remove managed links, then the binary</h3>
+<pre tabindex="0">agentlink clean            # in each configured project
+agentlink clean --global
+brew uninstall agentlink
+rm -r ~/.config/agentlink</pre>
+        <p class="annotation"><code>clean</code> removes only symlinks that point at the configured source.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="alt" id="usage">
   <div class="container">
     <h2>Usage</h2>
@@ -897,15 +927,10 @@ agentlink scan ~/Git --nested</pre>
       </div>
 
       <div class="code-block">
-        <h3>Automatic triggers</h3>
-<pre tabindex="0"># Install git/zsh hooks (plus launchd on macOS) so
-# sync runs without you thinking about it.
-agentlink hooks install --all
-
-# Relative global core.hooksPath values
-# are refused; use an absolute path.
-
-# Remove cleanly.
+        <h3>Automatic triggers (retired)</h3>
+<pre tabindex="0"># Installing triggers is retired. Remove
+# any that an earlier release installed.
+agentlink hooks status
 agentlink hooks remove --all</pre>
       </div>
       <div class="code-block">

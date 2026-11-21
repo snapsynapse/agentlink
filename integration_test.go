@@ -732,16 +732,23 @@ func TestIntegrationHooksStatus(t *testing.T) {
 	}
 }
 
-func TestIntegrationHooksInstallRequiresFlag(t *testing.T) {
+func TestIntegrationHooksInstallIsRetired(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")
 	}
 
-	binaryPath := integrationBinaryPath
-
-	cmd := exec.Command(binaryPath, "hooks", "install")
-	if err := cmd.Run(); err == nil {
-		t.Error("hooks install with no flag should fail")
+	home := t.TempDir()
+	for _, args := range [][]string{{"hooks", "install"}, {"hooks", "install", "--all"}, {"hooks", "install", "--git"}} {
+		cmd := exec.Command(integrationBinaryPath, args...)
+		cmd.Env = append(os.Environ(), "HOME="+home, "GIT_CONFIG_GLOBAL="+filepath.Join(home, ".gitconfig"), "GIT_CONFIG_NOSYSTEM=1")
+		out, err := cmd.CombinedOutput()
+		if err == nil || !strings.Contains(string(out), "agentlink hooks remove --all") {
+			t.Fatalf("%v: want retirement error, got %v\n%s", args, err, out)
+		}
+	}
+	entries, _ := os.ReadDir(home)
+	if len(entries) != 0 {
+		t.Fatalf("retired install wrote into HOME: %v", entries)
 	}
 }
 

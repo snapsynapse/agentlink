@@ -3,6 +3,8 @@
 [![Checks](https://github.com/snapsynapse/agentlink/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/snapsynapse/agentlink/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+> **Status: retired.** Agentlink was retired on November 21, 2026, and v0.6.1 is the final release. Existing symlinks keep working without it. Automatic triggers installed by earlier releases keep running until you remove them; see [Uninstall](#uninstall). The project record is at https://agentlink.run/.
+
 > **Origin.** Agentlink began as [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT). This repository is the Snap Synapse-maintained standalone continuation, extended with `detect`, `scan`, `hooks`, automatic backup, global-config support, and integration tests. See [NOTICE](NOTICE) for full attribution and lineage.
 
 Sync one AGENTS.md to every AI coding tool on your machine, with **zero magic**, just symlinks.
@@ -110,6 +112,8 @@ links:
   - ~/.config/opencode/AGENTS.md
 ```
 
+Project configs are scoped to their repository. A `.agentlink.yaml` arrives with whatever you clone, and the git and zsh hooks apply it automatically, so its `source` and every link must resolve inside the directory that holds the config, after symlinks are followed. `~/`, absolute, and `..` paths are accepted only when they stay inside it, and a directory symlink inside the repository can't carry a link or source out of it. `scan` applies the same rule to every repository it visits. Links into your home directory belong in the global config, which you own.
+
 ---
 
 ## Install
@@ -210,13 +214,13 @@ agentlink sync --force         # replace without backup (destructive)
 agentlink sync --dry-run       # preview only, with no filesystem changes
 ```
 
-**5. Install automatic triggers** (optional but recommended):
+**5. Automatic triggers** (retired):
+
+Installing automatic triggers is no longer supported; `agentlink hooks install` only prints how to remove them. If an earlier release installed them, remove them:
 
 ```bash
-agentlink hooks install --all
+agentlink hooks remove --all
 ```
-
-The updated source installs git hooks and a zsh directory-change hook on macOS/Linux, plus a 60-minute launchd heartbeat on macOS so syncs happen automatically. Existing hooks must be regular sh, bash, or zsh scripts; other interpreters require manual integration. Generated hook scripts safely quote the installed binary path, so installs under directories with spaces still work. If your global Git `core.hooksPath` is relative, agentlink refuses to guess where to install hooks; unset it or change it to an absolute path first.
 
 **6. Scan your repos** (optional):
 
@@ -251,8 +255,7 @@ agentlink clean              # remove managed symlinks (non-destructive)
 agentlink doctor             # environment + permissions sanity checks for project and global config
 agentlink detect             # auto-detect installed AI coding tools
 agentlink scan [dir]         # scan git repos and manage symlinks
-agentlink hooks install --all # install all automatic sync triggers
-agentlink hooks remove --all  # remove all automatic sync triggers
+agentlink hooks remove --all  # remove triggers installed by earlier releases
 agentlink hooks status       # show installed trigger status
 ```
 
@@ -328,24 +331,47 @@ go build -ldflags "-X github.com/snapsynapse/agentlink/internal/cli.DefaultScanD
 
 ## Automatic Triggers
 
-Keep symlinks current without manual runs:
+Installing automatic triggers is retired. Earlier releases could install three, and they keep running until removed:
+
+- **Git hooks**: `post-checkout` and `post-merge` in the global `core.hooksPath` (default `~/.config/git/hooks`), running `agentlink sync` after every clone, checkout, and pull. While a global `core.hooksPath` is set, Git ignores every repository's own `.git/hooks`.
+- **Zsh hook**: a `chpwd` function in `~/.zshrc` that ran `agentlink sync` in the background on every `cd` into a configured repository.
+- **LaunchAgent** (macOS): `~/Library/LaunchAgents/com.agentlink.sync.plist`, running `agentlink sync` hourly and at login, logging to `/tmp/agentlink-sync.log`.
 
 ```bash
-agentlink hooks install --all      # install all triggers
-agentlink hooks install --git      # git post-checkout + post-merge hooks
-agentlink hooks install --zsh      # zsh chpwd hook (sync on cd)
-agentlink hooks install --launchd  # macOS LaunchAgent (60-minute heartbeat)
 agentlink hooks status             # check what's installed
-agentlink hooks remove --all       # clean up all triggers
+agentlink hooks remove --all       # remove all of them
+agentlink hooks remove --dry-run --all   # preview first
 ```
 
-**Git hooks** use `core.hooksPath` for global hooks. After any checkout or merge, agentlink syncs the current repo's symlinks. Agentlink only installs into absolute global hook paths. If `git config --global core.hooksPath` returns a relative path, either unset it so agentlink can create `~/.config/git/hooks`, or set it to an absolute directory before running `agentlink hooks install --git`.
+Removal deletes only the marked agentlink sections (`# >>> agentlink >>>` / `# <<< agentlink <<<`), rewriting each file atomically and keeping its permissions. Hook files that held nothing but agentlink's block are deleted. If `core.hooksPath` is agentlink's default directory and nothing else is left in it, the directory is removed and `core.hooksPath` is unset, so repository hooks run again. Otherwise removal leaves `core.hooksPath` alone and says so. The LaunchAgent's legacy logs in `/tmp` are deleted when they are regular files you own.
 
-**Zsh hook** fires on every `cd` into a directory that contains both a git checkout and `.agentlink.yaml`. Runs in the background so it never slows your shell.
+## Uninstall
 
-**LaunchAgent** is macOS-only and runs `agentlink sync` every 60 minutes and at login. Logs to `/tmp/agentlink-sync.log`.
+1. Remove automatic triggers first, so nothing recreates links afterwards:
 
-All injected content is wrapped in markers (`# >>> agentlink >>>` / `# <<< agentlink <<<`) for clean removal. Removing those sections preserves the hook file's existing permissions. Generated hook commands shell-quote the binary path so installs under paths with spaces remain valid.
+   ```bash
+   agentlink hooks remove --all
+   ```
+
+2. Check for stray links. Releases up to v0.6.0 applied a cloned repository's `.agentlink.yaml` without confining it to that repository, so a hostile config could create links elsewhere in your home directory. This lists links under your home directory, three levels deep, whose target is an instruction file; your configured global links will appear too:
+
+   ```bash
+   find "$HOME" -maxdepth 3 -type l \( -lname '*AGENTS.md' -o -lname '*CLAUDE.md' \) -exec ls -l {} + 2>/dev/null
+   ```
+
+3. Optionally remove managed links. They're plain symlinks and keep working without agentlink, so this is only for links you no longer want. `clean` removes only symlinks that point at the configured source:
+
+   ```bash
+   agentlink clean            # in each configured project
+   agentlink clean --global   # links from ~/.config/agentlink/config.yaml
+   ```
+
+4. Remove the binary and its config:
+
+   ```bash
+   brew uninstall agentlink   # or delete the binary you installed
+   rm -r ~/.config/agentlink
+   ```
 
 ---
 

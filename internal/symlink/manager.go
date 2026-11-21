@@ -1,10 +1,16 @@
 package symlink
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
+
+// ErrOutsideRoot reports a path that resolves outside the directory that
+// scopes a project configuration.
+var ErrOutsideRoot = errors.New("resolves outside the project directory")
 
 // LinkStatus represents the status of a symlink
 type LinkStatus int
@@ -28,6 +34,10 @@ type LinkInfo struct {
 type Manager struct {
 	dryRun bool
 	force  bool
+	// root, when set, confines every source and link to that directory after
+	// symlink resolution. Project and scan scopes always set it; only the
+	// user-owned global configuration may point elsewhere.
+	root string
 }
 
 // NewManager creates a new symlink manager
@@ -38,8 +48,27 @@ func NewManager(dryRun, force bool) *Manager {
 	}
 }
 
+// WithRoot returns a copy of the manager confined to root.
+func (m *Manager) WithRoot(root string) *Manager {
+	c := *m
+	c.root = root
+	return &c
+}
+
+// WithForce returns a copy of the manager with force set, keeping its root.
+func (m *Manager) WithForce(force bool) *Manager {
+	c := *m
+	c.force = force
+	return &c
+}
+
 // ValidateSource checks if the source file exists and is a regular file
 func (m *Manager) ValidateSource(sourcePath string) error {
+	if m.root != "" {
+		if err := CheckContained(m.root, sourcePath, true); err != nil {
+			return fmt.Errorf("source %w", err)
+		}
+	}
 	info, err := os.Lstat(sourcePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -140,9 +169,23 @@ func (m *Manager) CreateLink(linkPath, targetPath string) error {
 		return nil // Don't actually create in dry-run mode
 	}
 
+	if m.root != "" {
+		if err := CheckContained(m.root, linkPath, false); err != nil {
+			return fmt.Errorf("link %w", err)
+		}
+	}
+
 	// Ensure the parent directory exists
 	if err := os.MkdirAll(filepath.Dir(linkPath), 0755); err != nil {
 		return fmt.Errorf("failed to create parent directory for %s: %w", linkPath, err)
+	}
+
+	// Recheck after creating parents, immediately before the mutation, so a
+	// directory symlink introduced since planning cannot redirect the link.
+	if m.root != "" {
+		if err := CheckContained(m.root, linkPath, false); err != nil {
+			return fmt.Errorf("link %w", err)
+		}
 	}
 
 	// Calculate relative path from link to target
@@ -186,6 +229,14 @@ func (m *Manager) RemoveLink(linkPath, expectedTarget string) error {
 // PlanLink validates a destination without mutating it. Sync uses the same
 // preflight before any backup, so backup cannot bypass source protection.
 func (m *Manager) PlanLink(linkPath, targetPath string) (string, error) {
+	if m.root != "" {
+		if err := CheckContained(m.root, linkPath, false); err != nil {
+			return "", fmt.Errorf("link %w", err)
+		}
+		if err := CheckContained(m.root, targetPath, true); err != nil {
+			return "", fmt.Errorf("source %w", err)
+		}
+	}
 	samePath, err := sameEffectivePath(linkPath, targetPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to validate link path %s: %w", linkPath, err)
@@ -293,6 +344,12 @@ func resolveParentSymlinks(path string) (string, error) {
 		if !os.IsNotExist(err) {
 			return "", err
 		}
+		// A component that exists but cannot be resolved is a dangling
+		// symlink. Treating it as a missing directory would hide where the
+		// path really leads once something creates the symlink's target.
+		if _, lerr := os.Lstat(parent); lerr == nil {
+			return "", fmt.Errorf("parent %s is a dangling symlink", parent)
+		}
 
 		next := filepath.Dir(parent)
 		if next == parent {
@@ -301,4 +358,46 @@ func resolveParentSymlinks(path string) (string, error) {
 		suffix = append([]string{filepath.Base(parent)}, suffix...)
 		parent = next
 	}
+}
+
+// CheckContained returns nil only when path, with every existing symlink
+// resolved, lies strictly inside root. The leaf is resolved only when
+// followLeaf is set: a source is read through its symlinks, while a managed
+// link's own leaf is replaced, never written through. A missing leaf is
+// checked through its resolved parents.
+func CheckContained(root, path string, followLeaf bool) error {
+	physicalRoot, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		return fmt.Errorf("resolve project directory %s: %w", root, err)
+	}
+	if physicalRoot, err = filepath.Abs(physicalRoot); err != nil {
+		return err
+	}
+
+	var resolved string
+	if followLeaf {
+		resolved, err = filepath.EvalSymlinks(path)
+		if err == nil {
+			resolved, err = filepath.Abs(resolved)
+		} else if os.IsNotExist(err) {
+			resolved, err = resolveParentSymlinks(path)
+		}
+	} else {
+		resolved, err = resolveParentSymlinks(path)
+	}
+	if err != nil {
+		return fmt.Errorf("path %s cannot be resolved: %w", path, err)
+	}
+	if !strictlyWithin(physicalRoot, resolved) {
+		return fmt.Errorf("path %s %w %s (resolved to %s)", path, ErrOutsideRoot, root, resolved)
+	}
+	return nil
+}
+
+func strictlyWithin(root, path string) bool {
+	rel, err := filepath.Rel(root, path)
+	if err != nil || rel == "." || filepath.IsAbs(rel) {
+		return false
+	}
+	return rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
 }

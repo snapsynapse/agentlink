@@ -67,17 +67,22 @@ func TestAIPostureTrustAnchorsMatch(t *testing.T) {
 	}
 }
 
-func TestPublishedHookExamplesIncludeRequiredSelector(t *testing.T) {
+func TestPublishedHookDocsPointToRemovalOnly(t *testing.T) {
 	for _, path := range []string{"README.md", "docs/index.html"} {
 		data, err := os.ReadFile(path)
 		if err != nil {
 			t.Fatal(err)
 		}
 		text := string(data)
-		for _, want := range []string{"agentlink hooks install --all", "agentlink hooks remove --all"} {
-			if !strings.Contains(text, want) {
-				t.Errorf("%s missing executable example %q", path, want)
-			}
+		if !strings.Contains(text, "agentlink hooks remove --all") {
+			t.Errorf("%s missing removal example", path)
+		}
+		// Installing triggers is retired; no published example may suggest it.
+		if strings.Contains(text, "agentlink hooks install --") {
+			t.Errorf("%s still shows a retired hooks install example", path)
+		}
+		if !strings.Contains(text, `id="uninstall"`) && !strings.Contains(text, "## Uninstall") {
+			t.Errorf("%s missing an uninstall section", path)
 		}
 	}
 }

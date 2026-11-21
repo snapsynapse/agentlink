@@ -27,8 +27,8 @@ func init() {
 func runInit(cmd *cobra.Command, args []string) error {
 	configPath := ".agentlink.yaml"
 
-	// Check if config already exists
-	if _, err := os.Stat(configPath); err == nil {
+	// Check if config already exists. Lstat, so a dangling symlink counts.
+	if _, err := os.Lstat(configPath); err == nil {
 		if !force {
 			printError(".agentlink.yaml already exists (use --force to overwrite)")
 			return fmt.Errorf("config file already exists")
@@ -62,7 +62,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	if err := config.CreateProjectConfig(configPath); err != nil {
+	if err := config.CreateProjectConfig(configPath, force); err != nil {
 		printError("Failed to create config file: %v", err)
 		return err
 	}

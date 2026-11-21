@@ -6,7 +6,10 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"path/filepath"
+
 	"github.com/snapsynapse/agentlink/internal/config"
+	"github.com/snapsynapse/agentlink/internal/symlink"
 	"github.com/spf13/cobra"
 )
 
@@ -104,6 +107,23 @@ func printWarning(format string, args ...interface{}) {
 }
 
 var useGlobalConfig bool
+
+// loadScopedConfig loads a project config with repository containment, or the
+// user-owned global config without it.
+func loadScopedConfig(configPath string, isProject bool) (*config.Config, error) {
+	if isProject {
+		return config.LoadProjectConfig(configPath)
+	}
+	return config.LoadConfig(configPath)
+}
+
+// scopedManager confines a project-scope manager to the config's directory.
+func scopedManager(manager *symlink.Manager, configPath string, isProject bool) *symlink.Manager {
+	if !isProject {
+		return manager
+	}
+	return manager.WithRoot(filepath.Dir(configPath))
+}
 
 func selectConfigPath() (string, bool, error) {
 	if useGlobalConfig {

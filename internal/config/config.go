@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/snapsynapse/agentlink/internal/fsutil"
+	"github.com/snapsynapse/agentlink/internal/symlink"
 	"gopkg.in/yaml.v3"
 )
 
@@ -46,6 +48,41 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	return &config, nil
+}
+
+// LoadProjectConfig loads a repository-scoped configuration. A project config
+// arrives with whatever repository the user cloned, and hooks apply it
+// automatically, so it is untrusted: its source and every link must resolve
+// inside the directory that contains the config file. Absolute, ~/ and ..
+// paths are accepted only when they stay inside that directory, and a
+// committed directory symlink cannot carry a path out of it.
+func LoadProjectConfig(path string) (*Config, error) {
+	cfg, err := LoadConfig(path)
+	if err != nil {
+		return nil, err
+	}
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		return nil, err
+	}
+	if err := cfg.ValidateContainment(filepath.Dir(abs)); err != nil {
+		return nil, fmt.Errorf("invalid project config in %s: %w", path, err)
+	}
+	return cfg, nil
+}
+
+// ValidateContainment requires the source and every link to resolve inside
+// root. Call it after ExpandPaths.
+func (c *Config) ValidateContainment(root string) error {
+	if err := symlink.CheckContained(root, c.Source, true); err != nil {
+		return fmt.Errorf("source %w", err)
+	}
+	for _, link := range c.Links {
+		if err := symlink.CheckContained(root, link, false); err != nil {
+			return fmt.Errorf("link %w", err)
+		}
+	}
+	return nil
 }
 
 // Validate validates the configuration
@@ -148,15 +185,18 @@ links:
   - ~/.config/opencode/AGENTS.md
 `
 
-	if err := os.WriteFile(path, []byte(defaultConfig), 0644); err != nil {
+	if err := fsutil.WriteNewFile(path, []byte(defaultConfig), 0644, false); err != nil {
 		return fmt.Errorf("failed to write default config: %w", err)
 	}
 
 	return nil
 }
 
-// CreateProjectConfig creates a project config file
-func CreateProjectConfig(path string) error {
+// CreateProjectConfig creates a project config file. It never writes through a
+// symlink, so a repository cannot commit .agentlink.yaml as a link to a file
+// elsewhere and have init write there. An existing regular file is replaced
+// only when overwrite is set.
+func CreateProjectConfig(path string, overwrite bool) error {
 	config := `# Choose the file you actually edit as the source:
 source: AGENTS.md
 links:
@@ -166,7 +206,7 @@ links:
   # - .github/copilot-instructions.md
 `
 
-	if err := os.WriteFile(path, []byte(config), 0644); err != nil {
+	if err := fsutil.WriteNewFile(path, []byte(config), 0644, overwrite); err != nil {
 		return fmt.Errorf("failed to write project config: %w", err)
 	}
 
