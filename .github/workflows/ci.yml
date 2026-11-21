@@ -24,7 +24,7 @@ jobs:
             lane: stable
             quality: true
           # Keep the current Go release covered on the second supported OS.
-          - os: macos-14
+          - os: macos-15
             go-version: "1.27.1"
             lane: stable-macos
             quality: false
