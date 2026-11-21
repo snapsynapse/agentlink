@@ -134,7 +134,14 @@ Download the binary for your platform from the [latest release](https://github.c
 chmod +x agentlink-darwin-arm64 && mv agentlink-darwin-arm64 /usr/local/bin/agentlink
 ```
 
-Binaries: `darwin-arm64`, `darwin-amd64`, `linux-amd64`, `linux-arm64`.
+Binaries: `darwin-arm64`, `darwin-amd64`, `linux-amd64`, `linux-arm64`. The v0.7.0 SHA-256 values, published here separately from the release:
+
+```text
+fd2933926a3398ae29b2f9dd3eecdeed8c40c8f9171471147af5d743651b3021  agentlink-darwin-arm64
+fde1c7a9d621112a6c2c3aa1225a9142853b577593b38bef5418626fa531efda  agentlink-darwin-amd64
+0910b2482d02cb0a724db784ff540ff0294e2c6be2e86737b1ae9cbca7cd948c  agentlink-linux-amd64
+f9741feeb4c9fc1dbeb7e7bf5588a4fdada8b0c36e4d02123783a0ccef2ef4db  agentlink-linux-arm64
+```
 
 ### From source (requires Go 1.23+)
 
