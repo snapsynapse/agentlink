@@ -3,7 +3,7 @@
 [![Checks](https://github.com/snapsynapse/agentlink/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/snapsynapse/agentlink/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **Status: retired.** Agentlink was retired on November 21, 2026, and v0.6.1 is the final release. Existing symlinks keep working without it. Automatic triggers installed by earlier releases keep running until you remove them; see [Uninstall](#uninstall). The project record is at https://agentlink.run/.
+> **Status: retired.** Agentlink was retired on November 21, 2026, and v0.7.0 is the final release. Existing symlinks keep working without it. Automatic triggers installed by earlier releases keep running until you remove them; see [Uninstall](#uninstall). The project record is at https://agentlink.run/.
 
 > **Origin.** Agentlink began as [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT). This repository is the Snap Synapse-maintained standalone continuation, extended with `detect`, `scan`, `hooks`, automatic backup, global-config support, and integration tests. See [NOTICE](NOTICE) for full attribution and lineage.
 

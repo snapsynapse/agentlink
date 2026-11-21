@@ -2,16 +2,16 @@
 
 ## Status
 
-Agentlink is retired as of November 21, 2026. v0.6.1 is the final release.
+Agentlink is retired as of November 21, 2026. v0.7.0 is the final release.
 No further releases are planned, and fixes are not guaranteed. Earlier
 releases are retracted in `go.mod`, so `go install ...@latest` resolves to
-v0.6.1.
+v0.7.0.
 
 ## Supported versions
 
 | Version | Supported |
 |---------|-----------|
-| 0.6.x   | Yes, 0.6.1 only. 0.6.0 has a fixed vulnerability; upgrade. |
+| 0.6.x   | Yes, until v0.7.0 ships. 0.6.0 has a vulnerability fixed in v0.7.0; upgrade. |
 | < 0.6   | No        |
 
 If you installed automatic triggers with an earlier release, remove them:

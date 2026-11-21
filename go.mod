@@ -12,7 +12,7 @@ require (
 	github.com/spf13/pflag v1.0.9 // indirect
 )
 
-// Retract every release before the final security fix in v0.6.1: in those
+// Retract every release before the final security fix in v0.7.0: in those
 // versions a cloned repository's .agentlink.yaml could create symlinks
 // outside the repository.
 retract [v0.0.0, v0.6.0]
