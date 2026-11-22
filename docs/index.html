@@ -24,7 +24,7 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Agentlink">
   <meta property="og:title" content="Agentlink (Retired)">
-  <meta property="og:description" content="Retired in 2026. It synced one AGENTS.md to every AI coding tool with plain symlinks. This page is the record, with a two-minute video.">
+  <meta property="og:description" content="Retired in 2026. It synced one AGENTS.md to every AI coding tool with plain symlinks. This page is the record, with a short video.">
   <meta property="og:image" content="https://agentlink.run/imgs/og.png">
   <meta property="og:image:alt" content="Agentlink &mdash; central AGENTS.md source card linked to CLAUDE.md, GEMINI.md, .cursorrules, and .github/copilot-instructions.md alias pills">
   <meta property="og:image:width" content="1200">
@@ -45,7 +45,7 @@
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Agentlink (Retired)">
-  <meta name="twitter:description" content="Retired in 2026. It synced one AGENTS.md to every AI coding tool with plain symlinks. This page is the record, with a two-minute video.">
+  <meta name="twitter:description" content="Retired in 2026. It synced one AGENTS.md to every AI coding tool with plain symlinks. This page is the record, with a short video.">
   <meta name="twitter:image" content="https://agentlink.run/imgs/og.png">
   <meta name="twitter:image:alt" content="Agentlink &mdash; central AGENTS.md source card linked to four AI tool alias pills">
   <meta name="twitter:site" content="@snapsynapse">
@@ -165,12 +165,12 @@
     "@type": "VideoObject",
     "@id": "https://agentlink.run/#record-video",
     "name": "Agentlink, for the record (2026)",
-    "description": "One AGENTS.md, every tool. Symlinks, no codegen. A record of Agentlink as it stood on November 21, 2026: what it was for, where it came from, how it worked, and why it was retired.",
+    "description": "One AGENTS.md, every tool. Symlinks, no codegen. A record of Agentlink, made in November 2026: what it was for, where it came from, how it worked, and why it ended.",
     "thumbnailUrl": "https://agentlink.run/imgs/legacy-poster.jpg",
     "uploadDate": "2026-11-21T00:00:00-07:00",
-    "duration": "PT2M13S",
-    "embedUrl": "https://www.youtube-nocookie.com/embed/YbWshl7B0PA",
-    "url": "https://youtube.com/watch?v=YbWshl7B0PA",
+    "duration": "PT2M30S",
+    "embedUrl": "https://www.youtube-nocookie.com/embed/T_oAHjqxSos",
+    "url": "https://youtu.be/T_oAHjqxSos",
     "inLanguage": "en",
     "isPartOf": { "@id": "https://agentlink.run/" }
   }
@@ -593,35 +593,34 @@
   <div class="container">
     <strong>Retired.</strong>
     Agentlink was retired on <time datetime="2026-11-21">November 21, 2026</time>.
-    This page is the record. <a href="#record-video">Watch the two-minute version</a>.
+    This page is the record. <a href="#record-video">Watch the two-and-a-half-minute version</a>.
   </div>
 </aside>
 <section class="record-top" aria-label="Project record video">
   <div class="container">
     <a class="record-video" id="record-video"
-       href="https://youtube.com/watch?v=YbWshl7B0PA"
-       data-video-id="YbWshl7B0PA"
+       href="https://youtu.be/T_oAHjqxSos"
+       data-video-id="T_oAHjqxSos"
        data-video-title="Agentlink, for the record (2026)"
-       aria-label="Play video: Agentlink, for the record (2026) (2 minutes 13 seconds)">
+       aria-label="Play video: Agentlink, for the record (2026) (2 minutes 30 seconds)">
       <img src="/imgs/legacy-poster.jpg" width="1280" height="720" alt="" loading="lazy">
       <span class="play" aria-hidden="true">
         <svg width="30" height="34" viewBox="0 0 30 34" fill="#fff" focusable="false"><path d="M0 0l30 17L0 34z"/></svg>
       </span>
     </a>
-    <p class="record-caption">2:13 &middot; recorded <time datetime="2026-11-21">November 21, 2026</time> &middot; <a href="https://youtube.com/watch?v=YbWshl7B0PA" target="_blank" rel="noopener">Watch on YouTube</a> &middot; <a href="#transcript">Transcript</a></p>
+    <p class="record-caption">2:30 &middot; recorded <time datetime="2026-11-21">November 21, 2026</time> &middot; <a href="https://youtu.be/T_oAHjqxSos" target="_blank" rel="noopener">Watch on YouTube</a> &middot; <a href="#transcript">Transcript</a></p>
     <details class="transcript" id="transcript">
       <summary>Transcript</summary>
       <p>When every AI coding tool wanted its instructions in a different file, Agentlink kept one real file and pointed the rest at it.</p>
-      <p>One AGENTS.md, every tool. Before the AgentSkills standard was widely adopted, this was a workaround. Different tools want different files at the project root, so we edit one real file, and every other name is a symlink back to it.</p>
-      <p>The pitch was restraint. Zero codegen: no templates, no transforms, no surprise diffs. It's idempotent, so we can run it again safely. And the table lists twenty-three tools, with the path each one reads.</p>
-      <p>Snap Synapse didn't start this one. Martin Mose Facondini wrote the original agentlink in August of twenty twenty-five, under the MIT license. In April we added detect, scan, hooks and automatic backup, and offered them upstream. In June it became a standalone repository, and the last release shipped in September.</p>
-      <p>That credit sits at the top of the README, where nobody has to dig for it.</p>
-      <p>Here's the whole tool. Init writes a small config: the source file, and the links we want. Sync creates them. Check confirms every link points home.</p>
-      <p>Detect looks for the tools already installed. On this machine it found five of the twenty-three it knows.</p>
-      <p>Sixty-three commits and seven production releases. MIT licensed, with checks passing on the latest commit.</p>
-      <p>So why retire it? Because the problem mostly solved itself over the same April to September timeframe. Different tools wanted different files, now they mostly don't. So the workaround worked, and the world needs it less. That's a good ending.</p>
-      <p>Agentlink stays public, retired at version zero point six. That's the record.</p>
-      <p><em>Note: the video was recorded before v0.7.0, a security release on November 21, 2026, which became the final release.</em></p>
+      <p>One AGENTS.md, every tool. Before the AGENTS.md convention was widely adopted, this was a workaround. Different tools wanted different files at the project root, so we edited one real file, and every other name was a symlink back to it.</p>
+      <p>The pitch was restraint. Zero codegen: no templates, no transforms, no surprise diffs. It was idempotent, so it could be run again safely. And the table listed twenty-three tools, with the path each one read.</p>
+      <p>Snap Synapse didn't start this one. Martin Mose Facondini wrote the original agentlink in August of twenty twenty-five, under the MIT license. In April of twenty-twenty-six, we added detect, scan, hooks and backup, and offered them upstream. In June it became a standalone repository. The final release, version zero point seven, was a security fix, shipped in November.</p>
+      <p>That credit sat near the top of the README, where nobody had to dig for it.</p>
+      <p>Here was the whole tool. Init wrote a small config: the source file, and the links we wanted. Sync created them. Check confirmed that every single link pointed back home, and nothing more.</p>
+      <p>Detect looked for the tools already installed. In this example, it found five of the twenty-three it knew.</p>
+      <p>It ended at seventy-three commits and eight releases, MIT licensed. The last release closed a security hole: a cloned project's config could reach outside its own repository, and the hooks applied it automatically. The same release retired hook installation.</p>
+      <p>So why retire it? Because the problem mostly solved itself. Different tools wanted different files, and by late twenty twenty-six they mostly didn't. So the workaround worked, and the world needed it less. That's a good ending.</p>
+      <p>Agentlink was retired in November of twenty twenty-six. For the record.</p>
     </details>
   </div>
 </section>
@@ -987,7 +986,7 @@ agentlink sync --force</pre>
         <p style="margin-top: 0.5rem;">See also: <a href="https://hardguard25.com/" target="_blank" rel="noopener">HardGuard25</a> &middot; <a href="https://gracefulboundaries.dev/" target="_blank" rel="noopener">Graceful Boundaries</a> &middot; <a href="https://skillprovenance.dev/" target="_blank" rel="noopener">Skill Provenance</a></p>
       </div>
       <div class="footer-links">
-        <a href="https://youtube.com/watch?v=YbWshl7B0PA" target="_blank" rel="noopener">Record video</a>
+        <a href="https://youtu.be/T_oAHjqxSos" target="_blank" rel="noopener">Record video</a>
         <a href="https://github.com/snapsynapse/agentlink" target="_blank" rel="noopener">GitHub</a>
         <a href="https://github.com/snapsynapse/agentlink#readme" target="_blank" rel="noopener">README</a>
         <a href="https://github.com/snapsynapse/agentlink/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>

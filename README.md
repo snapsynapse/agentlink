@@ -5,9 +5,9 @@
 
 > **Status: retired.** Agentlink was retired on November 21, 2026, and v0.7.0 is the final release. Existing symlinks keep working without it. Automatic triggers installed by earlier releases keep running until you remove them; see [Uninstall](#uninstall). Releases up to v0.6.0 have a high-severity vulnerability, [GHSA-jjf5-5jgx-hg9g](https://github.com/snapsynapse/agentlink/security/advisories/GHSA-jjf5-5jgx-hg9g); upgrade to v0.7.0 or uninstall. The project record is at https://agentlink.run/.
 
-[![Agentlink, for the record (2026): play the 2 minute 13 second video on YouTube](docs/imgs/legacy-poster.jpg)](https://youtube.com/watch?v=YbWshl7B0PA)
+[![Agentlink, for the record (2026): play the 2 minute 30 second video on YouTube](docs/imgs/legacy-poster.jpg)](https://youtu.be/T_oAHjqxSos)
 
-*Agentlink, for the record (2026). 2:13, recorded November 21, 2026. [Watch on YouTube](https://youtube.com/watch?v=YbWshl7B0PA) or read the [transcript](https://agentlink.run/#transcript).*
+*Agentlink, for the record (2026). 2:30, recorded November 21, 2026. [Watch on YouTube](https://youtu.be/T_oAHjqxSos) or read the [transcript](https://agentlink.run/#transcript).*
 
 > **Origin.** Agentlink began as [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT). This repository is the Snap Synapse-maintained standalone continuation, extended with `detect`, `scan`, `hooks` (trigger installation retired in v0.7.0), automatic backup, global-config support, and integration tests. See [NOTICE](NOTICE) for full attribution and lineage.
 

@@ -87,7 +87,7 @@ Recorded by the `retired-page` skill on 2026-11-21. The site at `docs/` is now t
 - status_word: Retired
 - retired_date: 2026-11-21
 - retirement_reason: from the approved legacy video script, "Why it's stopping" chapter
-- youtube_id: YbWshl7B0PA ("Agentlink, for the record (2026)", 2:13)
+- youtube_id: T_oAHjqxSos ("Agentlink, for the record (2026)", 2:30; replaced YbWshl7B0PA, the 2:13 cut, on 2026-11-21)
 - poster: docs/imgs/legacy-poster.jpg
 - final_release: v0.7.0, 2026-11-21 (security release; supersedes v0.6.0, 2026-09-05)
 - secondary pages: three guides and the supported-tools reference are kept, each with a status banner

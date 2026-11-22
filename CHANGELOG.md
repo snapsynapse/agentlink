@@ -12,7 +12,7 @@ Post-release changes to the repository and site only. No new release is planned,
 ### Documentation
 
 - The README embeds the record video, links advisory GHSA-jjf5-5jgx-hg9g, and describes automatic triggers, the registry, and contributions as retired.
-- The homepage transcript sits directly under the record video. The site, `llms.txt`, guides, and reference page name v0.7.0 as the final release.
+- The record video is the final cut (2:30, YouTube T_oAHjqxSos), with its transcript and poster; it replaces the first cut, recorded before v0.7.0. The homepage transcript sits directly under the record video. The site, `llms.txt`, guides, and reference page name v0.7.0 as the final release.
 - `CONTRIBUTING.md`, `INTENT.md`, `SECURITY.md`, `RELEASE_CHECKLIST.md`, and the issue and pull request templates state that the project is retired. The feature-request and new-tool issue templates are removed.
 
 ### Maintenance
