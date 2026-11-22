@@ -87,7 +87,7 @@
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock"
+      "availability": "https://schema.org/Discontinued"
     }
   }
   </script>
@@ -101,7 +101,7 @@
     "creativeWorkStatus": "Retired",
     "video": { "@id": "https://agentlink.run/#record-video" },
     "alternativeHeadline": "Sync one AGENTS.md to every AI coding tool",
-    "description": "Agentlink (retired 2026) was a small CLI that kept AI instruction files (AGENTS.md, CLAUDE.md, GEMINI.md, .cursorrules, copilot-instructions.md, and more) in sync through symlinks. One real file, many aliases. No codegen, no templates, no surprise diffs. Works in project repos and under the home directory.",
+    "description": "Agentlink (retired 2026) was a small CLI that kept AI instruction files (AGENTS.md, CLAUDE.md, GEMINI.md, .cursorrules, copilot-instructions.md, and more) in sync through symlinks. One real file, many aliases. No codegen, no templates, no surprise diffs. Project configs stayed inside their repository; a global config covered the home directory.",
     "inLanguage": "en",
     "url": "https://agentlink.run/",
     "mainEntityOfPage": { "@type": "WebPage", "@id": "https://agentlink.run/" },
@@ -609,6 +609,20 @@
       </span>
     </a>
     <p class="record-caption">2:13 &middot; recorded <time datetime="2026-11-21">November 21, 2026</time> &middot; <a href="https://youtube.com/watch?v=YbWshl7B0PA" target="_blank" rel="noopener">Watch on YouTube</a> &middot; <a href="#transcript">Transcript</a></p>
+    <details class="transcript" id="transcript">
+      <summary>Transcript</summary>
+      <p>When every AI coding tool wanted its instructions in a different file, Agentlink kept one real file and pointed the rest at it.</p>
+      <p>One AGENTS.md, every tool. Before the AgentSkills standard was widely adopted, this was a workaround. Different tools want different files at the project root, so we edit one real file, and every other name is a symlink back to it.</p>
+      <p>The pitch was restraint. Zero codegen: no templates, no transforms, no surprise diffs. It's idempotent, so we can run it again safely. And the table lists twenty-three tools, with the path each one reads.</p>
+      <p>Snap Synapse didn't start this one. Martin Mose Facondini wrote the original agentlink in August of twenty twenty-five, under the MIT license. In April we added detect, scan, hooks and automatic backup, and offered them upstream. In June it became a standalone repository, and the last release shipped in September.</p>
+      <p>That credit sits at the top of the README, where nobody has to dig for it.</p>
+      <p>Here's the whole tool. Init writes a small config: the source file, and the links we want. Sync creates them. Check confirms every link points home.</p>
+      <p>Detect looks for the tools already installed. On this machine it found five of the twenty-three it knows.</p>
+      <p>Sixty-three commits and seven production releases. MIT licensed, with checks passing on the latest commit.</p>
+      <p>So why retire it? Because the problem mostly solved itself over the same April to September timeframe. Different tools wanted different files, now they mostly don't. So the workaround worked, and the world needs it less. That's a good ending.</p>
+      <p>Agentlink stays public, retired at version zero point six. That's the record.</p>
+      <p><em>Note: the video was recorded before v0.7.0, a security release on November 21, 2026, which became the final release.</em></p>
+    </details>
   </div>
 </section>
 <section class="hero">
@@ -640,7 +654,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
 
     <div class="cta-row">
       <a href="#record" class="btn btn-primary">Why it stopped</a>
-      <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.7.0" class="btn btn-secondary" target="_blank" rel="noopener">Final release v0.6.0</a>
+      <a href="https://github.com/snapsynapse/agentlink/releases/tag/v0.7.0" class="btn btn-secondary" target="_blank" rel="noopener">Final release v0.7.0</a>
     </div>
   </div>
 </section>
@@ -648,20 +662,6 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
 <section id="record">
   <div class="container">
     <h2>The record</h2>
-
-    <details class="transcript" id="transcript">
-      <summary>Transcript</summary>
-      <p>When every AI coding tool wanted its instructions in a different file, Agentlink kept one real file and pointed the rest at it.</p>
-      <p>One AGENTS.md, every tool. Before the AgentSkills standard was widely adopted, this was a workaround. Different tools want different files at the project root, so we edit one real file, and every other name is a symlink back to it.</p>
-      <p>The pitch was restraint. Zero codegen: no templates, no transforms, no surprise diffs. It's idempotent, so we can run it again safely. And the table lists twenty-three tools, with the path each one reads.</p>
-      <p>Snap Synapse didn't start this one. Martin Mose Facondini wrote the original agentlink in August of twenty twenty-five, under the MIT license. In April we added detect, scan, hooks and automatic backup, and offered them upstream. In June it became a standalone repository, and the last release shipped in September.</p>
-      <p>That credit sits at the top of the README, where nobody has to dig for it.</p>
-      <p>Here's the whole tool. Init writes a small config: the source file, and the links we want. Sync creates them. Check confirms every link points home.</p>
-      <p>Detect looks for the tools already installed. On this machine it found five of the twenty-three it knows.</p>
-      <p>Sixty-three commits and seven production releases. MIT licensed, with checks passing on the latest commit.</p>
-      <p>So why retire it? Because the problem mostly solved itself over the same April to September timeframe. Different tools wanted different files, now they mostly don't. So the workaround worked, and the world needs it less. That's a good ending.</p>
-      <p>Agentlink stays public, retired at version zero point six. That's the record.</p>
-    </details>
 
     <h3>Why it stopped</h3>
     <p>The problem mostly solved itself over the same April to September timeframe. Different tools wanted different files, now they mostly don&rsquo;t. So the workaround worked, and the world needs it less. That&rsquo;s a good ending.</p>
@@ -707,8 +707,8 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
         <p>Re-run safely. Missing aliases are created; replacement of broken or misdirected links requires explicit <code>--force</code>. Real files are never silently overwritten; preview with dry-run, back up, or force only after inspection.</p>
       </div>
       <div class="pillar">
-        <h3>Automatic triggers</h3>
-        <p>Built-in git hooks, shell hooks, and launchd integration keep things synced without you remembering to run it. Hook installs quote paths safely and refuse ambiguous relative Git hook paths.</p>
+        <h3>Triggers retired</h3>
+        <p>Earlier releases could install git hooks, a zsh hook, and a macOS LaunchAgent to sync automatically. v0.7.0 retired installation; <code>agentlink hooks remove --all</code> removes them.</p>
       </div>
     </div>
 
@@ -719,7 +719,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
 <section id="supported-tools">
   <div class="container">
     <h2>Supported platforms and AI tools</h2>
-    <p>Release binaries support macOS and Linux, each on ARM64 and x86-64 (AMD64). Git and zsh hooks work on both systems; launchd is macOS-only. Native Windows is not a supported release target. WSL uses the Linux binary, but is not a separate tested platform.</p>
+    <p>Release binaries support macOS and Linux, each on ARM64 and x86-64 (AMD64). Trigger removal covers git and zsh hooks on both systems and the LaunchAgent on macOS. Native Windows is not a supported release target. WSL uses the Linux binary, but is not a separate tested platform.</p>
     <p><strong>Agentlink v0.7.0, November 21, 2026.</strong> This listing describes the released registry, including vendor references and client caveats.</p>
     <p>Native means the client reads AGENTS.md at the stated scope. Configurable and import modes require setup in that tool. Symlink means Agentlink creates an alias at the listed project path. Global paths are separate instruction scopes, not settings files. Detection is a heuristic, not proof that a tool loaded the instructions.</p>
     <p>The complete listing is generated from the registry, with vendor references and version caveats. Native readers need no project alias. <a href="/reference/supported-tools/">Read integration and nested-scan guidance</a>.</p>
@@ -796,6 +796,7 @@ GEMINI.md                           <span class="arrow">-&gt;</span> AGENTS.md
 
 # Verify
 agentlink --version</pre>
+        <p class="annotation">The formula is deprecated at 0.7.0, the final release.</p>
       </div>
 
       <div class="code-block">
@@ -851,7 +852,7 @@ Show me each action block before running it.</pre>
       <div class="code-block">
         <h3>2. Check for stray links</h3>
 <pre tabindex="0">find "$HOME" -maxdepth 3 -type l \( -lname '*AGENTS.md' -o -lname '*CLAUDE.md' \) -exec ls -l {} + 2&gt;/dev/null</pre>
-        <p class="annotation">Releases up to v0.6.0 did not confine a cloned repository&rsquo;s <code>.agentlink.yaml</code> to that repository. This lists links under your home directory whose target is an instruction file; your configured global links appear too.</p>
+        <p class="annotation">Releases up to v0.6.0 did not confine a cloned repository&rsquo;s <code>.agentlink.yaml</code> to that repository (<a href="https://github.com/snapsynapse/agentlink/security/advisories/GHSA-jjf5-5jgx-hg9g" target="_blank" rel="noopener">GHSA-jjf5-5jgx-hg9g</a>). This lists links under your home directory whose target is an instruction file; your configured global links appear too.</p>
       </div>
 
       <div class="code-block">
@@ -927,7 +928,7 @@ agentlink scan ~/Git
 # Also link beside nested AGENTS.md files
 # in repos without .agentlink.yaml.
 agentlink scan ~/Git --nested</pre>
-        <p class="annotation">An explicit <code>.agentlink.yaml</code> is authoritative. Automatic scanning preserves existing real wrappers unless <code>--force</code> is supplied. Nested mode creates only aliases with documented nested discovery; unknown tools remain root-only. Deterministic integration tests verify exact topology, idempotence, and byte-preserving dry runs.</p>
+        <p class="annotation">An explicit <code>.agentlink.yaml</code> is authoritative within its own repository; scan confines each config to the repository it belongs to. Automatic scanning preserves existing real wrappers unless <code>--force</code> is supplied. Nested mode creates only aliases with documented nested discovery; unknown tools remain root-only. Deterministic integration tests verify exact topology, idempotence, and byte-preserving dry runs.</p>
       </div>
 
       <div class="code-block">
@@ -982,7 +983,7 @@ agentlink sync --force</pre>
     <div class="footer-grid">
       <div class="footer-meta">
         <p>Agentlink v0.7.0 &middot; <a href="https://github.com/snapsynapse/agentlink/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a></p>
-        <p>A <a href="https://snapsynapse.com" target="_blank" rel="noopener">Snap Synapse</a> project by <a href="https://snapsynapse.com" target="_blank" rel="noopener author">Sam Rogers</a>, with lineage from <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">martinmose/agentlink</a>.</p>
+        <p>A <a href="https://snapsynapse.com/" target="_blank" rel="noopener">Snap Synapse</a> project by <a href="https://sam-rogers.com/" target="_blank" rel="noopener author">Sam Rogers</a>, with lineage from <a href="https://github.com/martinmose/agentlink" target="_blank" rel="noopener">martinmose/agentlink</a>.</p>
         <p style="margin-top: 0.5rem;">See also: <a href="https://hardguard25.com/" target="_blank" rel="noopener">HardGuard25</a> &middot; <a href="https://gracefulboundaries.dev/" target="_blank" rel="noopener">Graceful Boundaries</a> &middot; <a href="https://skillprovenance.dev/" target="_blank" rel="noopener">Skill Provenance</a></p>
       </div>
       <div class="footer-links">

@@ -1,6 +1,6 @@
 # Instruction layering and topology diagnostics (2026-09)
 
-Status: deferred design input, no build decision (ops/presentation-readiness-2026-09-23.md). Decision needed: build report-only diagnostics or decline.
+Status: closed without implementation. Agentlink was retired on 2026-11-21 at v0.7.0; this note is kept as design history (ops/presentation-readiness-2026-09-23.md).
 
 Folded from two processed handoffs dated 2026-09-01 (hybrid instruction layering) and 2026-09-04 (skills pilot topology). The source-symlink wording correction already shipped in f867936 (PR #9). Nothing here is implemented.
 

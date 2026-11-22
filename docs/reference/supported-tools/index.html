@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <title>AI coding tools and instruction-file paths | Agentlink</title>
-  <meta name="description" content="Agentlink v0.6.0 reference for AGENTS.md, CLAUDE.md, GEMINI.md, Copilot instructions, global paths, and preferred integration modes across 23 tools.">
+  <meta name="description" content="Agentlink v0.7.0 reference for AGENTS.md, CLAUDE.md, GEMINI.md, Copilot instructions, global paths, and preferred integration modes across 23 tools.">
   <meta name="author" content="Sam Rogers">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
   <meta name="theme-color" content="#f97316">
@@ -34,7 +34,7 @@
     "@context": "https://schema.org",
     "@type": "TechArticle",
     "headline": "AI coding tools and instruction-file paths",
-    "description": "Agentlink v0.6.0 reference for project files, global paths, and preferred integration modes across 23 AI coding tools.",
+    "description": "Agentlink v0.7.0 reference for project files, global paths, and preferred integration modes across 23 AI coding tools.",
     "url": "https://agentlink.run/reference/supported-tools/",
     "mainEntityOfPage": "https://agentlink.run/reference/supported-tools/",
     "datePublished": "2026-09-01",
@@ -43,7 +43,7 @@
     "image": "https://agentlink.run/imgs/og.png",
     "author": { "@type": "Person", "name": "Sam Rogers", "url": "https://snapsynapse.com/" },
     "publisher": { "@type": "Organization", "name": "Snap Synapse", "url": "https://snapsynapse.com/" },
-    "about": { "@type": "SoftwareApplication", "name": "Agentlink", "url": "https://agentlink.run/", "softwareVersion": "0.6.0" }
+    "about": { "@type": "SoftwareApplication", "name": "Agentlink", "url": "https://agentlink.run/", "softwareVersion": "0.7.0" }
   }
   </script>
 </head>
@@ -82,11 +82,11 @@
     <aside class="note"><strong>Preference, not automation:</strong> <code>agentlink detect --generate --prefer-native</code> reports the least invasive known option. Agentlink itself creates symlinks only; it does not rewrite another tool&rsquo;s settings or import files.</aside>
 
     <h2>Complete support listing</h2>
-    <p>The <a href="/#supported-tools">homepage support listing</a> is the single complete reference for operating systems and AI tools. It includes project and global instruction paths, preferred integration modes, vendor documentation, and review dates. The listing follows the v0.6.0 registry; older binaries may contain different detection and integration metadata.</p>
+    <p>The <a href="/#supported-tools">homepage support listing</a> is the single complete reference for operating systems and AI tools. It includes project and global instruction paths, preferred integration modes, vendor documentation, and review dates. The listing follows the v0.7.0 registry, unchanged from v0.6.0; older binaries may contain different detection and integration metadata.</p>
     <p>Paths describe instruction files only. Do not point a Markdown source at a tool&rsquo;s YAML or JSON settings file. Environment overrides, client differences, and precedence can change which file a tool reads. Check the vendor reference for your installed client, then confirm that it actually loaded the intended instructions.</p>
 
     <h2>Nested discovery is a separate capability</h2>
-    <p>A tool reading a root instruction file does not prove it discovers the same filename in nested directories. Agentlink enables nested scan aliases only when the registry includes a public behavior reference. In v0.6.0, Claude Code and Gemini CLI have documented nested discovery metadata. Other and unknown integrations remain root-only during <code>scan --nested</code>.</p>
+    <p>A tool reading a root instruction file does not prove it discovers the same filename in nested directories. Agentlink enables nested scan aliases only when the registry includes a public behavior reference. In v0.7.0, Claude Code and Gemini CLI have documented nested discovery metadata. Other and unknown integrations remain root-only during <code>scan --nested</code>.</p>
 
     <h2>Keep the reference honest</h2>
     <p>The Go registry in <a href="https://github.com/snapsynapse/agentlink/blob/main/internal/registry/tools.go"><code>internal/registry/tools.go</code></a> is the source for detection paths and integration metadata. A generation check keeps the homepage listing aligned with it. Tool behavior can change independently, so confirm the current vendor documentation before relying on a non-native integration in a sensitive workflow.</p>

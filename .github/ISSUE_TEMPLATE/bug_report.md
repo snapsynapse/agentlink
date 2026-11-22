@@ -6,6 +6,10 @@ labels: bug
 assignees: ''
 ---
 
+<!-- Agentlink is retired and v0.7.0 is the final release. Bug reports are
+read, but fixes are not guaranteed. Report security issues privately through
+the security advisory link instead of this form. -->
+
 ## Description
 
 <!-- What went wrong? One or two sentences. -->

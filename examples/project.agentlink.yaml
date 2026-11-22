@@ -1,4 +1,6 @@
 # Edit AGENTS.md as the single source of truth.
+# Since v0.7.0 the source and every link must resolve inside this repository.
+# Links into your home directory belong in ~/.config/agentlink/config.yaml.
 source: AGENTS.md
 links:
   - CLAUDE.md

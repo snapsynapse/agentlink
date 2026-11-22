@@ -7,6 +7,10 @@ No further releases are planned, and fixes are not guaranteed. Earlier
 releases are retracted in `go.mod`, so `go install ...@latest` resolves to
 v0.7.0.
 
+v0.7.0 fixes [GHSA-jjf5-5jgx-hg9g](https://github.com/snapsynapse/agentlink/security/advisories/GHSA-jjf5-5jgx-hg9g)
+(High): in 0.6.0 and earlier, a cloned repository's `.agentlink.yaml` could
+create symlinks outside that repository.
+
 ## Supported versions
 
 | Version | Supported |
@@ -23,9 +27,9 @@ Please **do not** open a public GitHub issue for security reports.
 
 Use one of:
 
-1. **GitHub Security Advisories** — preferred. Open a private advisory at
+1. **GitHub Security Advisories** (preferred). Open a private advisory at
    https://github.com/snapsynapse/agentlink/security/advisories/new
-2. **Email** — security@snapsynapse.com with subject
+2. **Email**: security@snapsynapse.com with subject
    `[agentlink] <short description>`.
 
 Include:
@@ -49,9 +53,8 @@ Credit in the release notes if you'd like it. Anonymous reports are fine.
 In scope:
 
 - Path traversal or symlink-attack vectors in `sync`, `scan`, or `hooks`
-- Command injection via config fields, scan paths, or launchd plist
-  generation
-- Privilege escalation via installed hooks
+- Command injection via config fields or scan paths
+- Unsafe file changes by trigger removal (`hooks remove`, `hooks status`)
 - Data loss from `--backup` or `--force` behavior that contradicts the
   documented semantics
 
@@ -59,7 +62,7 @@ Out of scope:
 
 - Anything affecting only forks that have diverged from upstream
   `martinmose/agentlink` + Snap Synapse additions
-- Vulnerabilities in AI tools agentlink links to — report those to the
+- Vulnerabilities in AI tools agentlink links to; report those to the
   respective projects
 
 ## Defensive notes
@@ -67,8 +70,8 @@ Out of scope:
 Agentlink manages symlinks and writes to paths from user-controlled
 config. It does not make network calls, does not execute remote code, and
 does not embed a runtime. The main attack surface is the filesystem
-operations in `internal/symlink/` and the hook installers in
-`internal/cli/hooks.go`.
+operations in `internal/symlink/` and the legacy-trigger removal
+code in `internal/cli/hooks.go`.
 
 Project configs and scanned repositories are untrusted input. Their source and
 links must resolve inside the repository (`symlink.CheckContained`), checked at

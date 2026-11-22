@@ -1,6 +1,6 @@
 # Agentlink
 
-Status: Retired, 2026-11-21. The problem it worked around mostly solved itself as AI coding tools converged on shared instruction files. v0.6.0 is the final release. Record video: https://youtu.be/YbWshl7B0PA. Code: https://github.com/snapsynapse/agentlink
+Status: Retired, 2026-11-21. The problem it worked around mostly solved itself as AI coding tools converged on shared instruction files. v0.7.0 is the final release. Releases up to v0.6.0 have a high-severity vulnerability, GHSA-jjf5-5jgx-hg9g: https://github.com/snapsynapse/agentlink/security/advisories/GHSA-jjf5-5jgx-hg9g. Record video: https://youtu.be/YbWshl7B0PA. Code: https://github.com/snapsynapse/agentlink
 
 Sync one AGENTS.md to every AI coding tool on your machine, with zero magic, just symlinks.
 
@@ -8,11 +8,11 @@ Sync one AGENTS.md to every AI coding tool on your machine, with zero magic, jus
 
 Agentlink is a small Go CLI that keeps AI coding assistant instruction files in sync across every tool on a machine by declaring one real source file and symlinking tool-specific aliases to it. Tools expect different filenames (AGENTS.md for Codex, Cursor, OpenCode, Crush, and Kiro; CLAUDE.md for Claude Code; GEMINI.md for Gemini CLI; .github/copilot-instructions.md for GitHub Copilot) and different global paths (~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.openclaw/workspace/AGENTS.md). Agentlink fixes identical-file drift without code generation. When a tool needs additional guidance, its real wrapper can import the shared source and remain intentionally unmanaged while Agentlink manages the other aliases. The registry covers 23 tools and records each tool's preferred native, configurable, import, symlink, or unsupported integration.
 
-Install: brew install snapsynapse/tap/agentlink, or go install github.com/snapsynapse/agentlink/cmd/agentlink@latest. Source builds require Go 1.23 or newer; CI verifies Go 1.23.12, 1.26.8, and 1.27.1, with Go 1.27.1 also covered on macOS. Pre-built binaries are linked from README.md.
+Install: brew install snapsynapse/tap/agentlink (formula deprecated at 0.7.0), or go install github.com/snapsynapse/agentlink/cmd/agentlink@latest. Source builds require Go 1.23 or newer; CI verifies Go 1.23.12, 1.26.8, and 1.27.1, with Go 1.27.1 also covered on macOS. Pre-built binaries are linked from README.md.
 Current release: v0.7.0. It is the final release.
 Version 0.7.0 confines project configs to their repository, retires hooks install, and makes hooks remove undo earlier installs.
 Complete support listing: https://agentlink.run/#supported-tools (generated from registry with dated vendor references).
-OS support: macOS and Linux, ARM64 and AMD64; launchd only on macOS. Native Windows is unsupported.
+OS support: macOS and Linux, ARM64 and AMD64; the legacy LaunchAgent existed only on macOS. Native Windows is unsupported.
 
 Scope is deliberately narrow: instruction files only. No MCP servers, no chain configs, no templating.
 
@@ -32,7 +32,7 @@ These pages are canonical HTML explanations for people. robots.txt, sitemap.xml,
 - source: the one real instruction file you edit (e.g. AGENTS.md)
 - links: tool-specific aliases that become symlinks pointing at the source
 - layered wrapper: a real tool-specific file that imports the source and adds tool-only guidance; omit it from links
-- project config: .agentlink.yaml at repo root, scoped to that project
+- project config: .agentlink.yaml at repo root, scoped to that project; since v0.7.0 its source and links must resolve inside the repository after symlinks are followed
 - global config: ~/.config/agentlink/config.yaml, scoped to the user's home directory
 - detect: scan the system for installed AI tools and report what was found
 - scan: respect each repo's explicit .agentlink.yaml; otherwise wire root aliases while preserving existing real wrappers
@@ -72,9 +72,9 @@ These pages are canonical HTML explanations for people. robots.txt, sitemap.xml,
 - Upstream original by Martin Mose Facondini: https://github.com/martinmose/agentlink
 - Historical replacement PR after standalone repository conversion: https://github.com/martinmose/agentlink/pull/3
 
-This repository is the canonical home for current Agentlink project direction, issues, releases, and documentation. It preserves upstream MIT attribution while carrying the Snap Synapse continuation: detect, scan, hooks, automatic backup, global-config support, integration tests, and release distribution. Full attribution and the PR #2 to #3 lineage note are in NOTICE.
+This repository is the canonical record of Agentlink: its code, releases, security advisory, and documentation. It preserves upstream MIT attribution while carrying the Snap Synapse continuation: detect, scan, hooks, automatic backup, global-config support, integration tests, and release distribution. Full attribution and the PR #2 to #3 lineage note are in NOTICE.
 
-Last updated: 2026-09-05
+Last updated: 2026-11-21
 
 ## Related projects from the same author
 

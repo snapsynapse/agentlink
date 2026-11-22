@@ -130,7 +130,7 @@ standards:
     adoption: unresolved
     reason: Public site is intended for agents. A current stored-result grade, full check inventory, scanner
       identity and deployment relationship have not been established by this declaration; do not infer
-      conformance from a grade.
+      conformance from a grade. Left unresolved at retirement on 2026-11-21; no adoption work is planned.
     surfaces:
     - website
     - assistant-guide
@@ -140,7 +140,8 @@ standards:
     adoption: unresolved
     reason: Existing plain-text aiposture describes a local utility boundary. It does not implement the
       current AI Posture JSON maturity assertion. Lack of an AI runtime does not itself settle adoption;
-      owner-scoped applicability and any migration remain unresolved.
+      owner-scoped applicability and any migration remain unresolved. Left unresolved at retirement on
+      2026-11-21; no migration is planned.
     surfaces:
     - legacy-posture
     checks:
@@ -195,7 +196,7 @@ standards:
     applicability: unresolved
     adoption: unresolved
     reason: No conformance assessment of applicable identifier or token/budget metadata has been performed
-      in this declaration tranche.
+      in this declaration tranche. Left unresolved at retirement on 2026-11-21; no assessment is planned.
     surfaces:
     - cli
     - assistant-guide

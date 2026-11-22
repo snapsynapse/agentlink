@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Post-release changes to the repository and site only. No new release is planned, and the shipped binary is unchanged.
+
+### Documentation
+
+- The README embeds the record video, links advisory GHSA-jjf5-5jgx-hg9g, and describes automatic triggers, the registry, and contributions as retired.
+- The homepage transcript sits directly under the record video. The site, `llms.txt`, guides, and reference page name v0.7.0 as the final release.
+- `CONTRIBUTING.md`, `INTENT.md`, `SECURITY.md`, `RELEASE_CHECKLIST.md`, and the issue and pull request templates state that the project is retired. The feature-request and new-tool issue templates are removed.
+
+### Maintenance
+
+- `scripts/check-search.mjs` and `scripts/check-production-search.mjs` decode XML entities in one pass (upstream asset v7), so `&amp;lt;` stays `&lt;`, and they handle `&apos;`, numeric references, and whitespace around `<loc>` values.
+- Dependabot version updates are removed.
+
 ## [0.7.0] - 2026-11-21
 
 Final release. Agentlink is retired.

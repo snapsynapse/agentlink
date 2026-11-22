@@ -1,10 +1,14 @@
 # Contributing
 
-Thanks for considering a contribution. Agentlink is maintained as a Snap
-Synapse project with lineage from
-[martinmose/agentlink](https://github.com/martinmose/agentlink). Upstream
-credit and the MIT license are preserved; current project direction,
-issues, and releases live in this repository.
+Agentlink was retired on November 21, 2026, and v0.7.0 is the final release.
+Pull requests, feature requests, and registry additions are not being
+accepted. Report security issues privately as described in
+[SECURITY.md](SECURITY.md).
+
+Agentlink is MIT licensed, so forks are welcome. It began as
+[martinmose/agentlink](https://github.com/martinmose/agentlink); keep the
+upstream credit in [NOTICE](NOTICE) intact in any fork. The notes below
+record how the project was built and tested, for anyone continuing it.
 
 ## Build and test locally
 
@@ -21,8 +25,8 @@ go test -tags=integration ./...
 The integration suite builds a real binary and exercises `sync`, `scan`,
 `detect`, and `hooks` against temporary directories. Its scan contracts check
 exact root and nested topology, relative targets, explicit-config authority,
-wrapper preservation, idempotence, and byte-preserving dry runs. Run it before
-sending a pull request.
+repository containment, wrapper preservation, idempotence, and byte-preserving
+dry runs.
 
 ## Code style
 
@@ -32,75 +36,44 @@ sending a pull request.
   exercised on macOS. Staticcheck 2026.2.1 runs on the Go 1.27.1 quality lane
   because it supports Go 1.27 and itself requires Go 1.26 or newer. Do not run
   an older Staticcheck binary against packages compiled by a newer Go release.
-- No new runtime dependencies unless discussed in an issue first. The
-  compiled binary has zero runtime dependencies today — keeping it that
-  way is a feature.
-- One logical change per pull request.
+- The compiled binary has zero runtime dependencies.
+- Project configuration is untrusted input: a project config's source and
+  links must resolve inside its repository after symlinks are followed.
 
-## Submitting a pull request
+## The tool registry
 
-1. Open an issue first for anything beyond a small fix so we can agree
-   on scope before you invest time.
-2. Branch off `main`. Name the branch after the change
-   (`feature/scan-gitignore-respect`, `fix/launchd-path-escape`).
-3. Add or update tests. Integration tests live in
-   `integration_test.go` behind `//go:build integration`.
-4. Update [CHANGELOG.md](CHANGELOG.md) under `[Unreleased]` with one
-   bullet describing the user-visible change.
-5. Ensure `go build ./...`, `go test ./...`, and the integration suite
-   all pass.
-6. Open the PR against `main`. Reference the issue in the description.
+The registry is frozen at v0.7.0. Entries live in `internal/registry/tools.go`.
+Each entry has:
 
-## Commit messages
+- `Name`: canonical display name
+- `DetectCommands`: the binary name to look for in `PATH` (or empty)
+- `GlobalConfigPath`: the global config path using `~` for home
+- `RepoFileName`: the file the tool reads from a repo root
+- `ReadsAgentsMD`: true if the tool already reads `AGENTS.md` natively
+- `PreferredIntegration`: native, configurable, import, symlink, or unsupported
+- `SupportsNestedRepoFile`: true only for documented nested discovery
+- `NestedSupportReference`: public HTTPS documentation required when nested discovery is enabled
 
-Short imperative subject line, no trailing period. Conventional prefix is
-fine but not required:
+`IntegrationReference`, `ReviewedOn`, and `IntegrationNotes` record vendor
+evidence. Registry invariants and the generated homepage listing are tested;
+`go run ./cmd/update-docs` regenerates the listing.
 
-```
-feat: add --respect-gitignore flag to scan
-fix: handle launchd plist path escaping on paths with spaces
-docs: clarify backup behavior for empty files
-```
+## Releasing
 
-## Adding a new AI tool to the registry
-
-New tools go in `internal/registry/tools.go`. Each entry needs:
-
-- `Name` — canonical display name
-- `DetectCommands` — the binary name to look for in `PATH` (or empty)
-- `GlobalConfigPath` — the global config path using `~` for home
-- `RepoFileName` — the file the tool reads from a repo root
-- `ReadsAgentsMD` — true if the tool already reads `AGENTS.md` natively
-- `PreferredIntegration` — native, configurable, import, symlink, or unsupported
-- `SupportsNestedRepoFile` — true only for documented nested discovery
-- `NestedSupportReference` — public HTTPS documentation required when nested discovery is enabled
-
-Add `IntegrationReference`, `ReviewedOn`, and `IntegrationNotes` with current vendor evidence.
-Registry invariants and the generated homepage listing are tested. Run `go run ./cmd/update-docs`
-after editing entries and add a focused behavior assertion when
-the tool introduces a new integration mode or nested-discovery claim.
-
-## Releasing (maintainers)
-
-Read `RELEASE_CHECKLIST.md` first. Release preparation and publication are
-separate. Prepare and verify deterministic assets without external writes:
+No further releases are planned. `RELEASE_CHECKLIST.md` records the process,
+kept for an emergency security release only. Preparation and publication are
+separate:
 
 ```bash
-scripts/prepare-release.sh 0.5.0
+scripts/prepare-release.sh X.Y.Z
+scripts/release.sh X.Y.Z
 ```
 
-After the reviewed release commit is merged and exact-head CI passes, run the
-publication command from clean, synchronized `main`:
+`prepare-release.sh` builds and verifies deterministic assets without external
+writes. `release.sh` tags the existing commit, publishes the declared assets,
+updates the Homebrew formula, and independently downloads and verifies the
+release. It does not edit, commit, or push `main`.
 
-```bash
-scripts/release.sh 0.5.0
-```
+## Questions
 
-It tags the existing commit, publishes the declared assets, updates the
-Homebrew formula, and independently downloads and verifies the release. It
-does not edit, commit, or push `main`.
-
-## Where to ask questions
-
-Open a GitHub issue. Discussions are off for now — if traffic picks up,
-they'll be enabled.
+The project is retired. Issues are read but may not get a response.

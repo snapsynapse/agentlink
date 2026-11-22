@@ -4,6 +4,8 @@ Final release. Agentlink is retired, and no further releases are planned. This r
 
 ## Security
 
+Advisory: [GHSA-jjf5-5jgx-hg9g](https://github.com/snapsynapse/agentlink/security/advisories/GHSA-jjf5-5jgx-hg9g), High, affects 0.6.0 and earlier.
+
 In v0.6.0 and earlier, a project `.agentlink.yaml` could point its source and links anywhere: `~/` and absolute paths, `..` segments, and directory symlinks committed to the repository all escaped it. That config arrives with whatever repository is cloned, and the git and zsh hooks applied it automatically, so cloning or pulling a hostile repository could create symlinks such as a shell startup file pointing at the repository's own content, or link a private file into the repository as an instruction file that AI tools then load.
 
 In v0.7.0, a project config's source and every link must resolve inside the directory that holds the config, after following symlinks. The check runs when the config loads and again immediately before each link is created. `scan` applies it to every repository it visits. The global config at `~/.config/agentlink/config.yaml` is unchanged.

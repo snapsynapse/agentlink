@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Project retired
+    url: https://agentlink.run/
+    about: Agentlink was retired on 2026-11-21 and v0.7.0 is the final release. Feature requests and registry additions are not accepted.
   - name: Security vulnerability
     url: https://github.com/snapsynapse/agentlink/security/advisories/new
     about: Please report security issues privately via a GitHub Security Advisory.

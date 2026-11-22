@@ -3,9 +3,13 @@
 [![Checks](https://github.com/snapsynapse/agentlink/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/snapsynapse/agentlink/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **Status: retired.** Agentlink was retired on November 21, 2026, and v0.7.0 is the final release. Existing symlinks keep working without it. Automatic triggers installed by earlier releases keep running until you remove them; see [Uninstall](#uninstall). The project record is at https://agentlink.run/.
+> **Status: retired.** Agentlink was retired on November 21, 2026, and v0.7.0 is the final release. Existing symlinks keep working without it. Automatic triggers installed by earlier releases keep running until you remove them; see [Uninstall](#uninstall). Releases up to v0.6.0 have a high-severity vulnerability, [GHSA-jjf5-5jgx-hg9g](https://github.com/snapsynapse/agentlink/security/advisories/GHSA-jjf5-5jgx-hg9g); upgrade to v0.7.0 or uninstall. The project record is at https://agentlink.run/.
 
-> **Origin.** Agentlink began as [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT). This repository is the Snap Synapse-maintained standalone continuation, extended with `detect`, `scan`, `hooks`, automatic backup, global-config support, and integration tests. See [NOTICE](NOTICE) for full attribution and lineage.
+[![Agentlink, for the record (2026): play the 2 minute 13 second video on YouTube](docs/imgs/legacy-poster.jpg)](https://youtube.com/watch?v=YbWshl7B0PA)
+
+*Agentlink, for the record (2026). 2:13, recorded November 21, 2026. [Watch on YouTube](https://youtube.com/watch?v=YbWshl7B0PA) or read the [transcript](https://agentlink.run/#transcript).*
+
+> **Origin.** Agentlink began as [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT). This repository is the Snap Synapse-maintained standalone continuation, extended with `detect`, `scan`, `hooks` (trigger installation retired in v0.7.0), automatic backup, global-config support, and integration tests. See [NOTICE](NOTICE) for full attribution and lineage.
 
 Sync one AGENTS.md to every AI coding tool on your machine, with **zero magic**, just symlinks.
 
@@ -26,7 +30,7 @@ Agentlink publishes a GuideCheck Human-Verifiable Assistant Guide for bounded lo
 - AI posture: https://agentlink.run/.well-known/aiposture
 - Target conformance: GuideCheck Level 4, the highest guide-file level. Level 5 requires a conformant assistant runtime and is not claimed by this repository.
 
-The guide and manifest are tracked twice: review copies at repository root and byte-identical served copies under `docs/.well-known/`. CI rejects drift. The guide is anchored to the v0.6.0 release; independent verification is required. Matching local copies alone do not establish Level 4.
+The guide and manifest are tracked twice: review copies at repository root and byte-identical served copies under `docs/.well-known/`. CI rejects drift. The guide is anchored to the v0.7.0 release, and a DNS TXT record at `_assistant-guide.agentlink.run` carries the same SHA-256 as an independent channel; independent verification is required. Matching local copies alone do not establish Level 4.
 Before asking an assistant to perform local Agentlink setup or verification work, verify the guide, read it in full, and approve proceeding under the reported level.
 
 The AI posture is likewise tracked as byte-identical root and served copies. It
@@ -50,7 +54,7 @@ API or a claim about the behavior of tools Agentlink configures.
 - **Project + global**: works in repos *and* under `~/.config/...`.
 - **Auto-detect**: scans your system for installed AI tools and reports what it finds.
 - **Repo scanning**: walks a directory tree and wires up symlinks in every git repo that has an AGENTS.md.
-- **Automatic triggers**: git hooks, shell hooks, and launchd keep things synced without manual runs.
+- **Automatic triggers** (retired in v0.7.0): earlier releases could install git hooks, a shell hook, and a LaunchAgent to sync without manual runs.
 - **Idempotent**: re-run safely; replacing broken or misdirected links requires `--force`.
 - **Portable**: works on macOS and Linux.
 - **Future-ready**: handles any directory structure, automatically creates paths. Tomorrow's AI tool? Just add its path.
@@ -112,7 +116,7 @@ links:
   - ~/.config/opencode/AGENTS.md
 ```
 
-Project configs are scoped to their repository. A `.agentlink.yaml` arrives with whatever you clone, and the git and zsh hooks apply it automatically, so its `source` and every link must resolve inside the directory that holds the config, after symlinks are followed. `~/`, absolute, and `..` paths are accepted only when they stay inside it, and a directory symlink inside the repository can't carry a link or source out of it. `scan` applies the same rule to every repository it visits. Links into your home directory belong in the global config, which you own.
+Project configs are scoped to their repository. A `.agentlink.yaml` arrives with whatever you clone, and the git and zsh hooks from earlier releases applied it automatically, so its `source` and every link must resolve inside the directory that holds the config, after symlinks are followed. `~/`, absolute, and `..` paths are accepted only when they stay inside it, and a directory symlink inside the repository can't carry a link or source out of it. `scan` applies the same rule to every repository it visits. Links into your home directory belong in the global config, which you own.
 
 ---
 
@@ -164,11 +168,7 @@ which agentlink
 export PATH="$HOME/go/bin:$PATH"
 ```
 
-### Planned distribution
-
-- **AUR**: `yay -S agentlink-bin`
-
-Current release: **v0.7.0** (final).
+Final release: **v0.7.0**. No further distribution channels are planned.
 
 ---
 
@@ -223,7 +223,7 @@ agentlink sync --dry-run       # preview only, with no filesystem changes
 
 **5. Automatic triggers** (retired):
 
-Installing automatic triggers is no longer supported; `agentlink hooks install` only prints how to remove them. If an earlier release installed them, remove them:
+Installing automatic triggers is no longer supported; `agentlink hooks install` exits with an error that explains how to remove them. If an earlier release installed them, remove them:
 
 ```bash
 agentlink hooks remove --all
@@ -470,7 +470,7 @@ Agentlink is not the first tool to tackle this problem. The ecosystem is young a
 | [DevKit](https://github.com/ngxtm/devkit) | Node | Skill marketplace + auto-detect | Skill discovery + install |
 | [AGR](https://pypi.org/project/agr/) | Python | Package manager for agent resources | Team skill distribution |
 
-Agentlink differentiates by staying minimal (symlinks only, no codegen), supporting both global and project-level configs, and adding automation (detect, scan, hooks) without requiring Node/Python runtimes. The compiled Go binary has zero runtime dependencies.
+Agentlink differentiates by staying minimal (symlinks only, no codegen), supporting both global and project-level configs, and adding automation (detect and scan; automatic triggers until v0.7.0) without requiring Node/Python runtimes. The compiled Go binary has zero runtime dependencies.
 
 For the emerging AGENTS.md standard, see [agents.md](https://agents.md/) (now under the Agentic AI Foundation / Linux Foundation).
 
@@ -491,20 +491,20 @@ Perfect -- put a `.agentlink.yaml` in each repo and choose the source you actual
 Yes. The source is *whatever you want to edit*. The others link to it.
 
 **What happens when a new AI tool comes out?**
-Just add its expected path to your config. If "SuperCoder AI" expects `.supercoder/prompts/main.md`, add that path and run `agentlink sync`. Directories are created automatically, symlink points to your source file. Zero code changes, zero updates needed. Or submit a PR to add it to the tool registry.
+Just add its expected path to your config. If "SuperCoder AI" expects `.supercoder/prompts/main.md`, add that path and run `agentlink sync`. Directories are created automatically, symlink points to your source file. Zero code changes, zero updates needed. The built-in registry is frozen at v0.7.0, so new tools are not added to it.
 
 **MCP / `.mcp.json`?**
 Out of scope. Formats differ between tools; symlinking a single JSON to multiple consumers usually doesn't make sense.
 
 **What about local models (Ollama, LM Studio, etc.)?**
-Local model runners don't read AGENTS.md or any instruction file convention. The model itself has no filesystem protocol -- it depends on the harness. If a tool built on top of local models adds AGENTS.md support, we'll add it to the registry.
+Local model runners don't read AGENTS.md or any instruction file convention. The model itself has no filesystem protocol -- it depends on the harness. If a tool built on top of local models reads AGENTS.md or another instruction file, add its path to your config.
 
 ---
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). To add a tool to the registry, open an issue using the "New tool" template.
+Agentlink is retired and no longer accepts feature requests, registry additions, or pull requests. Report security issues privately as described in [SECURITY.md](SECURITY.md). The project is MIT licensed, so forks are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## About
 
-Maintained as a [Snap Synapse](https://snapsynapse.com/) project. Agentlink began as [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT); upstream credit remains intact in [NOTICE](NOTICE). This repository is the canonical home for current project direction, issues, releases, and documentation.
+Maintained as a [Snap Synapse](https://snapsynapse.com/) project. Agentlink began as [martinmose/agentlink](https://github.com/martinmose/agentlink) by Martin Mose Facondini (MIT); upstream credit remains intact in [NOTICE](NOTICE). This repository is the canonical record of the project: its code, releases, security advisory, and documentation.

@@ -1,5 +1,9 @@
 # Agentlink intent
 
+## Status
+
+Retired 2026-11-21. v0.7.0 is the final release, and no further development is planned. Changes after retirement are limited to documentation and, at the maintainer's discretion, security fixes.
+
 ## What this product is
 
 Agentlink is a small Go CLI that keeps AI coding-tool instruction files synchronized by making one user-chosen file authoritative and linking each tool-specific alias to it with ordinary filesystem symlinks.
@@ -20,14 +24,15 @@ AI coding tools read different filenames and global paths. Copying or regenerati
 8. Project and global configuration remain separate and explicit.
 9. Release preparation is deterministic and mutation-free outside ignored build output; publication is a separate operation.
 10. Upstream attribution remains visible in NOTICE, README, repository history, and public metadata.
+11. Project configuration is untrusted: its source and links must resolve inside its repository after symlink resolution. Only the global configuration may reach other paths.
 
 ## Scope boundaries
 
-In scope: instruction-file discovery, explicit symlink configuration, synchronization, checking, cleanup of verified managed links, tool detection, repository scanning, and opt-in local hooks.
+In scope: instruction-file discovery, explicit symlink configuration, synchronization, checking, cleanup of verified managed links, tool detection, repository scanning, and removal of automatic triggers installed by earlier releases.
 
 Out of scope: MCP configuration, prompt templating, content generation, content translation, secret management, remote execution, and ownership of the AI tools whose files Agentlink links.
 
-Deferred design input (no build decision): [instruction layering and topology diagnostics](design/instruction-layering-and-topology-2026-09.md).
+Closed design input, not implemented before retirement: [instruction layering and topology diagnostics](design/instruction-layering-and-topology-2026-09.md).
 
 ## Conformance philosophy
 
@@ -35,7 +40,7 @@ N/A because Agentlink is a utility, not an open specification. Public claims are
 
 ## Admission criteria for changes
 
-N/A as an open-spec requirement. Product changes are admitted only when they preserve the design invariants, add discriminating tests for repeatable failure modes, keep documentation and release surfaces aligned, and pass the release checklist.
+N/A as an open-spec requirement. The product is retired; see Status. Before retirement, product changes were admitted only when they preserved the design invariants, added discriminating tests for repeatable failure modes, kept documentation and release surfaces aligned, and passed the release checklist.
 
 ## Relationships to other PAICE standards
 
@@ -51,6 +56,7 @@ The optional [repository standards declaration](repo-standards.yaml) records app
 
 ## Changelog
 
+- 2026-11-21: Retired at v0.7.0. Project configs are confined to their repository (GHSA-jjf5-5jgx-hg9g), installing automatic triggers is retired, and invariant 11 records the trust boundary.
 - 2026-09-08: Added an optional standards declaration and context pointer; preserved current guide targets, native gates, exceptions, and unresolved adoption decisions.
 - 2026-09-01: Added deterministic topology, dry-run, registry-invariant, explicit-config, and documentation-parity contracts; cited Limited Edition Jonathan's nested symlink workaround without expanding Agentlink into content generation.
 - 2026-09-01: Clarified that Agentlink manages identical filesystem aliases while explicit real wrappers may layer tool-specific guidance; added integration metadata, config-aware scanning, and opt-in nested alias discovery without adding content generation.

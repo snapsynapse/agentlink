@@ -1,6 +1,6 @@
 # Release checklist
 
-Use this checklist for every Agentlink release. Preparation and publication are separate authority boundaries.
+Agentlink is retired, and v0.7.0 was the final release. This checklist is kept as the record and for an emergency security release only. Preparation and publication are separate authority boundaries.
 
 ## Prepare
 
@@ -34,7 +34,7 @@ Use this checklist for every Agentlink release. Preparation and publication are 
 
 - [ ] Run `sh scripts/verify-release.sh vX.Y.Z` against downloaded release assets.
 - [ ] Install the tagged Go module into a clean temporary `GOBIN` and verify `agentlink --version`.
-- [ ] Verify the Homebrew formula version, URLs, checksums, install, and version test.
+- [ ] Verify the Homebrew formula version, URLs, checksums, install, and version test. The formula is deprecated as of 0.7.0, and the template in `scripts/release.sh` keeps the `deprecate!` line.
 - [ ] Wait for GitHub Pages to deploy the released commit.
 - [ ] Run `node scripts/check-production-search.mjs`.
 - [ ] Run the production accessibility scan and record axe-core and browser versions.
